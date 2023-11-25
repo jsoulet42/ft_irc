@@ -1,0 +1,96 @@
+
+/*fonction UNIX et dépendant d'include :
+
+POLLIN :
+le flag attribué à la variable event dans la struct sockaddr_in -> POLLIN sert à :
+    donner les droits de lecture au fd actuel. Ainsi, POLLIN permet au programme
+    de savoir quand il peut lire des données sans risquer de bloquer,
+    et cela permet une gestion plus efficace et réactive des opérations de lecture
+    sur les descripteurs de fichiers surveillés. (utiliser avec la fonction poll()).
+
+SOCKET :
+Voici un aperçu de ces fonctions en relation avec les sockets :
+
+bind() : Utilisée pour associer une adresse à un socket, généralement côté
+    serveur, pour que le serveur puisse écouter sur cette adresse spécifique.
+
+connect() : Utilisée pour établir une connexion avec un socket distant,
+    typiquement côté client. Elle établit une connexion réseau vers une
+    adresse et un port spécifiques.
+
+listen() : Utilisée par le serveur pour marquer un socket comme un socket
+    passif, prêt à accepter les connexions entrantes. Elle doit être
+    utilisée après bind() sur un socket serveur.
+
+send() et recv() : Utilisées pour envoyer et recevoir des données sur un socket
+    connecté. send() envoie des données sur le socket, tandis
+    que recv() reçoit des données depuis le socket.
+
+setsockopt() : est également une fonction liée à la manipulation des sockets en
+    réseau. Elle permet de définir différentes options sur un
+    socket, comme le réglage de différents comportements et
+    paramètres.
+    Elle permet de contrôler le comportement des sockets en
+    configurant diverses options.
+
+Ces fonctions, parmi d'autres (telles que accept(), close(), shutdown(), etc.),
+sont des opérations fondamentales pour la gestion et l'utilisation des sockets
+dans la programmation réseau. Elles permettent aux programmeurs de créer,
+manipuler et communiquer via des sockets réseau de différentes manières, que ce
+soit pour des communications client-serveur ou des échanges entre pairs
+(peer-to-peer).
+
+close() : Utilisée pour fermer un descripteur de fichier, ce qui inclut les
+			sockets. Lorsqu'elle est appelée avec le descripteur de fichier
+			associé à un socket, elle libère les ressources associées à ce socket.
+
+getsockname() : Utilisée pour obtenir le nom local associé à un socket, par
+				exemple l'adresse IP et le numéro de port.
+
+getprotobyname() : Renvoie une structure protoent contenant des informations sur
+					le protocole associé à un nom de protocole donné.
+
+gethostbyname() : Renvoie une structure hostent contenant des informations sur un
+					hôte (adresse IP, etc.) à partir de son nom.
+
+getaddrinfo() : Utilisée pour obtenir des informations sur une adresse réseau, en
+				fonction d'un nom d'hôte et d'un service, et retourne une liste
+				de structures addrinfo.
+
+freeaddrinfo() : Utilisée pour libérer la mémoire allouée dynamiquement par la
+				fonction getaddrinfo().
+
+htonl(),
+htons(),
+ntohl(),
+ntohs() : Ces fonctions sont utilisées pour convertir
+			les valeurs entre l'ordre des octets du réseau (big-endian) et
+			l'ordre des octets de la machine (little-endian) pour les entiers
+			courts (short) et longs (long). (10000000 ou 00000001)
+
+inet_addr() : Convertit une chaîne de caractères représentant une adresse IPv4
+			en format binaire.
+
+inet_ntoa() : Convertit une adresse IPv4 binaire en une chaîne de caractères
+			représentant l'adresse IP en format décimal pointé.
+
+send() : Envoie des données sur un socket connecté.
+
+recv() : Reçoit des données depuis un socket connecté.
+
+signal() : Utilisée pour gérer les signaux du système.
+
+sigaction() : Une alternative plus robuste à signal() pour la gestion des
+			signaux.
+
+lseek() : Déplace le pointeur de fichier d'un descripteur de fichier.
+
+fstat() : Obtient les informations sur un fichier à l'aide de son descripteur de
+		fichier.
+
+fcntl() : Utilisée pour manipuler les descripteurs de fichier.
+
+poll() : Surveille plusieurs descripteurs de fichiers pour des événements.
+
+*/
+
