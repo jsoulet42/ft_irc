@@ -1,5 +1,6 @@
 #include "ft_irc.hpp"
 #include "Server.hpp"
+#include "User.hpp"
 
 int main(int argc, char const* argv[])
 {
@@ -11,11 +12,12 @@ int main(int argc, char const* argv[])
 
 	std::string		message;
 	char			buffer[BUFFSIZE + 1];
-	int				rc = 1, \
-					i = 0, \
-					fdsId = 1, \
-					newSd = 0, \
-					close_conn = 0;
+	int				rc = 1;
+					//i = 0,
+	int				fdsId = 1;
+	int				newFd = 0;
+	User 			*newUser;
+					//close_conn = 0;
 
 	Server			*server;
 	try
@@ -28,7 +30,6 @@ int main(int argc, char const* argv[])
 		std::cerr <<  e.what() << std::endl;
 		delete server;
 	}
-
 	while (1)
 	{
 		std::cout << "Waiting incoming connection ( poll() )..." << std::endl;
@@ -38,21 +39,22 @@ int main(int argc, char const* argv[])
 		{
 			if(server->fdP[i].revents == 0)
 				continue;
-			newSd = 0;
+			newFd = 0;
 			if (server->fdP[i].fd == server->getServerSocket()) // si serveur socket == fd
 			{
-				while (newSd != -1)
+				while (newFd != -1)
 				{
-					newSd = accept(server->getServerSocket(), NULL, NULL);
-					if (newSd != -1)
+					newFd = accept(server->getServerSocket(), NULL, NULL);
+					if (newFd != -1)
 					{
+						newUser = new User(newFd);
 						// nouvel utilisateur
 					}
 				}
 			}
 			else if (server->fdP[i].fd == -1)
 				break;
-			/*else
+			else
 			{
 				rc = recv(server->fdP[i].fd, buffer, sizeof(buffer), 0);
 				if (rc == 0)
@@ -60,13 +62,13 @@ int main(int argc, char const* argv[])
 					// ctrl-c de netcat, utilisateur quit
 				}
 				buffer[rc] = '\0';
-				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
+				/*if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
 				{
 				}
 				else
-					//interpret command
+					//interpret command*/
 			}
-			std::cout << DIVIDER << RESET << std::endl;*/
+			//std::cout << DIVIDER << RESET << std::endl;
 		}
 	}
 	std::cout << "END OF PROGRAM" << std::endl;
