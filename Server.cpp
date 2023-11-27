@@ -1,10 +1,11 @@
 
 #include "Server.hpp"
 
-Server::Server(const int port, const std::string& password) : fdNb(0), _port(port), _password(password)
+Server::Server(const int port, const std::string& password) : _port(port), _password(password)
 {
 	this->_initServerSocket();
 
+	fdNb = 0;
 	fdP.push_back(pollfd());
 	fdP[0].fd = this->_serverSocket;
 	fdP[0].events = POLLIN;
@@ -19,7 +20,7 @@ Server::~Server()
 void Server::_initServerSocket()
 {
 	int opt = 1;
-	int addrlen = sizeof(this->_adress);
+	//int addrlen = sizeof(this->_adress);
 	if ((this->_serverSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		throw std::runtime_error("[ERROR] : can't create a socket, please check your permissions or cpu arch.");
 	if (setsockopt(this->_serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
