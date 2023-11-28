@@ -7,5 +7,6 @@
 #include <fcntl.h>
 #include <cstring>
 #include <arpa/inet.h>
+#include <cstdlib>
 
 #define BUFFSIZE 1024
