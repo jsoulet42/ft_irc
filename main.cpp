@@ -16,7 +16,6 @@ int main(int argc, char const* argv[])
 					//i = 0,
 	int				fdsId = 1;
 	int				newFd = 0;
-	User 			*newUser;
 					//close_conn = 0;
 
 	Server			*server;
@@ -47,7 +46,7 @@ int main(int argc, char const* argv[])
 					newFd = accept(server->getServerSocket(), NULL, NULL);
 					if (newFd != -1)
 					{
-						newUser = new User(newFd);
+						server->protocolNewUser(newFd);
 						// nouvel utilisateur
 					}
 				}
