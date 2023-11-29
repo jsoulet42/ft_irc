@@ -55,5 +55,160 @@ bool Server::haveN(const std::string& str)
 	return (false);
 }
 
+void Server::protocolNewUser(int newFd)
+{
+	int rc;
+	//int i = 5;
+	char buffer[BUFFSIZE + 1];
+	User *newuser = new User(newFd);
+	this->users.push_back(newuser);
+
+	rc = read(newFd, buffer, BUFFSIZE + 1);
+	buffer[rc] = '\0';
+	if (newuser->_forNcProtocol == 1)
+		this->passProtocol(newFd, buffer, newuser);
+
+	rc = read(newFd, buffer, BUFFSIZE + 1);
+	buffer[rc] = '\0';
+	if (newuser->_forNcProtocol == 2)
+		this->CapProtocol(newFd, buffer, newuser);
+
+	rc = read(newFd, buffer, BUFFSIZE + 1);
+	buffer[rc] = '\0';
+	if (newuser->_forNcProtocol == 3)
+		this->NickProtocol(newFd, buffer, newuser);
+
+	rc = read(newFd, buffer, BUFFSIZE + 1);
+	buffer[rc] = '\0';
+	if (newuser->_forNcProtocol == 4)
+		this->UserProtocol(newFd, buffer, newuser);
+}
+
+void Server::passProtocol(int newFd, const char *buffer, User *newUser)
+{
+	std::stringstream ERR_error;
+	std::string pass = buffer;
+	pass = pass.c_str() + 5;
+
+	if (strncmp(buffer, "PASS", 4) != 0)
+	{
+		ERR_error << ":" << IPHOST << " 421 PASS :Unknown command\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	else if (pass.size() == 0)
+	{
+		ERR_error << ":" << IPHOST << " 461 PASS :Not enough parameters\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	else if (pass != this->_password)
+	{
+		ERR_error << ":" << IPHOST << " 464 PASS :Password incorrect\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	if (ERR_error.str().size() != 0)
+		throw PassException();
+	newUser->_forNcProtocol++;
+}
+
+void Server::CapProtocol(int newFd, const char *buffer, User *newUser)
+{
+	std::stringstream ERR_error;
+
+	if (strncmp(buffer, "CAP", 3) != 0)
+	{
+		ERR_error << ":" << IPHOST << " 421 CAP :Unknown command\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	if (ERR_error.str().size() != 0)
+		throw CapException();
+	newUser->_forNcProtocol++;
+}
+
+void Server::NickProtocol(int newFd, const char *buffer, User *newUser)
+{
+	std::stringstream ERR_error;
+	std::string nick = buffer;
+	nick = nick.c_str() + 5;
+
+	if (strncmp(buffer, "NICK", 4) != 0)
+	{
+		ERR_error << ":" << IPHOST << " 421 NICK :Unknown command\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	else if (nick.size() == 0)
+	{
+		ERR_error << ":" << IPHOST << " 431 NICK :No nickname given\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	else if (this->checkNick(newFd, nick) == 432)
+	{
+		ERR_error << ":" << IPHOST << " 432 NICK :Erroneous nickname\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	else if (this->checkNick(newFd, nick) == 433)
+	{
+		ERR_error << ":" << IPHOST << " 433 NICK :Nickname is already in use\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	if (ERR_error.str().size() != 0)
+		throw NickException();
+	newUser->_forNcProtocol++;
+	newUser->nickname = nick;
+}
+
+int		Server::checkNick(int & fd, std::string nickname)
+{
+	if (nickname.find('#') != std::string::npos || nickname.find(' ') != std::string::npos || nickname.find(':') != std::string::npos)
+		return 432;
+	std::vector<User *>::iterator	it = this->users.begin();
+	while (it != this->users.end())
+	{
+		if ((*it)->_fdUser != fd && (*it)->nickname == nickname)
+			return 433;
+		it++;
+	}
+	return 0;
+}
+
+void Server::UserProtocol(int newFd, const char *buffer, User *newUser)
+{
+	std::stringstream ERR_error;
+	std::string uname = buffer;
+	uname = uname.c_str() + 5;
+
+	if (strncmp(buffer, "USER", 4) != 0)
+	{
+		ERR_error << ":" << IPHOST << " 421 USER :Unknown command\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	else if (uname.size() == 0)
+	{
+		ERR_error << ":" << IPHOST << " 461 USER :Not enough parameters\r\n";
+		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	if (ERR_error.str().size() != 0)
+		throw UserException();
+	newUser->_forNcProtocol++;
+	newUser->username = uname;
+}
+
+const char* Server::PassException::what() const throw()
+{
+	return "Error during PASS command";
+}
 
 
+const char* Server::CapException::what() const throw()
+{
+	return "Error during CAP command";
+}
+
+const char* Server::NickException::what() const throw()
+{
+	return "Error during NICK command";
+}
+
+const char* Server::UserException::what() const throw()
+{
+	return "Error during USER command";
+}
