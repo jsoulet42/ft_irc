@@ -7,8 +7,10 @@ class User
 {
 	public :
 			int 			_fdUser;
-			std::string		_nickname;
-			std::string		_realname;
+			std::string		nickname;
+			std::string		username;
+			std::string		realname;
+			int				_forNcProtocol;
 
 			User(int &fdUser);
 			~User();
