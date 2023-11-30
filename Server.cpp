@@ -15,6 +15,7 @@ Server::Server(const int port, const std::string& password) : _port(port), _pass
 Server::~Server()
 {
 	shutdown(this->_serverSocket, SHUT_RDWR);
+	int ddd = 5;
 }
 
 
