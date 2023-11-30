@@ -27,7 +27,6 @@ class Server
 
 		int								getServerSocket() const;
 
-
 		bool haveN(const std::string& str);
 		void protocolNewUser(int newFd);
 		void passProtocol(std::string buffer, User *newuser);
@@ -36,7 +35,8 @@ class Server
 		void UserProtocol(std::string buffer, User *newuser);
 		int checkNick(int & fd, std::string nickname);
 		void sendError(int fd, std::string error);
-		void ahah(int ok);
+		void ahaokh(int ok);
+		void saloute(int lol);
 
 
 
@@ -64,4 +64,5 @@ class Server
 			public:
 				virtual const char* what() const throw();
 		};
+
 };
