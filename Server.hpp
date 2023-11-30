@@ -37,6 +37,8 @@ class Server
 		int checkNick(int & fd, std::string nickname);
 		void sendError(int fd, std::string error);
 		void ahah(int ok);
+		lol();
+
 
 
 
