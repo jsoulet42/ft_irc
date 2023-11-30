@@ -8,6 +8,7 @@ Server::Server(const int port, const std::string& password) : _port(port), _pass
 	fdP.push_back(pollfd());
 	fdP[0].fd = this->_serverSocket;
 	fdP[0].events = POLLIN;
+	ERROR = false;
 }
 
 Server::~Server()
@@ -60,6 +61,7 @@ void Server::protocolNewUser(int newFd)
 	buffer.resize(BUFFSIZE + 1);
 	User *newuser = new User(newFd);
 	this->users.push_back(newuser);
+	ERROR = false;
 
 	read(newFd, &buffer[0], BUFFSIZE + 1);
 	buffer.push_back('\0');
@@ -97,24 +99,13 @@ void Server::passProtocol(std::string buffer, User *newUser)
 	pass = strtok((char *)pass.c_str() + 5, "\r\n");
 
 	if (buffer.compare(0, 5, "PASS ") != 0)
-	{
-		ERR_error << IPHOST << ERRORP421;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORP421);
 	else if (pass.size() == 0)
-	{
-		ERR_error << IPHOST << ERRORP461;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORP461);
 	else if (pass != this->_password)
-	{
-		ERR_error << IPHOST << ERRORP464;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
-	if (ERR_error.str().size() != 0)
-	{
+		sendError(newUser->_fdUser, ERRORP464);
+	if (ERROR == true)
 		throw PassException();
-	}
 	newUser->_forNcProtocol++;
 }
 
@@ -123,42 +114,26 @@ void Server::CapProtocol(std::string buffer, User *newUser)
 	std::stringstream ERR_error;
 
 	if (buffer.compare(0, 4, "CAP ") != 0)
-	{
-		ERR_error << IPHOST << ERRORC421;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
-	if (ERR_error.str().size() != 0)
+		sendError(newUser->_fdUser, ERRORC421);
+	if (ERROR == true)
 		throw CapException();
 	newUser->_forNcProtocol++;
 }
 
 void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 {
-	std::stringstream ERR_error;
 	std::string nick = buffer;
 	nick = strtok((char *)nick.c_str() + 5, "\r\n");
 
 	if (buffer.compare(0, 5, "NICK ") != 0)
-	{
-		ERR_error << IPHOST << ERRORN421;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORN421);
 	else if (nick.size() == 0)
-	{
-		ERR_error << IPHOST << ERRORN431;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORN431);
 	else if (this->checkNick(newFd, nick) == 432)
-	{
-		ERR_error << IPHOST << ERRORN432;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORN432);
 	else if (this->checkNick(newFd, nick) == 433)
-	{
-		ERR_error << IPHOST << ERRORN433;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
-	if (ERR_error.str().size() != 0)
+		sendError(newUser->_fdUser, ERRORN433);
+	if (ERROR == true)
 		throw NickException();
 	newUser->_forNcProtocol++;
 	newUser->nickname = nick;
@@ -186,34 +161,32 @@ int		Server::checkNick(int & fd, std::string nickname)
 
 void Server::UserProtocol(std::string buffer, User *newUser)
 {
-	std::stringstream ERR_error;
 	std::string uname = buffer;
 	uname = strtok((char *)uname.c_str() + 5, "\r\n");
 
 	if (buffer.compare(0, 5, "USER ") != 0)
-	{
-		ERR_error << IPHOST << ERRORU421;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORU421);
 	else if (uname.size() == 0 || uname.find(':') == std::string::npos)
-	{
-		ERR_error << IPHOST << ERRORU461;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+		sendError(newUser->_fdUser, ERRORU461);
 	std::string	username = uname.substr(0, uname.find(' '));
 	uname.erase(0, uname.find(' ') + 1);
-	if (uname.compare(0, 3, "0 *") && ERR_error.str().empty())
-	{
-		ERR_error << IPHOST << ERRORU461;
-		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
-	}
+	if (uname.compare(0, 3, "0 *") && ERROR == false)
+		sendError(newUser->_fdUser, ERRORU461);
 	uname.erase(0, 5);
 	std::string	realname = uname;
-	if (ERR_error.str().size() != 0)
+	if (ERROR == true)
 		throw UserException();
 	newUser->username = username;
 	newUser->realname = uname;
 	newUser->_forNcProtocol++;
+}
+
+void Server::sendError(int fd, std::string error)
+{
+	std::stringstream ERR_error;
+	ERR_error << IPHOST << error;
+	send(fd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	ERROR = true;
 }
 
 const char* Server::PassException::what() const throw()
