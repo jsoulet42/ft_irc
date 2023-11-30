@@ -19,6 +19,7 @@ class Server
 		std::vector<struct pollfd>		fdP;
 		std::vector<User*>				users;
 		int								fdNb;
+		bool							ERROR;
 
 		Server(const int port, const std::string& password);
 		~Server();
@@ -34,6 +35,7 @@ class Server
 		void NickProtocol(int newFd, std::string buffer, User *newuser);
 		void UserProtocol(std::string buffer, User *newuser);
 		int checkNick(int & fd, std::string nickname);
+		void sendError(int fd, std::string error);
 
 
 
