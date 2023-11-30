@@ -46,8 +46,19 @@ int main(int argc, char const* argv[])
 					newFd = accept(server->getServerSocket(), NULL, NULL);
 					if (newFd != -1)	// lorsque le retour de accept est différent de -1 cela signifie qu'un client demande une connexion
 					{
-						server->protocolNewUser(newFd); // crée et ajoute un utilisateur au serveur
-						// nouvel utilisateur
+						try
+						{
+							std::cout << "New user connected with id " << newFd << "." << std::endl;
+							server->protocolNewUser(newFd);
+							fdsId++;
+						}
+						catch (const std::exception& e)
+						{
+							std::cerr << "[Error] during user creation : " << std::endl;
+							std::cerr <<  e.what() << std::endl;
+							//server->deleteUser(newSd);
+							close(newFd);
+						}
 					}
 				}
 			}
@@ -67,7 +78,7 @@ int main(int argc, char const* argv[])
 				// }
 				// else
 				// {
-				// 	interpret command(server, strmess, i)
+				// 	interpret command(server, strmess, server->fdP[i].fd)
 				// }
 			}
 			// std::cout << DIVIDER << RESET << std::endl;
