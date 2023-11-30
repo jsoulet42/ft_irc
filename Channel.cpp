@@ -23,6 +23,7 @@ Channel &	Channel::operator=(Channel const &rSym)
 //------------------------------Ostream overload------------------------------//
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym)
 {
+	(void)rSym;
 	o << "nothing";
 	return o;
 }
