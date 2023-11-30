@@ -44,7 +44,7 @@ int main(int argc, char const* argv[])
 				while (newFd != -1)
 				{
 					newFd = accept(server->getServerSocket(), NULL, NULL);
-					if (newFd != -1)
+					if (newFd != -1)	// lorsque le retour de accept est différent de -1 cela signifie qu'un client demande une connexion
 					{
 						try
 						{
@@ -67,18 +67,21 @@ int main(int argc, char const* argv[])
 			else
 			{
 				rc = recv(server->fdP[i].fd, buffer, sizeof(buffer), 0);
-				if (rc == 0)
+				if (rc == 0)	// Lorsque le retour de recv cela signifie que le client a fermé la connexion
 				{
 					// ctrl-c de netcat, utilisateur quit
 				}
 				buffer[rc] = '\0';
-				/*if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
-				{
-				}
-				else
-					//interpret command*/
+				std::string strmess(buffer);
+				// if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
+				// {
+				// }
+				// else
+				// {
+				// 	interpret command(server, strmess, server->fdP[i].fd)
+				// }
 			}
-			//std::cout << DIVIDER << RESET << std::endl;
+			// std::cout << DIVIDER << RESET << std::endl;
 		}
 	}
 	std::cout << "END OF PROGRAM" << std::endl;
