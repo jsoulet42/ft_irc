@@ -4,7 +4,6 @@
 Server::Server(const int port, const std::string& password) : _port(port), _password(password)
 {
 	this->_initServerSocket();
-
 	fdNb = 0;
 	fdP.push_back(pollfd());
 	fdP[0].fd = this->_serverSocket;
@@ -57,98 +56,107 @@ bool Server::haveN(const std::string& str)
 
 void Server::protocolNewUser(int newFd)
 {
-	int rc;
-	//int i = 5;
-	char buffer[BUFFSIZE + 1];
+	std::string buffer;
+	buffer.resize(BUFFSIZE + 1);
 	User *newuser = new User(newFd);
 	this->users.push_back(newuser);
 
-	rc = read(newFd, buffer, BUFFSIZE + 1);
-	buffer[rc] = '\0';
+	read(newFd, &buffer[0], BUFFSIZE + 1);
+	buffer.push_back('\0');
 	if (newuser->_forNcProtocol == 1)
-		this->passProtocol(newFd, buffer, newuser);
+		this->passProtocol(buffer, newuser);
 
-	rc = read(newFd, buffer, BUFFSIZE + 1);
-	buffer[rc] = '\0';
+	read(newFd, &buffer[0], BUFFSIZE + 1);
+	buffer.push_back('\0');
 	if (newuser->_forNcProtocol == 2)
-		this->CapProtocol(newFd, buffer, newuser);
+		this->CapProtocol(buffer, newuser);
 
-	rc = read(newFd, buffer, BUFFSIZE + 1);
-	buffer[rc] = '\0';
+	read(newFd, &buffer[0], BUFFSIZE + 1);
+	buffer.push_back('\0');
 	if (newuser->_forNcProtocol == 3)
 		this->NickProtocol(newFd, buffer, newuser);
 
-	rc = read(newFd, buffer, BUFFSIZE + 1);
-	buffer[rc] = '\0';
+	read(newFd, &buffer[0], BUFFSIZE + 1);
+	buffer.push_back('\0');
 	if (newuser->_forNcProtocol == 4)
-		this->UserProtocol(newFd, buffer, newuser);
+		this->UserProtocol(buffer, newuser);
+
+	fdP.push_back(pollfd());
+	this->fdP[this->fdNb].fd = newFd;
+	this->fdP[this->fdNb].events = POLLIN;
+
+	std::string message = ":127.0.0.1 001 " + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
+	send(newFd, message.c_str(), message.length(), 0);
+	std::cout << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << std::endl;
 }
 
-void Server::passProtocol(int newFd, const char *buffer, User *newUser)
+void Server::passProtocol(std::string buffer, User *newUser)
 {
 	std::stringstream ERR_error;
 	std::string pass = buffer;
-	pass = pass.c_str() + 5;
+	pass = strtok((char *)pass.c_str() + 5, "\r\n");
 
-	if (strncmp(buffer, "PASS", 4) != 0)
+	if (buffer.compare(0, 5, "PASS ") != 0)
 	{
-		ERR_error << ":" << IPHOST << " 421 PASS :Unknown command\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORP421;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	else if (pass.size() == 0)
 	{
-		ERR_error << ":" << IPHOST << " 461 PASS :Not enough parameters\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORP461;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	else if (pass != this->_password)
 	{
-		ERR_error << ":" << IPHOST << " 464 PASS :Password incorrect\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORP464;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	if (ERR_error.str().size() != 0)
+	{
 		throw PassException();
+	}
 	newUser->_forNcProtocol++;
 }
 
-void Server::CapProtocol(int newFd, const char *buffer, User *newUser)
+void Server::CapProtocol(std::string buffer, User *newUser)
 {
 	std::stringstream ERR_error;
 
-	if (strncmp(buffer, "CAP", 3) != 0)
+	if (buffer.compare(0, 4, "CAP ") != 0)
 	{
-		ERR_error << ":" << IPHOST << " 421 CAP :Unknown command\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORC421;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	if (ERR_error.str().size() != 0)
 		throw CapException();
 	newUser->_forNcProtocol++;
 }
 
-void Server::NickProtocol(int newFd, const char *buffer, User *newUser)
+void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 {
 	std::stringstream ERR_error;
 	std::string nick = buffer;
-	nick = nick.c_str() + 5;
+	nick = strtok((char *)nick.c_str() + 5, "\r\n");
 
-	if (strncmp(buffer, "NICK", 4) != 0)
+	if (buffer.compare(0, 5, "NICK ") != 0)
 	{
-		ERR_error << ":" << IPHOST << " 421 NICK :Unknown command\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORN421;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	else if (nick.size() == 0)
 	{
-		ERR_error << ":" << IPHOST << " 431 NICK :No nickname given\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORN431;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	else if (this->checkNick(newFd, nick) == 432)
 	{
-		ERR_error << ":" << IPHOST << " 432 NICK :Erroneous nickname\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORN432;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	else if (this->checkNick(newFd, nick) == 433)
 	{
-		ERR_error << ":" << IPHOST << " 433 NICK :Nickname is already in use\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORN433;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
 	if (ERR_error.str().size() != 0)
 		throw NickException();
@@ -158,8 +166,14 @@ void Server::NickProtocol(int newFd, const char *buffer, User *newUser)
 
 int		Server::checkNick(int & fd, std::string nickname)
 {
-	if (nickname.find('#') != std::string::npos || nickname.find(' ') != std::string::npos || nickname.find(':') != std::string::npos)
-		return 432;
+	const std::string invalidChars = "# :";
+
+	for (size_t i = 0; i < invalidChars.size(); ++i)
+	{
+		char c = invalidChars[i];
+		if (nickname.find(c) != std::string::npos)
+			return 432;
+	}
 	std::vector<User *>::iterator	it = this->users.begin();
 	while (it != this->users.end())
 	{
@@ -170,26 +184,36 @@ int		Server::checkNick(int & fd, std::string nickname)
 	return 0;
 }
 
-void Server::UserProtocol(int newFd, const char *buffer, User *newUser)
+void Server::UserProtocol(std::string buffer, User *newUser)
 {
 	std::stringstream ERR_error;
 	std::string uname = buffer;
-	uname = uname.c_str() + 5;
+	uname = strtok((char *)uname.c_str() + 5, "\r\n");
 
-	if (strncmp(buffer, "USER", 4) != 0)
+	if (buffer.compare(0, 5, "USER ") != 0)
 	{
-		ERR_error << ":" << IPHOST << " 421 USER :Unknown command\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORU421;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
-	else if (uname.size() == 0)
+	else if (uname.size() == 0 || uname.find(':') == std::string::npos)
 	{
-		ERR_error << ":" << IPHOST << " 461 USER :Not enough parameters\r\n";
-		send(newFd, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+		ERR_error << IPHOST << ERRORU461;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
 	}
+	std::string	username = uname.substr(0, uname.find(' '));
+	uname.erase(0, uname.find(' ') + 1);
+	if (uname.compare(0, 3, "0 *") && ERR_error.str().empty())
+	{
+		ERR_error << IPHOST << ERRORU461;
+		send(newUser->_fdUser, ERR_error.str().c_str(), ERR_error.str().size(), 0);
+	}
+	uname.erase(0, 5);
+	std::string	realname = uname;
 	if (ERR_error.str().size() != 0)
 		throw UserException();
+	newUser->username = username;
+	newUser->realname = uname;
 	newUser->_forNcProtocol++;
-	newUser->username = uname;
 }
 
 const char* Server::PassException::what() const throw()
@@ -212,3 +236,5 @@ const char* Server::UserException::what() const throw()
 {
 	return "Error during USER command";
 }
+
+

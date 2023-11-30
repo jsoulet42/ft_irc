@@ -46,8 +46,19 @@ int main(int argc, char const* argv[])
 					newFd = accept(server->getServerSocket(), NULL, NULL);
 					if (newFd != -1)
 					{
-						server->protocolNewUser(newFd);
-						// nouvel utilisateur
+						try
+						{
+							std::cout << "New user connected with id " << newFd << "." << std::endl;
+							server->protocolNewUser(newFd);
+							fdsId++;
+						}
+						catch (const std::exception& e)
+						{
+							std::cerr << "[Error] during user creation : " << std::endl;
+							std::cerr <<  e.what() << std::endl;
+							//server->deleteUser(newSd);
+							close(newFd);
+						}
 					}
 				}
 			}
