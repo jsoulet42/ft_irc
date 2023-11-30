@@ -1,8 +1,14 @@
 #include "Channel.hpp"
 
 //-------------------------------Copelien form--------------------------------//
-Channel::Channel()
+Channel::Channel(User *user, std::string name)
 {
+	this->maxUsers = 10;
+	this->nbUsers = 1;
+	this->name = name;
+	this->users.push_back(user);
+	this->operators.push_back(user);
+	this->invitedUsers.push_back(user);
 }
 Channel::Channel(Channel const &src)
 {
