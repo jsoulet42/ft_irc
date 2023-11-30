@@ -37,6 +37,9 @@ class Server
 		void sendError(int fd, std::string error);
 		void ahaokh(int ok);
 		void saloute(int lol);
+		void ahah(int ok);
+		lol();
+
 
 
 
