@@ -29,10 +29,10 @@ class Server
 
 		bool haveN(const std::string& str);
 		void protocolNewUser(int newFd);
-		void passProtocol(int newfd, const char *buffer, User *newuser);
-		void CapProtocol(int newFd, const char *buffer, User *newuser);
-		void NickProtocol(int newFd, const char *buffer, User *newuser);
-		void UserProtocol(int newFd, const char *buffer, User *newuser);
+		void passProtocol(std::string buffer, User *newuser);
+		void CapProtocol(std::string buffer, User *newuser);
+		void NickProtocol(int newFd, std::string buffer, User *newuser);
+		void UserProtocol(std::string buffer, User *newuser);
 		int checkNick(int & fd, std::string nickname);
 
 

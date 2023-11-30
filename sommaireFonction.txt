@@ -94,3 +94,16 @@ poll() : Surveille plusieurs descripteurs de fichiers pour des événements.
 
 */
 
+
+
+-kick
+-invite
+-sujet
+-mode
+i - t - k - o
+
+
+-ctrl d
+
+
+
