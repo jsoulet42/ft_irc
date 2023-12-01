@@ -47,7 +47,14 @@
 		"sstream": "cpp",
 		"streambuf": "cpp",
 		"typeinfo": "cpp",
-		"csignal": "cpp"
+		"csignal": "cpp",
+		"chrono": "cpp",
+		"ctime": "cpp",
+		"ratio": "cpp",
+		"semaphore": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp",
+		"cinttypes": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "enabled"
 }

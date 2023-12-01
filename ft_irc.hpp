@@ -13,8 +13,8 @@
 #include <sstream>
 #include <csignal>
 
-#define BUFFSIZE 1024
-#define IPHOST ":127.0.0.1"
+#define BUFFSIZE 1023
+#define IPHOST ":127.0.0.1 "
 #define ERRORP421 " 421 PASS :Unknown command\r\n"
 #define ERRORP461 " 461 PASS :Not enough parameters\r\n"
 #define ERRORP464 " 464 PASS :Password incorrect\r\n"
@@ -26,5 +26,15 @@
 #define ERRORU421 " 421 USER :Unknown command\r\n"
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
 
+
+//exemple de message d'erreur <"":" + IPHOST + " " + code + " " user->nickname + " " + "JOIN " + " :Not enough parameters\r\n">
+//std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
+
+#define ERRORJ461 " JOIN :Not enough parameters\r\n"
+#define ERRORJ403 " JOIN :No such channel\r\n"
+#define ERRORJ405 " JOIN :You have joined too many channels\r\n"
+#define ERRORJ475 " JOIN :Cannot join channel (+k)"
+#define ERRORJ473 " JOIN :Cannot join channel (+i)"
+#define ERRORJ476 " JOIN :Bad Channel Mask"
 extern bool isRunning;
 
