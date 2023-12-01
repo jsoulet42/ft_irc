@@ -29,7 +29,9 @@ int main(int argc, char const* argv[])
 	int				fdsId = 1;
 	int				newFd = 0;
 					//close_conn = 0;
+
 	Server			*server;
+
 
 	try
 	{
@@ -91,7 +93,9 @@ int main(int argc, char const* argv[])
 				// }
 				// else
 				// {
+				// try
 				// 	interpret command(server, strmess, server->fdP[i].fd)
+				// catch
 				// }
 			}
 			// std::cout << DIVIDER << RESET << std::endl;

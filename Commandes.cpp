@@ -4,9 +4,13 @@
 # include <User.hpp>
 # include <Channel.hpp>
 
-/*User *findUserById(std::vector<User *> &users, int const &id)
+void ircJoin(std::string &msg, User &user, Server &Server);
+void msgError(std::string const &code, User &user, std::string const &msg);
+
+
+User *findUserById(std::vector<User *> &users, int const &id)
 {
-	for (std::vector<User>::iterator it = users.begin(); it != users.end(); it++)
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		if ((*it)->_fdUser == id)
 			return (*it);
@@ -14,23 +18,89 @@
 	return NULL;
 }
 
+Channel *findChannelByName(std::vector<Channel *> &channels, std::string const &cmd)
+{
+	std::string name = cmd.find(' ') != std::string::npos ? cmd.substr(5, cmd.find(' ') - 5) : cmd.substr(5);
+	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+	{
+		if ((*it)->name == name)
+			return (*it);
+	}
+	return NULL;
+}
 
 void interpretCommand(Server &server, std::string strmess, int const &id)
 {
-	User *user = findUserById(server._users, id);
+	User *user = findUserById(server.users, id);
 	if(strmess.compare(0, 5, "JOIN ") == 0)
 	{
-		std::string msg = strmess.substr(5); // prend le message apres le premier espace
-		ircJoin(msg, user, server);
+		ircJoin(strmess, *user, server);
 	}
-
 }
 
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
+	int pos;
+	if (msg.length() == 5)
+	{
+		msgError("461", user,ERRORJ461);
+		return (throw std::exception());
+	}
+	pos = msg.find('#');
+	if (pos != std::string::npos) //Si la commande ne commence pas par un #
+	{
+		msgError("403", user, ERRORJ403);
+		return ;
+	}//la commande est correctement formaté à partir d'ici
+	msg += pos;
+	Channel *channel = findChannelByName(Server.channels, msg);
+	if (channel) // si le channel existe deja
+	{
+		// if (findUserInChannel(channel, &user)) // vérifie si l'utilisateur est déja dans le channel
+		// {
+		// 	throw Channel::UserIsAlredyInChannelException();
+		// }
+		if (!checkRightsUserInChannel(channel, &user)) // vérifie si l'utilisateur a les droits pour rejoindre le channel
+		{
+			msgError("403", user, ERRORJ403);
+			return ;
+		}
 
-}/*
+		// vérifie si le mot de passe du channel est correct
+		// envoyer les messages de confirmation
+	}
+	else
+	{
+		// créer le channel
+		// ajouter l'utilisateur au channel
+		// envoyer les messages de confirmation
+	}
+}
 
+bool findUserInChannel(Channel *channel, User *user)
+{
+	for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+	{
+		if ((*it)->_fdUser == user->_fdUser)
+			return true;
+	}
+	return false;
+}
+bool checkRightsUserInChannel(Channel *channel, User *user)
+{
+	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
+	{
+		if ((*it)->_fdUser == user->_fdUser)
+			return true;
+	}
+}
+
+void msgError(std::string const &code, User &user, std::string const &msg)
+{
+	std::stringstream ss;
+	ss << IPHOST << code << " " << user.nickname << msg;
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+}
 
 // Cette fonction `irc_join` semble être liée à la commande JOIN d'un serveur IRC. Voici une explication détaillée de son fonctionnement :
 

@@ -11,7 +11,7 @@ class Channel
 //-----------------------------------Public-----------------------------------//
 	public:
 //-------------------------------Copelien form--------------------------------//
-		Channel(User *user, std::string name);
+		Channel(User *user, std::string &cmd);
 		Channel(Channel const &src);
 		~Channel();
 		Channel &	operator=(Channel const &rSym);
@@ -23,7 +23,7 @@ class Channel
 		// std::string				lastTopicUpdateWhen;
 		// std::string				lastTopicUpdateWho;
 		// std::string				mode;
-		// std::string				password;
+		std::string				password;
 		std::vector<User *>		users;
 		std::vector<User *>		operators;
 		std::vector<User *>		invitedUsers;
@@ -31,7 +31,16 @@ class Channel
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
 		void ft_kick(std::string buffer, User *user);
+		void addUser(User *user, std::string &cmd);
 //----------------------------------Exeption----------------------------------//
+		class UserIsAlredyInChannelException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw()
+				{
+					return ("User is already in channel");
+				};
+		};
 //----------------------------------Private-----------------------------------//
 	private:
 		Channel(){}; // default constructor
