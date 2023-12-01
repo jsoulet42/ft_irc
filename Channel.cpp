@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 //-------------------------------Copelien form--------------------------------//
-Channel::Channel(User *user, std::string name)
+Channel::Channel(User *user, std::string &name)
 {
 	this->maxUsers = 10;
 	this->nbUsers = 1;
@@ -32,7 +32,7 @@ Channel &	Channel::operator=(Channel const &rSym)
 }
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
-void Channel::addUser(User *user, std::string password)
+void Channel::addUser(User *user, std::string &cmd)
 {
 	if (this->password == password)
 	{

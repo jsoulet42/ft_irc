@@ -18,6 +18,7 @@ class Server
 
 		std::vector<struct pollfd>		fdP;
 		std::vector<User*>				users;
+		std::vector<Channel*>			channels;
 		int								fdNb;
 		bool							ERROR;
 

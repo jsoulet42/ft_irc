@@ -11,7 +11,7 @@ class Channel
 //-----------------------------------Public-----------------------------------//
 	public:
 //-------------------------------Copelien form--------------------------------//
-		Channel(User *user, &std::string cmd);
+		Channel(User *user, std::string &cmd);
 		Channel(Channel const &src);
 		~Channel();
 		Channel &	operator=(Channel const &rSym);
@@ -30,9 +30,16 @@ class Channel
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
-		addUser(User *user);
-		addUser(User *user, std::string password);
+		void addUser(User *user, std::string &cmd);
 //----------------------------------Exeption----------------------------------//
+		class UserIsAlredyInChannelException : public std::exception
+		{
+			public:
+				virtual const char* what() const throw()
+				{
+					return ("User is already in channel");
+				};
+		};
 //----------------------------------Private-----------------------------------//
 	private:
 		Channel(){}; // default constructor

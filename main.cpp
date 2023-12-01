@@ -93,7 +93,9 @@ int main(int argc, char const* argv[])
 				// }
 				// else
 				// {
+				// try
 				// 	interpret command(server, strmess, server->fdP[i].fd)
+				// catch
 				// }
 			}
 			// std::cout << DIVIDER << RESET << std::endl;
