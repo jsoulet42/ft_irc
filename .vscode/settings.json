@@ -46,7 +46,8 @@
 		"ostream": "cpp",
 		"sstream": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"csignal": "cpp"
 	},
-	"C_Cpp.errorSquiggles": "disabled"
+	"C_Cpp.errorSquiggles": "enabled"
 }

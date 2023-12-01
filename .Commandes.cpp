@@ -1,11 +1,12 @@
+
 # include <ft_irc.hpp>
 # include <Server.hpp>
 # include <User.hpp>
 # include <Channel.hpp>
 
-User *findUserById(std::vector<User *> &users, int const &id)
+/*User *findUserById(std::vector<User *> &users, int const &id)
 {
-	for (std::vector<User>::iterator it = users.begin(); it != user.end; it++)
+	for (std::vector<User>::iterator it = users.begin(); it != users.end(); it++)
 	{
 		if ((*it)->_fdUser == id)
 			return (*it);
@@ -28,7 +29,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
 
-}
+}/*
 
 
 // Cette fonction `irc_join` semble être liée à la commande JOIN d'un serveur IRC. Voici une explication détaillée de son fonctionnement :

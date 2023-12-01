@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <exception>
 #include <sstream>
+#include <csignal>
 
 #define BUFFSIZE 1024
 #define IPHOST ":127.0.0.1"
@@ -24,4 +25,6 @@
 #define ERRORN431 " 431 NICK :No nickname given\r\n"
 #define ERRORU421 " 421 USER :Unknown command\r\n"
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
+
+extern bool isRunning;
 
