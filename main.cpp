@@ -17,8 +17,8 @@ int main(int argc, char const* argv[])
 	int				fdsId = 1;
 	int				newFd = 0;
 					//close_conn = 0;
-
 	Server			*server;
+	
 	try
 	{
 		server = new Server(std::atoi(argv[1]), argv[2]);
