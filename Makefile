@@ -1,4 +1,4 @@
-NAME= PmergeMe
+NAME= ft_IRC
 SRC= $(wildcard *.cpp)
 OBJ= $(SRC:.cpp=.o)
 

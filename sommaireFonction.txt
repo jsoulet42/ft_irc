@@ -98,7 +98,7 @@ poll() : Surveille plusieurs descripteurs de fichiers pour des événements.
 
 -kick
 -invite
--sujet
+-topic
 -mode
 i - t - k - o
 
