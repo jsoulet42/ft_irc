@@ -1,6 +1,18 @@
+
 #include "ft_irc.hpp"
 #include "Server.hpp"
 #include "User.hpp"
+
+bool isRunning = true;
+
+void signalHandler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		std::cout << "Received SIGINT. Shutting down..." << std::endl;
+		isRunning = false;
+	}
+}
 
 int main(int argc, char const* argv[])
 {
@@ -17,8 +29,10 @@ int main(int argc, char const* argv[])
 	int				fdsId = 1;
 	int				newFd = 0;
 					//close_conn = 0;
+
 	Server			*server;
-	
+
+
 	try
 	{
 		server = new Server(std::atoi(argv[1]), argv[2]);
@@ -29,7 +43,8 @@ int main(int argc, char const* argv[])
 		std::cerr <<  e.what() << std::endl;
 		delete server;
 	}
-	while (1)
+	signal(SIGINT, signalHandler);
+	while (isRunning)
 	{
 		std::cout << "Waiting incoming connection ( poll() )..." << std::endl;
 		rc = poll(&(server->fdP[0]), fdsId, -1);
@@ -56,7 +71,7 @@ int main(int argc, char const* argv[])
 						{
 							std::cerr << "[Error] during user creation : " << std::endl;
 							std::cerr <<  e.what() << std::endl;
-							//server->deleteUser(newSd);
+							server->deleteUser(newFd);
 							close(newFd);
 						}
 					}

@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <exception>
 #include <sstream>
+#include <csignal>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1"
@@ -25,16 +26,5 @@
 #define ERRORU421 " 421 USER :Unknown command\r\n"
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
 
-//---------Join---------//
-#define ERR_NEEDMOREPARAMS " 461 JOIN :Not enough parameters\r\n"
-#define ERR_NOSUCHCHANNEL " 403 JOIN :No such channel\r\n"
-#define ERR_TOOMANYCHANNELS " 405 JOIN :You have joined too many channels\r\n"
-#define ERR_BADCHANNELKEY " 475 JOIN :Cannot join channel (+k)\r\n"
-#define ERR_BANNEDFROMCHAN " 474 JOIN :Cannot join channel (+b)\r\n"
-#define ERR_CHANNELISFULL " 471 JOIN :Cannot join channel (+l)\r\n"
-#define ERR_INVITEONLYCHAN " 473 JOIN :Cannot join channel (+i)\r\n"
-#define ERR_BADCHANMASK " 476 JOIN :Bad Channel Mask\r\n"
-#define RPL_TOPIC " 332 JOIN :<channel> :<topic>\r\n"
-#define RPL_TOPICWHOTIME " 333 JOIN :<channel> <nickname> <time>\r\n"
-#define RPL_NAMREPLY " 353 JOIN :<channel> :<nicknames>\r\n"
-#define RPL_ENDOFNAMES " 366 JOIN :<channel> :End of /NAMES list\r\n"
+extern bool isRunning;
+

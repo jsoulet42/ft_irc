@@ -46,8 +46,8 @@
 		"ostream": "cpp",
 		"sstream": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"csignal": "cpp"
 	},
-	"C_Cpp.errorSquiggles": "enabled",
-	"C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\gcc.exe"
+	"C_Cpp.errorSquiggles": "enabled"
 }

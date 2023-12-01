@@ -1,19 +1,18 @@
 {
-    "configurations": [
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**",
-				"/usr/include/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
+	"configurations": [
+	  {
+		"name": "myConfigurationName",
+		"includePath": ["${workspaceFolder}/**",
+				"/usr/include/**"],
+		"defines": [],
+		"compilerPath": "/usr/bin/g++",
+		"cStandard": "c11",
+		"cppStandard": "c++14",
+		"IntelliSenseMode": "gcc-arm",
             "intelliSenseMode": "${default}",
             "cppStandard": "c++98"
-        }
-    ],
-    "version": 4
-}
+	  }
+	],
+	"version": 4  }
+
+

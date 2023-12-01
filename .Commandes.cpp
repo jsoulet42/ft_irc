@@ -1,27 +1,19 @@
+
 # include <ft_irc.hpp>
 # include <Server.hpp>
 # include <User.hpp>
 # include <Channel.hpp>
 
-User *findUserById(std::vector<User> &users, int const &id)
+/*User *findUserById(std::vector<User *> &users, int const &id)
 {
 	for (std::vector<User>::iterator it = users.begin(); it != users.end(); it++)
 	{
-		if ((it)->_fdUser == id)
-			return (it);
+		if ((*it)->_fdUser == id)
+			return (*it);
 	}
 	return NULL;
 }
 
-Channel *isChannelExist(std::vector<Channel *> &channels, std::string const &name)
-{
-	for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end; it++)
-	{
-		if ((*it)->name == name)
-			return (*it)
-	}
-	return NULL;
-}
 
 void interpretCommand(Server &server, std::string strmess, int const &id)
 {
@@ -33,40 +25,11 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	}
 
 }
-/*
-** Cette fonction est appelée lorsqu'un client envoie JOIN.
-** Elle va interpréter le message et appeler la fonction correspondante.
-**Exemple de message : JOIN #chan
-**Autre exemple : JOIN #chan password
-*/
+
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
-	std::stringstream msgError;
-	if(msg == "")
-	{
-		msgError << IPHOST << " " << user->nickname << ERR_NEEDMOREPARAMS;
-		send (msgError.str().c_str(), msgError.str().size(), 0);
-	}
-	else if (msg[0] != '#')
-	{
-		msgError << IPHOST << " " << user->nickname << ERR_NEEDMOREPARAMS;
-		send (msgError.str().c_str(), msgError.str().size(), 0);
-	}
-	else
-	{
-		std::string channelName = msg.substr(0, msg.find_first_of(' '));
-		Channel *channel = isChannelExist(Server._channels, channelName);
-		if (channel)
-		{
-			channel->addUser(user, msg);
-		}
-		else
-		{
-			Channel *newChannel = new Channel(user, msg);
-			Server._channels.push_back(newChannel);
-		}
-	}
-}
+
+}/*
 
 
 // Cette fonction `irc_join` semble être liée à la commande JOIN d'un serveur IRC. Voici une explication détaillée de son fonctionnement :
