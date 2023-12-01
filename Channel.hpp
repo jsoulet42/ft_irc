@@ -1,5 +1,5 @@
-#ifndef _CHANNEL_HPP_
-# define _CHANNEL_HPP_
+
+#pragma once
 
 # include <ft_irc.hpp>
 # include <User.hpp>
@@ -39,4 +39,3 @@ class Channel
 //------------------------------Ostream overload------------------------------//
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
 
-#endif
