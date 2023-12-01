@@ -9,7 +9,6 @@ Server::Server(const int port, const std::string& password) : _port(port), _pass
 	fdP[0].fd = this->_serverSocket;
 	fdP[0].events = POLLIN;
 	ERROR = false;
-	int ccc;
 }
 
 Server::~Server()

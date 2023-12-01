@@ -33,3 +33,8 @@ std::ostream &	operator<<(std::ostream & o, Channel const &rSym)
 	o << "nothing";
 	return o;
 }
+
+void Channel::ft_kick(std::string buffer, User *user)
+{
+
+}
