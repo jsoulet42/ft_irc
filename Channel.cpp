@@ -32,15 +32,18 @@ Channel &	Channel::operator=(Channel const &rSym)
 }
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
-void Channel::addUser(User *user, std::string &cmd)
+
+//modifié par julien le 02/12/2023
+int Channel::addUser(User *user, std::string &password)
 {
 	if (this->password == password)
 	{
 		this->users.push_back(user);
 		this->nbUsers++;
+		return 0;
 	}
 	else
-		throw std::exception();
+		return -1;
 }
 //------------------------------Ostream overload------------------------------//
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym)

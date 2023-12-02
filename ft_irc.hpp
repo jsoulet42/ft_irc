@@ -37,4 +37,17 @@
 #define ERRORJ473 " JOIN :Cannot join channel (+i)"
 #define ERRORJ476 " JOIN :Bad Channel Mask"
 extern bool isRunning;
+extern bool errorCmd;
+
+class joinException : public std::exception
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+class keyException : public std::exception
+{
+	public:
+		virtual const char* what() const throw();
+};
 

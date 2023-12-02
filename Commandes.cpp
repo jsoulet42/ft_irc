@@ -6,6 +6,11 @@
 
 void ircJoin(std::string &msg, User &user, Server &Server);
 void msgError(std::string const &code, User &user, std::string const &msg);
+void parseCmd(std::string &cmd, User &user, Server &Server);
+void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+extern bool errorCmd;
 
 
 User *findUserById(std::vector<User *> &users, int const &id)
@@ -32,22 +37,178 @@ Channel *findChannelByName(std::vector<Channel *> &channels, std::string const &
 void interpretCommand(Server &server, std::string strmess, int const &id)
 {
 	User *user = findUserById(server.users, id);
+	errorCmd = false;
 	if(strmess.compare(0, 5, "JOIN ") == 0)
 	{
 		ircJoin(strmess, *user, server);
 	}
 }
 
+//fait par julien le 02/12/2023
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
-	int pos;
+	std::string cmd = strtok((char *)msg.c_str() + 5, "\r\n");
+	if (cmd.size() == 0)
+		msgError("461", user, ERRORJ461);
+	else if (cmd.find('#') == std::string::npos)
+		msgError("403", user, ERRORJ403);
+	if (errorCmd == true)
+		throw joinException();
+	parseCmd(cmd, user, Server);
+}
+
+//fait par julien le 02/12/2023
+void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
+{
+	std::string channel;
+	std::string key;
+
+	if (cmd.find(',') == std::string::npos)
+	{
+		if (cmd.compare(0, 1, "#") != 0 || cmd.compare(0, 1, "&") != 0)
+			msgError("403", user, ERRORJ403);
+		if (errorCmd == true)
+			throw joinException();
+		cmd.erase(0, 1);
+		if (cmd.size() == 0)
+			msgError("461", user, ERRORJ461);
+		if (errorCmd == true)
+			throw joinException();
+		channel = cmd.substr(0, cmd.find('\r'));
+		joinOrCreatChannel(channel, user, server, key);
+	}
+	if (cmd.find(' ') == std::string::npos)
+	{
+		while (cmd.find(',') != std::string::npos)
+		{
+			cmd.erase(0, 1);
+			channel = cmd.substr(0, cmd.find(','));
+			joinOrCreatChannel(channel, user, server, key);
+			cmd.erase(0, cmd.find(',') + 1);
+		}
+	}
+}
+
+//fait par julien le 02/12/2023
+void parseCmd(std::string &cmd, User &user, Server &server)
+{
+	std::vector<std::string> channels;
+	std::vector<std::string> keys;
+	std::string channel;
+	std::string key;
+
+	parseCmdWithNoKey(cmd, user, server);
+	channel = cmd.substr(0, cmd.find(' '));
+	cmd.erase(0, cmd.find(' ') + 1);
+	key = cmd.substr(0, cmd.find('\r'));
+	while (channel.find(',') != std::string::npos)
+	{
+		channels.push_back(channel.substr(0, channel.find(',')));
+		channel.erase(0, channel.find(',') + 1);
+	}
+	channels.push_back(channel);
+	while (key.find(',') != std::string::npos)
+	{
+		keys.push_back(key.substr(0, key.find(',')));
+		key.erase(0, key.find(',') + 1);
+	}
+	keys.push_back(key);
+	// ici on a un tableau de channels et un tableau de keys remplis
+	// faire une boucle qui parcours les deux tableaux et qui fait joinOrCreatChannel
+	// pour chaque channel avec la key correspondante si elle existe sinon avec une key vide
+}
+
+//#channel1,chanel2,chanel3 key1,key2,key3
+
+//fait par julien le 02/12/2023
+// prevoir a implementer les erreurs manquantes
+void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key)
+{
+	Channel *channel = findChannelByName(Server.channels, cmd);
+
+	if (channel)
+	{
+		if (!checkRightsUserInChannel(channel, &user))
+			msgError("473", user, ERRORJ473);
+		else if (ici il faut une fonction qui verifie si le channel est plein si oui)
+			msgError("471", user, ERRORJ471);
+		else if (findUserInChannel(channel, &user))
+			throw Channel::UserIsAlredyInChannelException();
+		else if (channel->addUser(&user, key) == -1)
+			msgError("475", user, ERRORJ475);
+		if (errorCmd == true)
+			throw joinException();
+		channel->users.push_back(&user);
+		channel->nbUsers++;
+		messageToAllUsersInChannel(channel, user, 0);
+	}
+	else
+	{
+		if (key.size() < 10)
+		{
+			channel = new Channel(&user, cmd);
+			if (key.size() > 0)
+				channel->password = key;
+			channel->addUser(&user, key);
+			Server.channels.push_back(channel);
+			messageToAllUsersInChannel(channel, user, 1);
+		}
+		else
+			throw keyException();
+	}
+}
+
+void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
+{
+	std::stringstream ss;
+
+	if (createOrJoin == 0)
+	{
+		ss << IPHOST << "JOIN " << channel->name << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "353 " << user.nickname << " = " << channel->name << " :";
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+			ss << (*it)->nickname << " ";
+		ss << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "366 " << user.nickname << " " << channel->name << " :End of /NAMES list.\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	}
+	else if (createOrJoin)
+	{
+		std::stringstream ss;
+		ss << IPHOST << "JOIN " << channel->name << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+	}
+}
+
+const char* joinException::what() const throw()
+{
+	return "[Error] during JOIN command";
+}
+
+const char* keyException::what() const throw()
+{
+	return "[Error] during JOIN command , key is too long";
+}
+
+/*void ircJoin(std::string &msg, User &user, Server &Server)
+{
 	if (msg.length() == 5)
 	{
 		msgError("461", user,ERRORJ461);
 		return (throw std::exception());
 	}
-	pos = msg.find('#');
-	if (pos != std::string::npos) //Si la commande ne commence pas par un #
+	if (msg.find('#') != std::string::npos) //Si la commande ne commence pas par un #
 	{
 		msgError("403", user, ERRORJ403);
 		return ;
@@ -75,7 +236,7 @@ void ircJoin(std::string &msg, User &user, Server &Server)
 		// ajouter l'utilisateur au channel
 		// envoyer les messages de confirmation
 	}
-}
+}*/
 
 bool findUserInChannel(Channel *channel, User *user)
 {
@@ -100,6 +261,7 @@ void msgError(std::string const &code, User &user, std::string const &msg)
 	std::stringstream ss;
 	ss << IPHOST << code << " " << user.nickname << msg;
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	errorCmd = true;
 }
 
 // Cette fonction `irc_join` semble être liée à la commande JOIN d'un serveur IRC. Voici une explication détaillée de son fonctionnement :
