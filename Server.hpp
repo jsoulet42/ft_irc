@@ -4,8 +4,6 @@
 # include "User.hpp"
 # include "Channel.hpp"
 
-
-
 class Server
 {
 	private:

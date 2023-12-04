@@ -51,7 +51,7 @@ int Channel::addUser(User *user, std::string &password)
 void Channel::ft_checkMode(Channel &channel, User &user)
 {
 	int i = 0;
-	channel.ft_fillPtrCheckMode(user);
+	channel.ft_fillPtrCheckMode();
 	std::map<std::string, bool>::iterator it = channel.modeTab.begin();
 	while (it != channel.modeTab.end())
 	{
@@ -70,25 +70,28 @@ void Channel::checkModeI(User &user)
 
 void Channel::checkModeK(User &user)
 {
-
+	(void)user;
 }
 
 void Channel::checkModeL(User &user)
 {
+	(void)user;
 
 }
 
 void Channel::checkModeO(User &user)
 {
+	(void)user;
 
 }
 
 void Channel::checkModeT(User &user)
 {
+	(void)user;
 
 }
 
-void Channel::ft_fillPtrCheckMode(User &user)
+void Channel::ft_fillPtrCheckMode()
 {
 	this->ftPtr[0] = &Channel::checkModeI;
 	this->ftPtr[1] = &Channel::checkModeK;

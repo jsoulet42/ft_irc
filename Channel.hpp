@@ -3,7 +3,6 @@
 
 # include <ft_irc.hpp>
 # include <User.hpp>
-# include <Server.hpp>
 # include <map>
 
 extern bool errorCmd;
@@ -20,7 +19,7 @@ class Channel
 
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
-		int modeLMaxUser;
+		long unsigned int modeLMaxUser;
 		// bool modeI;
 		// bool modeT;
 		// bool modeK;
@@ -42,7 +41,7 @@ class Channel
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
 		int addUser(User *user, std::string &cmd);
-		void ft_fillPtrCheckMode(User &user);
+		void ft_fillPtrCheckMode();
 		void ft_checkMode(Channel &channel, User &user);
 		void checkModeI(User &user);
 		void checkModeK(User &user);

@@ -5,6 +5,16 @@
 # include "Channel.hpp"
 
 extern bool errorCmd;
+void normKey(std::string &key, User &user, Server &server);
+void ircJoin(std::string &msg, User &user, Server &Server);
+void parseCmd(std::string &cmd, User &user, Server &Server);
+void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+void normNameChannel(std::string &channel, User &user, Server &server);
+void msgError(std::string const &code, User &user, std::string const &msg);
+void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -128,6 +138,7 @@ void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 //fait par julien le 03/12/2023
 void normKey(std::string &key, User &user, Server &server)
 {
+	(void)server;
 	if (key.size() > 10 || key.size() < 1)
 		msgError("475", user, ERRORJ475);
 	for (size_t i = 0; i < key.size(); ++i)
@@ -143,6 +154,7 @@ void normKey(std::string &key, User &user, Server &server)
 //fait par julien le 03/12/2023
 void normNameChannel(std::string &channel, User &user, Server &server)
 {
+		(void)server;
 	if (channel.compare(0, 1, "#") != 0 || channel.compare(0, 1, "&") != 0)
 			msgError("403", user, ERRORJ403);
 	else if (channel.size() < 2)

@@ -95,16 +95,7 @@ class notEnoughParamException : public std::exception
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-void normKey(std::string &key, User &user, Server &server);
-void ircJoin(std::string &msg, User &user, Server &Server);
-void parseCmd(std::string &cmd, User &user, Server &Server);
-void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
-void normNameChannel(std::string &channel, User &user, Server &server);
-void msgError(std::string const &code, User &user, std::string const &msg);
-void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
-void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
-void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
-void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
