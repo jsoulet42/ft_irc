@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Channel.hpp"
-#include "ft_irc.hpp"
-#include "User.hpp"
+# include "ft_irc.hpp"
+# include "User.hpp"
+# include "Channel.hpp"
 
 class Server
 {

@@ -51,7 +51,7 @@ int Channel::addUser(User *user, std::string &password)
 void Channel::ft_checkMode(Channel &channel, User &user)
 {
 	int i = 0;
-	channel.ft_fillPtrCheckMode(user);
+	channel.ft_fillPtrCheckMode();
 	std::map<std::string, bool>::iterator it = channel.modeTab.begin();
 	while (it != channel.modeTab.end())
 	{
@@ -70,25 +70,28 @@ void Channel::checkModeI(User &user)
 
 void Channel::checkModeK(User &user)
 {
-
+	(void)user;
 }
 
 void Channel::checkModeL(User &user)
 {
+	(void)user;
 
 }
 
 void Channel::checkModeO(User &user)
 {
+	(void)user;
 
 }
 
 void Channel::checkModeT(User &user)
 {
+	(void)user;
 
 }
 
-void Channel::ft_fillPtrCheckMode(User &user)
+void Channel::ft_fillPtrCheckMode()
 {
 	this->ftPtr[0] = &Channel::checkModeI;
 	this->ftPtr[1] = &Channel::checkModeK;
@@ -103,4 +106,18 @@ std::ostream &	operator<<(std::ostream & o, Channel const &rSym)
 	(void)rSym;
 	o << "nothing";
 	return o;
+}
+
+Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelList)
+{
+	if (name.compare(0, 1, "#") == 0 || name.compare(0, 1, "&") == 0)
+		name.erase(0, 1);
+	//else
+		//on peux décider de renvoyer une erreur ou de ne rien faire
+	for (std::vector<Channel *>::iterator it = chanelList.begin(); it != chanelList.end(); it++)
+	{
+		if ((*it)->name == name)
+			return (*it);
+	}
+	return NULL;
 }
