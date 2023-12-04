@@ -2,8 +2,6 @@
 #include "ft_irc.hpp"
 #include "Server.hpp"
 #include "User.hpp"
-#include "Utils.hpp"
-
 
 bool isRunning = true;
 

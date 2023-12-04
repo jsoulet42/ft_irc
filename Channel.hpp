@@ -4,8 +4,7 @@
 # include <ft_irc.hpp>
 # include <User.hpp>
 # include <Server.hpp>
-#include "Utils.hpp"
-#include <map>
+# include <map>
 
 extern bool errorCmd;
 
@@ -64,7 +63,8 @@ class Channel
 	private:
 		Channel(){}; // default constructor
 };
+
 //------------------------------Ostream overload------------------------------//
-
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
-
+//-------------------------------Other function-------------------------------//
+Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelList);

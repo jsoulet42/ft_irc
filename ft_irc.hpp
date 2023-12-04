@@ -27,6 +27,12 @@
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
 
 
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                    JOIN                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
 //exemple de message d'erreur <"":" + IPHOST + " " + code + " " user->nickname + " " + "JOIN " + " :Not enough parameters\r\n">
 //std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
 
@@ -51,7 +57,12 @@ class keyException : public std::exception
 	public:
 		virtual const char* what() const throw();
 };
-
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                   UTILS                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+std::vector<std::string> splitString(const std::string &input, char delimiter);
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //
@@ -78,6 +89,68 @@ class notEnoughParamException : public std::exception
 		virtual const char* what() const throw();
 };
 
-////Utils
-std::vector<std::string> splitString(const std::string &input, char delimiter);
-void *findChanelbyNameMatt(std::string name, std::vector<Channel> &chanelList);
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                               Commandes.CPP                                //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+void normKey(std::string &key, User &user, Server &server);
+void ircJoin(std::string &msg, User &user, Server &Server);
+void parseCmd(std::string &cmd, User &user, Server &Server);
+void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+void normNameChannel(std::string &channel, User &user, Server &server);
+void msgError(std::string const &code, User &user, std::string const &msg);
+void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  PART                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  KICK                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  QUIT                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  PRIVMSG                                   //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  TOPIC                                     //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  NICK                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  MODE                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
