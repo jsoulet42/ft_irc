@@ -36,7 +36,7 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
-	if (this->password == password)
+	if (this->password.compare(password) == 0)
 	{
 		this->users.push_back(user);
 		this->nbUsers++;
