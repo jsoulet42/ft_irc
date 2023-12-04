@@ -224,26 +224,25 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 	}
 }
 
-void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
+void protocolForJoinChannel(Channel &channel, User &user, std::string &key)
 {
-	if (!checkRightsUserInChannel(channel, &user))
+	if (!checkRightsUserInChannel(&channel, &user))
 			msgError("473", user, ERRORJ473);
-		else if (ici il faut une fonction qui verifie si le channel est plein si oui)
-			msgError("471", user, ERRORJ471);
-		else if (findUserInChannel(channel, &user))
-			throw Channel::UserIsAlredyInChannelException();
-		else if (channel->addUser(&user, key) == -1)
-			msgError("475", user, ERRORJ475);
-		if (errorCmd == true)
-			throw joinException();
+	channel.ft_checkMode(channel, user);
+	if (findUserInChannel(&channel, &user))
+		throw Channel::UserIsAlredyInChannelException();
+	else if (channel.addUser(&user, key) == -1)
+		msgError("475", user, ERRORJ475);
+	if (errorCmd == true)
+		throw joinException();
 }
 
 
 //fait par julien le 02/12/2023
 // prevoir a implementer les erreurs manquantes
-void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key)
+void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::string &key)
 {
-	Channel *channel = findChannelByName(Server.channels, cmd);
+	Channel *channel = findChannelByName(server.channels, cmd);
 
 	if (channel)
 	{
@@ -256,7 +255,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
-		Server.channels.push_back(channel);
+		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
 	}
 }
