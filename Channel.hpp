@@ -5,8 +5,9 @@
 # include <User.hpp>
 # include <Server.hpp>
 #include "Utils.hpp"
+#include <map>
 
-
+extern bool errorCmd;
 
 class Channel
 {
@@ -17,6 +18,15 @@ class Channel
 		Channel(Channel const &src);
 		~Channel();
 		Channel &	operator=(Channel const &rSym);
+
+		std::map<std::string, bool> modeTab;
+		void (Channel::*ftPtr[5])(User &user);
+		int modeLMaxUser;
+		// bool modeI;
+		// bool modeT;
+		// bool modeK;
+		// bool modeO;
+		// bool modeL;
 
 		int						maxUsers;
 		int						nbUsers;
@@ -33,6 +43,14 @@ class Channel
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
 		int addUser(User *user, std::string &cmd);
+		void ft_fillPtrCheckMode(User &user);
+		void ft_checkMode(Channel &channel, User &user);
+		void checkModeI(User &user);
+		void checkModeK(User &user);
+		void checkModeL(User &user);
+		void checkModeO(User &user);
+		void checkModeT(User &user);
+
 //----------------------------------Exeption----------------------------------//
 		class UserIsAlredyInChannelException : public std::exception
 		{

@@ -30,11 +30,12 @@
 //exemple de message d'erreur <"":" + IPHOST + " " + code + " " user->nickname + " " + "JOIN " + " :Not enough parameters\r\n">
 //std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
 
-#define ERRORJ461 " JOIN :Not enough parameters\r\n"
 #define ERRORJ403 " JOIN :No such channel\r\n"
 #define ERRORJ405 " JOIN :You have joined too many channels\r\n"
-#define ERRORJ475 " JOIN :Cannot join channel (+k)\r\n"
+#define ERRORJ461 " JOIN :Not enough parameters\r\n"
+#define ERRORJ471 " JOIN :Cannot join channel (+l)\r\n"
 #define ERRORJ473 " JOIN :Cannot join channel (+i)\r\n"
+#define ERRORJ475 " JOIN :Cannot join channel (+k)\r\n"
 #define ERRORJ476 " JOIN :Bad Channel Mask\r\n"
 extern bool isRunning;
 extern bool errorCmd;
