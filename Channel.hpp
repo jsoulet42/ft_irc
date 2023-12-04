@@ -19,7 +19,7 @@ class Channel
 		int						maxUsers;
 		int						nbUsers;
 		std::string				name;
-		// std::string				topic;
+		std::string				topic;
 		// std::string				lastTopicUpdateWhen;
 		// std::string				lastTopicUpdateWho;
 		// std::string				mode;
@@ -30,7 +30,7 @@ class Channel
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
-		void addUser(User *user, std::string &cmd);
+		int addUser(User *user, std::string &cmd);
 //----------------------------------Exeption----------------------------------//
 		class UserIsAlredyInChannelException : public std::exception
 		{
@@ -45,5 +45,6 @@ class Channel
 		Channel(){}; // default constructor
 };
 //------------------------------Ostream overload------------------------------//
+
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
 
