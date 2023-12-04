@@ -14,6 +14,7 @@ void msgError(std::string const &code, User &user, std::string const &msg);
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -101,6 +102,7 @@ void ircJoin(std::string &msg, User &user, Server &Server)
 	parseCmd(cmd, user, Server);
 }
 
+
 //fait par julien le 02/12/2023
 void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 {
@@ -157,7 +159,7 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	channel.erase(0, 1);
 }
 
-// #channel1,chanel2,chanel3 key1,key2,key3\r\n
+
 //fait par julien le 02/12/2023
 void parseCmd(std::string &cmd, User &user, Server &server)
 {
@@ -181,19 +183,45 @@ void parseCmd(std::string &cmd, User &user, Server &server)
 	buffer = channel.substr(0, channel.find(' '));
 	normNameChannel(buffer, user, server);
 	channels.push_back(buffer);
-	while (key.find(',') != std::string::npos)
+	if (key.find(',') == std::string::npos)
 	{
-		buffer = key.substr(0, key.find(','));
+		buffer = key.substr(0, key.find('\r'));
 		normKey(buffer, user, server);
 		keys.push_back(buffer);
-		key.erase(0, key.find(',') + 1);
 	}
-	buffer = key.substr(0, key.find('\r'));
-	normKey(buffer, user, server);
-	keys.push_back(buffer);
+	else
+	{
+		while (key.find(',') != std::string::npos)
+		{
+			buffer = key.substr(0, key.find(','));
+			normKey(buffer, user, server);
+			keys.push_back(buffer);
+			key.erase(0, key.find(',') + 1);
+		}
+		buffer = key.substr(0, key.find('\r'));
+		normKey(buffer, user, server);
+		keys.push_back(buffer);
+	}
+	sendForCreate(channels, user, server, keys);
+	// #channel1,chanel2,chanel3 key1,key2,key3\r\n
 	// ici on a un tableau de channels et un tableau de keys remplis
 	// faire une boucle qui parcours les deux tableaux et qui fait joinOrCreatChannel
 	// pour chaque channel avec la key correspondante si elle existe sinon avec une key vide
+}
+
+void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys)
+{
+	size_t i = 0;
+	std::string keyEmpty = "";
+
+	for (i; i < keys.size(); ++i)
+	{
+		joinOrCreatChannel(channels[i], user, server, keys[i]);
+	}
+	for (i; i < channels.size(); ++i)
+	{
+		joinOrCreatChannel(channels[i], user, server, keyEmpty);
+	}
 }
 
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
