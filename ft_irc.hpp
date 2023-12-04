@@ -51,3 +51,32 @@ class keyException : public std::exception
 		virtual const char* what() const throw();
 };
 
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                   INVITE                                   //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+/*model de message d'erreur de la commande INVITE
+":127.0.0.1 403 " + user->nickname + " #" + channel + " :No such channel\r\n"
+*/
+#define ERRORI461 " :Not enough parameters" //"<client> :Not enough parameters"
+#define ERRORI403 " :No such channel" //  "<client> <channel> :No such channel"
+#define ERRORI442 " :You're not on that channel" //"<client> <channel> :You're not on that channel"
+#define ERRORI482 " :You're not channel operator" //"<client> <channel> :You're not channel operator"
+#define ERRORI443 " :is already on channel" //"<client> <nick> <channel> :is already on channel"
+
+class inviteException : public std::exception
+{
+	public:
+		virtual const char* what() const throw();
+};
+class notEnoughParamException : public std::exception
+{
+	public:
+		virtual const char* what() const throw();
+};
+
+////Utils
+std::vector<std::string> splitString(const std::string &input, char delimiter);
+void *findChanelbyNameMatt(std::string name, std::vector<Channel> &chanelList);

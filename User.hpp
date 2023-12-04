@@ -2,6 +2,8 @@
 #pragma once
 
 #include "ft_irc.hpp"
+#include "Utils.hpp"
+
 
 class User
 {

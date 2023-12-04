@@ -4,6 +4,8 @@
 # include <ft_irc.hpp>
 # include <User.hpp>
 # include <Server.hpp>
+#include "Utils.hpp"
+
 
 
 class Channel

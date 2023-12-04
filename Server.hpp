@@ -1,7 +1,9 @@
 #pragma once
 
-#include "ft_irc.hpp"
-#include "User.hpp"
+# include "ft_irc.hpp"
+# include "User.hpp"
+# include "Utils.hpp"
+
 
 class Server
 {
