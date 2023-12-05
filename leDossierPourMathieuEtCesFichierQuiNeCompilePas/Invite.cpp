@@ -4,13 +4,13 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Utils.hpp"
 #include "Server.hpp"
 #include "User.hpp"
 #include "Channel.hpp"
 #include "ft_irc.hpp"
 
 // codé par Matthieu Regis Diamant-Berger anciennement Descamps née a Paris 11 le 29/12/1995 vers 6h du matin, le 04/12/2023 du calendrier grégorien et année chinoise Gui-Mao (40), année 2023, mois 10, jour 22
+//au lieu de me faire rire avec des blagues tu devrai tapercevoir que la fonction msgError est a moi et que tu devrai faire la tienne xD !
 void ircInvite(std::string &msg, User &user, Server &server)
 {
 

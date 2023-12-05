@@ -2,6 +2,7 @@
 #include "ft_irc.hpp"
 #include "Server.hpp"
 #include "User.hpp"
+#include "Channel.hpp"
 
 bool isRunning = true;
 
@@ -88,15 +89,21 @@ int main(int argc, char const* argv[])
 				}
 				buffer[rc] = '\0';
 				std::string strmess(buffer);
-				// if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
-				// {
-				// }
-				// else
-				// {
-				// try
-				// 	interpret command(server, strmess, server->fdP[i].fd)
-				// catch
-				// }
+				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
+				{
+				}
+				else
+				{
+					try
+					{
+						interpretCommand(*server, strmess, server->fdP[i].fd);
+					}
+					catch(const std::exception& e)
+					{
+						std::cerr << e.what() << '\n';
+					}
+
+				}
 			}
 			// std::cout << DIVIDER << RESET << std::endl;
 		}
