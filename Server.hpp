@@ -40,6 +40,7 @@ class Server
 		void UserProtocol(std::string buffer, User *newuser);
 		int checkNick(int & fd, std::string nickname);
 		void sendError(int fd, std::string error);
+		void resizeBuffer(std::string &buffer);
 		void deleteUser(int fd);
 
 		class PassException : public std::exception
