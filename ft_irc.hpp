@@ -27,6 +27,12 @@
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
 
 
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                    JOIN                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
 //exemple de message d'erreur <"":" + IPHOST + " " + code + " " user->nickname + " " + "JOIN " + " :Not enough parameters\r\n">
 //std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
 
@@ -40,15 +46,111 @@
 extern bool isRunning;
 extern bool errorCmd;
 
-class joinException : public std::exception
+#include "Server.hpp"
+#include "User.hpp"
+#include "Channel.hpp"
+
+class User;
+class Server;
+class Channel;
+
+void normKey(std::string &key, User &user, Server &server);
+void ircJoin(std::string &msg, User &user, Server &Server);
+void parseCmd(std::string &cmd, User &user, Server &Server);
+void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+void normNameChannel(std::string &channel, User &user, Server &server);
+void interpretCommand(Server &server, std::string strmess, int const &id);
+void msgError(std::string const &code, User &user, std::string const &msg);
+void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                   UTILS                                    //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+std::vector<std::string> splitString(const std::string &input, char delimiter);
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                   INVITE                                   //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+/*model de message d'erreur de la commande INVITE
+":127.0.0.1 403 " + user->nickname + " #" + channel + " :No such channel\r\n"
+*/
+#define ERRORI461 " :Not enough parameters" //"<client> :Not enough parameters"
+#define ERRORI403 " :No such channel" //  "<client> <channel> :No such channel"
+#define ERRORI442 " :You're not on that channel" //"<client> <channel> :You're not on that channel"
+#define ERRORI482 " :You're not channel operator" //"<client> <channel> :You're not channel operator"
+#define ERRORI443 " :is already on channel" //"<client> <nick> <channel> :is already on channel"
+
+/*class inviteException : public std::exception
 {
 	public:
 		virtual const char* what() const throw();
 };
-
-class keyException : public std::exception
+class notEnoughParamException : public std::exception
 {
 	public:
 		virtual const char* what() const throw();
-};
+};*/
 
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                               Commandes.CPP                                //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  PART                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  KICK                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  QUIT                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  PRIVMSG                                   //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  TOPIC                                     //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  NICK                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                  MODE                                      //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
