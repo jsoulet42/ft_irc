@@ -1,7 +1,7 @@
 
 #include "Server.hpp"
 
-Server::Server(const int port, const std::string& password) : _port(port), _password(password)
+Server::Server(const int port, const std::string& password) : _port(port), _password(password.substr(0, password.find('\r')))
 {
 	this->_initServerSocket();
 	fdNb = 0;
@@ -64,31 +64,47 @@ bool Server::haveN(const std::string& str)
 	return (false);
 }
 
+void Server::resizeBuffer(std::string &buffer)
+{
+	ssize_t pos = buffer.find("\r\n");
+	if (pos == -1)
+	{
+		 pos = buffer.find("\n");
+		 if (pos >= 0)
+		 	buffer.resize(pos);
+	}
+}
+
 void Server::protocolNewUser(int newFd)
 {
-	std::string buffer;
-	buffer.resize(BUFFSIZE + 1);
+	char str[BUFFSIZE + 1];
 	User *newuser = new User(newFd);
 	this->users.push_back(newuser);
 	ERROR = false;
+	newuser->_forNcProtocol = 1;
+	ssize_t byteRead;
 
-	read(newFd, &buffer[0], BUFFSIZE + 1);
-	buffer.push_back('\0');
+	byteRead = read(newFd, str, BUFFSIZE);
+	str[byteRead] = '\0';
+	std::string buffer(str);
 	if (newuser->_forNcProtocol == 1)
-		this->passProtocol(buffer, newuser);
-
-	read(newFd, &buffer[0], BUFFSIZE + 1);
-	buffer.push_back('\0');
-	if (newuser->_forNcProtocol == 2)
 		this->CapProtocol(buffer, newuser);
 
-	read(newFd, &buffer[0], BUFFSIZE + 1);
-	buffer.push_back('\0');
+	byteRead = read(newFd, str, BUFFSIZE);
+	str[byteRead] = '\0';
+	buffer = str;
+	if (newuser->_forNcProtocol == 2)
+		this->passProtocol(buffer, newuser);
+
+	byteRead = read(newFd, str, BUFFSIZE);
+	str[byteRead] = '\0';
+	buffer = str;
 	if (newuser->_forNcProtocol == 3)
 		this->NickProtocol(newFd, buffer, newuser);
 
-	read(newFd, &buffer[0], BUFFSIZE + 1);
-	buffer.push_back('\0');
+	byteRead = read(newFd, str, BUFFSIZE);
+	str[byteRead] = '\0';
+	buffer = str;
 	if (newuser->_forNcProtocol == 4)
 		this->UserProtocol(buffer, newuser);
 
@@ -103,8 +119,8 @@ void Server::protocolNewUser(int newFd)
 
 void Server::passProtocol(std::string buffer, User *newUser)
 {
-	std::string pass = buffer;
-	pass = strtok((char *)pass.c_str() + 5, "\r\n");
+	std::string pass;
+	pass = strtok(&buffer[0] + 6, "\r\n");
 
 	if (buffer.compare(0, 4, "PASS") != 0)
 		sendError(newUser->_fdUser, ERRORP421);
@@ -113,24 +129,27 @@ void Server::passProtocol(std::string buffer, User *newUser)
 	else if (pass != this->_password)
 		sendError(newUser->_fdUser, ERRORP464);
 	if (ERROR == true)
+	{
 		throw PassException();
+	}
+	std::cout << "buffer [pass] ok : " << pass.size() << " " << pass << std::endl;
 	newUser->_forNcProtocol++;
 }
 
 void Server::CapProtocol(std::string buffer, User *newUser)
 {
-	std::cout << "buffer : " << buffer << std::endl;
 	if (buffer.compare(0, 3, "CAP") != 0)
 		sendError(newUser->_fdUser, ERRORC421);
 	if (ERROR == true)
 		throw CapException();
+	std::cout << "buffer [cap] ok : " << buffer.size() << " " << buffer;
 	newUser->_forNcProtocol++;
 }
 
 void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 {
-	std::string nick = buffer;
-	nick = strtok((char *)nick.c_str() + 5, "\r\n");
+	std::string nick;
+	nick = strtok(&buffer[0] + 5, "\r\n");
 
 	if (buffer.compare(0, 4, "NICK") != 0)
 		sendError(newUser->_fdUser, ERRORN421);
@@ -142,6 +161,7 @@ void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 		sendError(newUser->_fdUser, ERRORN433);
 	if (ERROR == true)
 		throw NickException();
+	std::cout << "buffer [nick] ok : " << nick.size() << " " << nick << std::endl;
 	newUser->_forNcProtocol++;
 	newUser->nickname = nick;
 }
@@ -168,21 +188,22 @@ int		Server::checkNick(int & fd, std::string nickname)
 
 void Server::UserProtocol(std::string buffer, User *newUser)
 {
-	std::string uname = buffer;
+	std::string uname;
+	uname = strtok(&buffer[0] + 5, "\r\n");
 
-	uname = strtok((char *)uname.c_str() + 5, "\r\n");
 	if (buffer.compare(0, 4, "USER") != 0)
 		sendError(newUser->_fdUser, ERRORU421);
 	else if (uname.size() == 0 || uname.find(':') == std::string::npos)
 		sendError(newUser->_fdUser, ERRORU461);
 	std::string	username = uname.substr(0, uname.find(' '));
 	uname.erase(0, uname.find(' ') + 1);
-	if (uname.compare(0, 3, "0 *") && ERROR == false)
+	if (uname.compare(0, 3, "8 *") && ERROR == false)
 		sendError(newUser->_fdUser, ERRORU461);
 	uname.erase(0, 5);
 	std::string	realname = uname;
 	if (ERROR == true)
 		throw UserException();
+	std::cout << "buffer [user] ok : " << uname.size() << " " << uname << std::endl;
 	newUser->username = username;
 	newUser->realname = uname;
 }
