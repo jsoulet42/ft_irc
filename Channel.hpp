@@ -1,10 +1,9 @@
 
 #pragma once
 
-#include <ft_irc.hpp>
-#include <User.hpp>
-#include <Server.hpp>
-#include <map>
+# include <ft_irc.hpp>
+# include <User.hpp>
+# include <map>
 
 extern bool errorCmd;
 
@@ -21,6 +20,11 @@ class Channel
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
 		long unsigned int modeLMaxUser;
+		// bool modeI;
+		// bool modeT;
+		// bool modeK;
+		// bool modeO;
+		// bool modeL;
 
 		int						maxUsers;
 		int						nbUsers;
@@ -36,11 +40,11 @@ class Channel
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
-		int addUser(User *user, std::string &cmd);
 
-		void ft_insertMode(std::string strmess, User &user,Server &server);
+		int addUser(User *user, std::string &cmd);
 		void ft_fillPtrCheckMode();
-		void ft_checkMode(Channel &channel, User &user);
+		void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
+		void ft_checkMode(Channel *channel, User &user);
 		void checkModeI(User &user);
 		void checkModeK(User &user);
 		void checkModeL(User &user);
@@ -60,7 +64,8 @@ class Channel
 	private:
 		Channel(){}; // default constructor
 };
+
 //------------------------------Ostream overload------------------------------//
-
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
-
+//-------------------------------Other function-------------------------------//
+Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelList);

@@ -106,7 +106,7 @@ void Server::passProtocol(std::string buffer, User *newUser)
 	std::string pass = buffer;
 	pass = strtok((char *)pass.c_str() + 5, "\r\n");
 
-	if (buffer.compare(0, 5, "PASS ") != 0)
+	if (buffer.compare(0, 4, "PASS") != 0)
 		sendError(newUser->_fdUser, ERRORP421);
 	else if (pass.size() == 0)
 		sendError(newUser->_fdUser, ERRORP461);
@@ -119,6 +119,7 @@ void Server::passProtocol(std::string buffer, User *newUser)
 
 void Server::CapProtocol(std::string buffer, User *newUser)
 {
+	std::cout << "buffer : " << buffer << std::endl;
 	if (buffer.compare(0, 3, "CAP") != 0)
 		sendError(newUser->_fdUser, ERRORC421);
 	if (ERROR == true)
@@ -131,7 +132,7 @@ void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 	std::string nick = buffer;
 	nick = strtok((char *)nick.c_str() + 5, "\r\n");
 
-	if (buffer.compare(0, 5, "NICK ") != 0)
+	if (buffer.compare(0, 4, "NICK") != 0)
 		sendError(newUser->_fdUser, ERRORN421);
 	else if (nick.size() == 0)
 		sendError(newUser->_fdUser, ERRORN431);
@@ -170,7 +171,7 @@ void Server::UserProtocol(std::string buffer, User *newUser)
 	std::string uname = buffer;
 
 	uname = strtok((char *)uname.c_str() + 5, "\r\n");
-	if (buffer.compare(0, 5, "USER ") != 0)
+	if (buffer.compare(0, 4, "USER") != 0)
 		sendError(newUser->_fdUser, ERRORU421);
 	else if (uname.size() == 0 || uname.find(':') == std::string::npos)
 		sendError(newUser->_fdUser, ERRORU461);
