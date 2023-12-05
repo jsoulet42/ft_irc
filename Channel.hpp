@@ -42,7 +42,7 @@ class Channel
 //-------------------------------Other function-------------------------------//
 		int addUser(User *user, std::string &cmd);
 		void ft_fillPtrCheckMode();
-		void ft_checkMode(Channel &channel, User &user);
+		void ft_checkMode(Channel *channel, User &user);
 		void checkModeI(User &user);
 		void checkModeK(User &user);
 		void checkModeL(User &user);

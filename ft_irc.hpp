@@ -46,17 +46,26 @@
 extern bool isRunning;
 extern bool errorCmd;
 
-class joinException : public std::exception
-{
-	public:
-		virtual const char* what() const throw();
-};
+#include "Server.hpp"
+#include "User.hpp"
+#include "Channel.hpp"
 
-class keyException : public std::exception
-{
-	public:
-		virtual const char* what() const throw();
-};
+class User;
+class Server;
+class Channel;
+
+void normKey(std::string &key, User &user, Server &server);
+void ircJoin(std::string &msg, User &user, Server &Server);
+void parseCmd(std::string &cmd, User &user, Server &Server);
+void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+void normNameChannel(std::string &channel, User &user, Server &server);
+void interpretCommand(Server &server, std::string strmess, int const &id);
+void msgError(std::string const &code, User &user, std::string const &msg);
+void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   UTILS                                    //
@@ -78,7 +87,7 @@ std::vector<std::string> splitString(const std::string &input, char delimiter);
 #define ERRORI482 " :You're not channel operator" //"<client> <channel> :You're not channel operator"
 #define ERRORI443 " :is already on channel" //"<client> <nick> <channel> :is already on channel"
 
-class inviteException : public std::exception
+/*class inviteException : public std::exception
 {
 	public:
 		virtual const char* what() const throw();
@@ -87,7 +96,7 @@ class notEnoughParamException : public std::exception
 {
 	public:
 		virtual const char* what() const throw();
-};
+};*/
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
