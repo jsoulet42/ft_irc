@@ -20,12 +20,7 @@ class Channel
 
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
-		int modeLMaxUser;
-		// bool modeI;
-		// bool modeT;
-		// bool modeK;
-		// bool modeO;
-		// bool modeL;
+		long unsigned int modeLMaxUser;
 
 		int						maxUsers;
 		int						nbUsers;
@@ -42,7 +37,9 @@ class Channel
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
 		int addUser(User *user, std::string &cmd);
-		void ft_fillPtrCheckMode(User &user);
+
+		void ft_insertMode(std::string strmess, User &user,Server &server);
+		void ft_fillPtrCheckMode();
 		void ft_checkMode(Channel &channel, User &user);
 		void checkModeI(User &user);
 		void checkModeK(User &user);

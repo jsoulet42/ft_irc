@@ -1,8 +1,11 @@
 #pragma once
 
+#include <map>
 #include "Channel.hpp"
 #include "ft_irc.hpp"
 #include "User.hpp"
+
+class Channel;
 
 class Server
 {

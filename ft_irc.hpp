@@ -26,7 +26,6 @@
 #define ERRORU421 " 421 USER :Unknown command\r\n"
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
 
-
 //exemple de message d'erreur <"":" + IPHOST + " " + code + " " user->nickname + " " + "JOIN " + " :Not enough parameters\r\n">
 //std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
 
@@ -40,15 +39,15 @@
 extern bool isRunning;
 extern bool errorCmd;
 
-class joinException : public std::exception
-{
-	public:
-		virtual const char* what() const throw();
-};
+// class joinException : public std::exception
+// {
+// 	public:
+// 		virtual const char* what() const throw();
+// };
 
-class keyException : public std::exception
-{
-	public:
-		virtual const char* what() const throw();
-};
+// class keyException : public std::exception
+// {
+// 	public:
+// 		virtual const char* what() const throw();
+// };
 

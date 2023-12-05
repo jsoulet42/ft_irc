@@ -1,8 +1,8 @@
 
-# include <ft_irc.hpp>
-# include <Server.hpp>
-# include <User.hpp>
-# include <Channel.hpp>
+#include "ft_irc.hpp"
+#include "Server.hpp"
+#include "User.hpp"
+#include "Channel.hpp"
 
 extern bool errorCmd;
 void normKey(std::string &key, User &user, Server &server);
@@ -83,6 +83,17 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	{
 		ircJoin(strmess, *user, server);
 	}
+	else if (strmess.compare(0, 5, "MODE ") == 0)
+	{
+		Channel *chan = ft_niggerPass(strmess, server);
+		ft_insertChanMode(strmess, user, server);
+	}
+}
+
+Channel *ft_niggerPass(std::string strmess, Server &server)
+{
+	if (server.channels.f)
+	return chan;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -284,7 +295,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	}
 	else if (createOrJoin)
 	{
-		std::stringstream ss;
 		ss << IPHOST << "JOIN " << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
