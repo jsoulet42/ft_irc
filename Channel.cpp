@@ -48,15 +48,15 @@ int Channel::addUser(User *user, std::string &password)
 }
 
 /* return 1 si une erreur a eter trouver dans un checkMode()*/
-void Channel::ft_checkMode(Channel &channel, User &user)
+void Channel::ft_checkMode(Channel *channel, User &user)
 {
 	int i = 0;
-	channel.ft_fillPtrCheckMode();
-	std::map<std::string, bool>::iterator it = channel.modeTab.begin();
-	while (it != channel.modeTab.end())
+	channel->ft_fillPtrCheckMode();
+	std::map<std::string, bool>::iterator it = channel->modeTab.begin();
+	while (it != channel->modeTab.end())
 	{
 		if (it->second == true)
-			(channel.*channel.ftPtr[i])(user);
+			(channel->*ftPtr[i])(user);
 		++it;
 		++i;
 	}
