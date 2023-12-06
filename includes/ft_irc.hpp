@@ -12,6 +12,7 @@
 #include <exception>
 #include <sstream>
 #include <csignal>
+#include "Color.hpp"
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "

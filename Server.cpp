@@ -114,7 +114,7 @@ void Server::protocolNewUser(int newFd)
 
 	std::string message = IPHOST + std::string(" 001 ") + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
 	send(newFd, message.c_str(), message.length(), 0);
-	std::cout << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << std::endl;
+	std::cout << YELLOW << ON_BLACK << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << RESET << std::endl;
 }
 
 void Server::passProtocol(std::string buffer, User *newUser)
@@ -133,7 +133,7 @@ void Server::passProtocol(std::string buffer, User *newUser)
 	{
 		throw PassException();
 	}
-	std::cout << "buffer [pass] ok : " << pass.size() << " " << pass << std::endl;
+	std::cout << YELLOW << ON_BLACK << "buffer [pass] ok : " << pass.size() << " " << pass << RESET << std::endl;
 	newUser->_forNcProtocol++;
 }
 
@@ -143,7 +143,7 @@ void Server::CapProtocol(std::string buffer, User *newUser)
 		sendError(newUser->_fdUser, ERRORC421);
 	if (ERROR == true)
 		throw CapException();
-	std::cout << "buffer [cap] ok : " << buffer.size() << " " << buffer;
+	std::cout << YELLOW << ON_BLACK << "buffer [cap] ok : " << buffer.size() << " " << buffer << RESET << std::endl;
 	newUser->_forNcProtocol++;
 }
 
@@ -162,7 +162,7 @@ void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 		sendError(newUser->_fdUser, ERRORN433);
 	if (ERROR == true)
 		throw NickException();
-	std::cout << "buffer [nick] ok : " << nick.size() << " " << nick << std::endl;
+	std::cout << YELLOW << ON_BLACK << "buffer [nick] ok : " << nick.size() << " " << nick << RESET << std::endl;
 	newUser->_forNcProtocol++;
 	newUser->nickname = nick;
 }
@@ -204,7 +204,7 @@ void Server::UserProtocol(std::string buffer, User *newUser)
 	std::string	realname = uname;
 	if (ERROR == true)
 		throw UserException();
-	std::cout << "buffer [user] ok : " << uname.size() << " " << uname << std::endl;
+	std::cout << YELLOW << ON_BLACK << "buffer [user] ok : " << uname.size() << " " << uname << RESET << std::endl;
 	newUser->username = username;
 	newUser->realname = uname;
 }
