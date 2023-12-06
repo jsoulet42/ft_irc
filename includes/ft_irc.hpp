@@ -61,6 +61,7 @@ class Channel;
 
 void normKey(std::string &key, User &user, Server &server);
 void ircJoin(std::string &msg, User &user, Server &Server);
+void ircPrivmsg(std::string &msg, User &user, Server &Server);
 void parseCmd(std::string &cmd, User &user, Server &Server);
 void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
 void normNameChannel(std::string &channel, User &user, Server &server);
@@ -77,6 +78,7 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string> splitString(const std::string &input, char delimiter);
+std::string	extractSubstring(std::string const &msg, int n);
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //

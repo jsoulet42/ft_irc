@@ -92,7 +92,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-		std::cout << "ici il y aura une fonction PRIVMSG" << std::endl;
+		//std::cout << "ici il y aura une fonction PRIVMSG" << std::endl;
+		ircPrivmsg(strmess, *user, server);
 	else if (strmess.compare(0, 4, "PART") == 0)
 		std::cout << "ici il y aura une fonction PART" << std::endl;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
@@ -134,6 +135,7 @@ void ircJoin(std::string &msg, User &user, Server &Server)
 {
 	std::string cmd = strtok((char *)msg.c_str() + 5, "\r\n");
 	// aaaaaaah berk une fonction c...
+	// j'ai code une fonction extractSubstring dans utils.cpp pour ca
 	if (cmd.size() == 0)
 		msgError("461", user, ERRORJ461);
 	if (errorCmd == true)
