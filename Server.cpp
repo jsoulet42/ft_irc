@@ -17,11 +17,11 @@ Server::~Server()
 	{
 		if (this->fdP[i].fd != this->_serverSocket && this->fdP[i].fd != -1)
 		{
-			shutdown(this->fdP[i].fd, SHUT_RDWR);
+			//shutdown(this->fdP[i].fd, SHUT_RDWR);
 			close(this->fdP[i].fd);
 		}
 	}
-	shutdown(this->_serverSocket, SHUT_RDWR);
+	//shutdown(this->_serverSocket, SHUT_RDWR);
 	close(this->_serverSocket);
 }
 
@@ -121,6 +121,7 @@ void Server::passProtocol(std::string buffer, User *newUser)
 {
 	std::string pass;
 	pass = strtok(&buffer[0] + 6, "\r\n");
+	// berk encore une fonction c
 
 	if (buffer.compare(0, 4, "PASS") != 0)
 		sendError(newUser->_fdUser, ERRORP421);

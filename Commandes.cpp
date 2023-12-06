@@ -90,8 +90,31 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	User *user = findUserById(server.users, id);
 	errorCmd = false;
 	if(strmess.compare(0, 5, "JOIN ") == 0)
-	{
 		ircJoin(strmess, *user, server);
+	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
+		std::cout << "ici il y aura une fonction PRIVMSG" << std::endl;
+	else if (strmess.compare(0, 4, "PART") == 0)
+		std::cout << "ici il y aura une fonction PART" << std::endl;
+	else if (strmess.compare(0, 5, "MODE ") == 0)
+		std::cout << "ici il y aura une fonction MODE" << std::endl;
+	else if (strmess.compare(0, 4, "QUIT") == 0)
+		std::cout << "ici il y aura une fonction QUIT" << std::endl;
+	else if (strmess.compare(0, 5, "NICK ") == 0)
+		std::cout << "ici il y aura une fonction NICK" << std::endl;
+	else if (strmess.compare(0, 5, "TOPIC") == 0)
+		std::cout << "ici il y aura une fonction TOPIC" << std::endl;
+	else if (strmess.compare(0, 5, "KICK ") == 0)
+		std::cout << "ici il y aura une fonction KICK" << std::endl;
+	else if (strmess.compare(0, 7, "INVITE ") == 0)
+		std::cout << "ici il y aura une fonction INVITE" << std::endl;
+	else if (strmess.compare(0, 5, "WHOIS") == 0)
+		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
+	else if (strmess.compare(0, 3, "WHO") == 0)
+		std::cout << "ici il y aura une fonction WHO" << std::endl;
+	else if (strmess.compare(0, 9, "USERHOST") == 0)
+		std::cout << "ici il y aura une fonction USERHOST" << std::endl;
+	else {
+		msgError("421", *user, ERRORN421);
 	}
 	/*if (strmess.compare(0, 6, "INVITE") == 0)
 	{
@@ -110,6 +133,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
 	std::string cmd = strtok((char *)msg.c_str() + 5, "\r\n");
+	// aaaaaaah berk une fonction c...
 	if (cmd.size() == 0)
 		msgError("461", user, ERRORJ461);
 	if (errorCmd == true)
