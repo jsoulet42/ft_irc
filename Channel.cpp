@@ -1,4 +1,17 @@
-#include "Channel.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Channel.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sdestann <sdestann@student.42perpignan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/06 16:28:54 by sdestann          #+#    #+#             */
+/*   Updated: 2023/12/06 16:28:54 by sdestann         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "./includes/Channel.hpp"
+
 void msgError(std::string const &code, User &user, std::string const &msg);
 
 //-------------------------------Copelien form--------------------------------//

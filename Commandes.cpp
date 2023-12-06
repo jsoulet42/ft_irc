@@ -1,8 +1,8 @@
 
-# include "ft_irc.hpp"
-# include "Server.hpp"
-# include "User.hpp"
-# include "Channel.hpp"
+# include "./includes/ft_irc.hpp"
+# include "./includes/Server.hpp"
+# include "./includes/User.hpp"
+# include "./includes/Channel.hpp"
 
 bool errorCmd = false;
 
