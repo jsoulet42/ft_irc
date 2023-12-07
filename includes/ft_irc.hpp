@@ -68,6 +68,7 @@ User	*findUserById(std::vector<User *> &users, int const &id);
 void	ircPrivmsg(std::string &msg, User &user, Server &Server);
 void	parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
 void	normNameChannel(std::string &channel, User &user, Server &server);
+User	*findUserByName(std::vector<User *> &users, std::string const &cmd);
 void	interpretCommand(Server &server, std::string strmess, int const &id);
 void	msgError(std::string const &code, User &user, std::string const &msg);
 void	msgError(std::string const &code, User &user, std::string const &msg);
