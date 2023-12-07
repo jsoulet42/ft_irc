@@ -97,6 +97,7 @@ std::string	extractSubstring(std::string const &msg, int n);
 #define ERRORI403 " :No such channel" 				//"<client> <channel> :No such channel"
 #define ERRORI442 " :You're not on that channel"	//"<client> <channel> :You're not on that channel"
 #define ERRORI482 " :You're not channel operator"	//"<client> <channel> :You're not channel operator"
+#define ERRORI441 " :They aren't on that channel"	//"<client> <nick> <channel> :They aren't on that channel"
 #define ERRORI443 " :is already on channel"			//"<client> <nick> <channel> :is already on channel"
 
 /*class inviteException : public std::exception

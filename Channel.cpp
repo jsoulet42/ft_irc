@@ -123,3 +123,4 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 	}
 	return NULL;
 }
+
