@@ -256,5 +256,3 @@ const char* Server::UserException::what() const throw()
 {
 	return "Error during USER command";
 }
-
-
