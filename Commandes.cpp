@@ -269,8 +269,8 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
-	if (!checkRightsUserInChannel(channel, &user))
-			msgError("473", user, ERRORJ473);
+	/*if (!checkRightsUserInChannel(channel, &user))
+			msgError("473", user, ERRORJ473);*/
 	channel->ft_checkMode(channel, user);
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
@@ -314,18 +314,25 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "332 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :";
+		ss << IPHOST << "353 " << user.nickname << " #" << channel->name << " :";
 		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
 			ss << (*it)->nickname << " ";
 		ss << "\r\n";
+		std::cout << ss.str() << std::endl;
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
+		ss << IPHOST << "366 #" << channel->name << " :End of /NAMES list.\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
 	else if (createOrJoin)
 	{
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :" << user.nickname << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "366 #" << channel->name << " :End of /NAMES list.\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		/*ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
