@@ -1,8 +1,8 @@
 
-#include "ft_irc.hpp"
-#include "Server.hpp"
-#include "User.hpp"
-#include "Channel.hpp"
+#include "./includes/ft_irc.hpp"
+#include "./includes/Server.hpp"
+#include "./includes/User.hpp"
+#include "./includes/Channel.hpp"
 
 bool isRunning = true;
 
@@ -10,7 +10,7 @@ void signalHandler(int signum)
 {
 	if (signum == SIGINT)
 	{
-		std::cout << "Received SIGINT. Shutting down..." << std::endl;
+		std::cout << RED << ON_BLACK << "Received SIGINT. Shutting down..." << RESET << std::endl;
 		isRunning = false;
 	}
 }
@@ -19,7 +19,7 @@ int main(int argc, char const* argv[])
 {
 	if (argc != 3)
 	{
-		std::cout << "Usage: ./ircserv [port] [password]"<<std::endl;
+		std::cout << RED << ON_BLACK << "Usage: ./ircserv [port] [password]" << RESET << std::endl;
 		return 0;
 	}
 
@@ -47,7 +47,7 @@ int main(int argc, char const* argv[])
 	signal(SIGINT, signalHandler);
 	while (isRunning)
 	{
-		std::cout << "Waiting incoming connection ( poll() )..." << std::endl;
+		std::cout << BLUE << ON_BLACK << "Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(&(server->fdP[0]), fdsId, -1);
 		server->fdNb = fdsId;
 		for (int i = 0; i < server->fdNb; i++)
@@ -64,7 +64,7 @@ int main(int argc, char const* argv[])
 					{
 						try
 						{
-							std::cout << "New user connected with id " << newFd << "." << std::endl;
+							std::cout << YELLOW << ON_BLACK << "New user connected with id " << newFd << "." << RESET << std::endl;
 							server->protocolNewUser(newFd);
 							fdsId++;
 						}
@@ -115,6 +115,6 @@ int main(int argc, char const* argv[])
 			// std::cout << DIVIDER << RESET << std::endl;
 		}
 	}
-	std::cout << "END OF PROGRAM" << std::endl;
+	std::cout << GREEN << ON_BLACK << "END OF PROGRAM" << RESET << std::endl;
 	return 0;
 }
