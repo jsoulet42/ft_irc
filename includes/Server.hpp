@@ -33,13 +33,13 @@ class Server
 
 		bool haveN(const std::string& str);
 		void protocolNewUser(int newFd);
-		void connexionParse(std::string buffer);
 		void passProtocol(std::string buffer, User *newuser);
 		void CapProtocol(std::string buffer, User *newuser);
 		void NickProtocol(int newFd, std::string buffer, User *newuser);
 		void UserProtocol(std::string buffer, User *newuser);
 		int checkNick(int & fd, std::string nickname);
 		void sendError(int fd, std::string error);
+		void resizeBuffer(std::string &buffer);
 		void deleteUser(int fd);
 
 		class PassException : public std::exception

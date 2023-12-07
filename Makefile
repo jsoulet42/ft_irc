@@ -1,4 +1,4 @@
-NAME= ft_IRC
+NAME= ircserv
 SRC= $(wildcard *.cpp)
 OBJ= $(SRC:.cpp=.o)
 

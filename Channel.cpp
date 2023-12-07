@@ -1,4 +1,6 @@
-#include "Channel.hpp"
+
+#include "./includes/Channel.hpp"
+
 void msgError(std::string const &code, User &user, std::string const &msg);
 
 //-------------------------------Copelien form--------------------------------//
