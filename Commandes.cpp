@@ -1,8 +1,8 @@
 
-# include "ft_irc.hpp"
-# include "Server.hpp"
-# include "User.hpp"
-# include "Channel.hpp"
+# include "./includes/ft_irc.hpp"
+# include "./includes/Server.hpp"
+# include "./includes/User.hpp"
+# include "./includes/Channel.hpp"
 
 bool errorCmd = false;
 
@@ -94,8 +94,32 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	User *user = findUserById(server.users, id);
 	errorCmd = false;
 	if(strmess.compare(0, 5, "JOIN ") == 0)
-	{
 		ircJoin(strmess, *user, server);
+	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
+		//std::cout << "ici il y aura une fonction PRIVMSG" << std::endl;
+		ircPrivmsg(strmess, *user, server);
+	else if (strmess.compare(0, 4, "PART") == 0)
+		std::cout << "ici il y aura une fonction PART" << std::endl;
+	else if (strmess.compare(0, 5, "MODE ") == 0)
+		std::cout << "ici il y aura une fonction MODE" << std::endl;
+	else if (strmess.compare(0, 4, "QUIT") == 0)
+		std::cout << "ici il y aura une fonction QUIT" << std::endl;
+	else if (strmess.compare(0, 5, "NICK ") == 0)
+		std::cout << "ici il y aura une fonction NICK" << std::endl;
+	else if (strmess.compare(0, 5, "TOPIC") == 0)
+		std::cout << "ici il y aura une fonction TOPIC" << std::endl;
+	else if (strmess.compare(0, 5, "KICK ") == 0)
+		std::cout << "ici il y aura une fonction KICK" << std::endl;
+	else if (strmess.compare(0, 7, "INVITE ") == 0)
+		std::cout << "ici il y aura une fonction INVITE" << std::endl;
+	else if (strmess.compare(0, 5, "WHOIS") == 0)
+		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
+	else if (strmess.compare(0, 3, "WHO") == 0)
+		std::cout << "ici il y aura une fonction WHO" << std::endl;
+	else if (strmess.compare(0, 9, "USERHOST") == 0)
+		std::cout << "ici il y aura une fonction USERHOST" << std::endl;
+	else {
+		msgError("421", *user, ERRORN421);
 	}
 	/*if (strmess.compare(0, 6, "INVITE") == 0)
 	{
@@ -114,6 +138,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
 	std::string cmd = strtok((char *)msg.c_str() + 5, "\r\n");
+	// aaaaaaah berk une fonction c...
+	// j'ai code une fonction extractSubstring dans utils.cpp pour ca
 	if (cmd.size() == 0)
 		msgError("461", user, ERRORJ461);
 	if (errorCmd == true)
@@ -182,7 +208,6 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 }
 
 // /JOIN #channel1,chanel2,chanel3, key1\r\n
-//fait par julien le 02/12/2023
 void parseCmd(std::string &cmd, User &user, Server &server)
 {
 	std::vector<std::string> channels;
@@ -225,10 +250,6 @@ void parseCmd(std::string &cmd, User &user, Server &server)
 		keys.push_back(buffer);
 	}
 	sendForCreate(channels, user, server, keys);
-	// #channel1,chanel2,chanel3 key1,key2,key3\r\n
-	// ici on a un tableau de channels et un tableau de keys remplis
-	// faire une boucle qui parcours les deux tableaux et qui fait joinOrCreatChannel
-	// pour chaque channel avec la key correspondante si elle existe sinon avec une key vide
 }
 
 void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys)
@@ -259,7 +280,6 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 		throw joinException();
 }
 
-//fait par julien le 02/12/2023
 // prevoir a implementer les erreurs manquantes
 void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::string &key)
 {
@@ -281,14 +301,13 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	}
 }
 
-//fait par julien le 02/12/2023
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 {
 	std::stringstream ss;
 
 	if (createOrJoin == 0)
 	{
-		ss << IPHOST << "JOIN " << channel->name << "\r\n";
+		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
