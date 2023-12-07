@@ -62,6 +62,7 @@ class	Channel;
 void normKey(std::string &key, User &user, Server &server);
 void ircJoin(std::string &msg, User &user, Server &Server);
 void ircPrivmsg(std::string &msg, User &user, Server &Server);
+void	irc_who(std::string &message, User &user, Server &server);
 void parseCmd(std::string &cmd, User &user, Server &Server);
 void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
 void normNameChannel(std::string &channel, User &user, Server &server);

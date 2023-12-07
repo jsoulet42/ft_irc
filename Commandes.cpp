@@ -87,13 +87,16 @@ void	msgError(std::string const &code, User &user, std::string const &msg)
 
 void interpretCommand(Server &server, std::string strmess, int const &id)
 {
+	std::cout << "strmess : " << strmess << std::endl;
 	User *user = findUserById(server.users, id);
 	errorCmd = false;
 	if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-		//std::cout << "ici il y aura une fonction PRIVMSG" << std::endl;
+	{
 		ircPrivmsg(strmess, *user, server);
+		return;
+	}
 	else if (strmess.compare(0, 4, "PART") == 0)
 		std::cout << "ici il y aura une fonction PART" << std::endl;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
@@ -111,7 +114,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 5, "WHOIS") == 0)
 		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
 	else if (strmess.compare(0, 3, "WHO") == 0)
-		std::cout << "ici il y aura une fonction WHO" << std::endl;
+		irc_who(strmess, *user, server);
+		//std::cout << "ici il y aura une fonction WHO" << std::endl;
 	else if (strmess.compare(0, 9, "USERHOST") == 0)
 		std::cout << "ici il y aura une fonction USERHOST" << std::endl;
 	else {
@@ -265,8 +269,8 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
-	if (!checkRightsUserInChannel(channel, &user))
-			msgError("473", user, ERRORJ473);
+	//if (!checkRightsUserInChannel(channel, &user))
+	//		msgError("473", user, ERRORJ473);
 	channel->ft_checkMode(channel, user);
 	if (findUserInChannel(channel, &user))
 		throw Channel::UserIsAlredyInChannelException();
@@ -284,7 +288,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	if (channel)
 	{
 		protocolForJoinChannel(channel, user, key);
-		channel->addUser(&user, key);
+		//channel->addUser(&user, key);
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
@@ -303,29 +307,40 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 
 	if (createOrJoin == 0)
 	{
+		channel->topic = "No topic is set";
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+			std::cout << "nick : " << (*it)->nickname << std::endl;
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
+		ss << IPHOST << "331 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "353 " << user.nickname << " = " << channel->name << " :";
+		ss << IPHOST << "353 #" << channel->name << " :";
 		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
 			ss << (*it)->nickname << " ";
 		ss << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+		{
+			if ((*it)->_fdUser != user._fdUser)
+				send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+		}
 		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " " << channel->name << " :End of /NAMES list.\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss << IPHOST << "366 #" << channel->name << " :End of /NAMES list.\r\n";
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+		{
+			if ((*it)->_fdUser != user._fdUser)
+				send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+		}
 	}
 	else if (createOrJoin)
 	{
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		/*ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
+		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");*/
+		ss.str("");
 	}
 }
 
