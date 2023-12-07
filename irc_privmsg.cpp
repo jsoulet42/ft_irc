@@ -1,19 +1,8 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   irc_privmsg.cpp                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: sdestann <sdestann@student.42perpignan.    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/12/06 16:41:24 by sdestann          #+#    #+#             */
-/*   Updated: 2023/12/06 17:24:58 by sdestann         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 # include "./includes/ft_irc.hpp"
 
 //Commande: PRIVMSG
-//Paramètres: <destinataire>{,<destinataire>} <texte à envoyer > 
+//Paramètres: <destinataire>{,<destinataire>} <texte à envoyer >
 
 void ircPrivmsg(std::string &msg, User &user, Server &Server)
 {
