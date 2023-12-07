@@ -112,7 +112,7 @@ void Server::protocolNewUser(int newFd)
 	this->fdP[this->fdNb].fd = newFd;
 	this->fdP[this->fdNb].events = POLLIN;
 
-	std::string message = IPHOST + std::string(" 001 ") + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
+	std::string message = newuser->nickname + ":" + IPHOST + " 001 " + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
 	send(newFd, message.c_str(), message.length(), 0);
 	std::cout << YELLOW << ON_BLACK << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << RESET << std::endl;
 }
