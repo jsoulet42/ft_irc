@@ -13,13 +13,9 @@
 // au lieu de me faire rire avec des blagues tu devrai tapercevoir que la fonction msgError est a moi et que tu devrai faire la tienne xD !
 // blablabla
 void msgError461(User const &user);
-
 void msgError403(User const &user, std::string const &channel);
-
 void msgError442(User const &user, std::string const &channel);
-
-void msgError443(User const &user, Channel const &channel);
-
+void msgError443(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError482(User const &user, std::string const &channel);
 
 
@@ -35,7 +31,7 @@ void ircInvite(std::string &msg, User &user, Server &server)
 		throw std::runtime_error("ERROR : No enough parameters");
 	// dans un premier temps on verifie que le channel existe
 	Channel *channel = findChanelbyNameMatt(msgVec[2], server.channels);
-	User *userInvited = findUserbyName(msgVec[1], server.users);
+	User *userInvited = findUserByName(server.users, msgVec[1]);
 	if (channel == NULL)
 		msgError403(user, msgVec[2]);
 	// On verifie que celui qui invite est bien dans le channel "et qu'il a les droits"
@@ -49,12 +45,15 @@ void ircInvite(std::string &msg, User &user, Server &server)
 		if (findUser(user, channel->operators) == false)
 			msgError482(user, msgVec[2]);
 	}
-	// On verifie que l'utilisateur n'est pas deja dans le channel
-	if (findUser(user, channel->users) == true)
-		msgError443(user, *channel);
-
 	// On verifie que l'utilisateur n'est pas deja invité dans le channel
+	if (findUser(*userInvited, channel->invitedUsers) == true)
+		msgError443(user, msgVec[1], *channel);
 	// si tout est ok on ajoute l'utilisateur dans la liste des invités du channel
+	channel->invitedUsers.push_back(userInvited);
+	// on envoie le message d'invitation a l'utilisateur
+	std::stringstream ss;
+	ss << IPHOST << " INVITE " << userInvited->nickname << " " << channel->name << "\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 /// @brief Erreur qui se produit quand il n'y a pas assez de paramètres
 void msgError461(User const &user)
@@ -83,16 +82,16 @@ void msgError442(User const &user, std::string const &channel)
 	errorCmd = true;
 	throw std::runtime_error(ERRORI442);
 }
-/// @brief Erreur qui se produit quand l'utilisateur est deja dans le channel
-void msgError443(User const &user, Channel const &channel)
+/// @brief Returned when a client tries to invite <nick> to a channel they’re already joined to.
+void msgError443(User const &user, std::string const &userInvited, Channel const &channel)
 {
 	std::stringstream ss;
-	ss << IPHOST << " 443 " << user.nickname << " " << channel.name << " " << ERRORI443;
+	ss << IPHOST << " 443 " << userInvited << " " << channel.name << " " << ERRORI443;
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	errorCmd = true;
 	throw std::runtime_error(ERRORI443);
 }
-/// @brief Erreur qui se produit celui qui invite n'est pas opérateur du channel
+/// @brief Le client ne possède pas les privilèges appropriés pour le canal
 void msgError482(User const &user, std::string const &channel)
 {
 	std::stringstream ss;

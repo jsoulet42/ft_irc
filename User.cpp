@@ -19,8 +19,10 @@ bool	User::operator==(User const &rSym)
 /// \param user the user we are looking for
 /// \param userList the vector of user pointers in which we are searching
 /// \return true if the user is found, false otherwise
-bool findUser(User &user, std::vector<User *> &userList)
+bool findUser(User const &user, std::vector<User *> &userList)
 {
+	if (userList.empty())
+		return false;
 	for (std::vector<User *>::iterator it = userList.begin(); it != userList.end(); it++)
 	{
 		if (*(*it) == user)
