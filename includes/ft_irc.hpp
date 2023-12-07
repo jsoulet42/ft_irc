@@ -55,9 +55,9 @@ extern bool errorCmd;
 #include "User.hpp"
 #include "Channel.hpp"
 
-class User;
-class Server;
-class Channel;
+class	User;
+class	Server;
+class	Channel;
 
 void normKey(std::string &key, User &user, Server &server);
 void ircJoin(std::string &msg, User &user, Server &Server);
