@@ -69,6 +69,7 @@ void normNameChannel(std::string &channel, User &user, Server &server);
 void interpretCommand(Server &server, std::string strmess, int const &id);
 void msgError(std::string const &code, User &user, std::string const &msg);
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+User	*findUserByName(std::vector<User *> &users, std::string const &cmd);
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
@@ -93,6 +94,7 @@ std::string	extractSubstring(std::string const &msg, int n);
 #define ERRORI403 " :No such channel" 				//"<client> <channel> :No such channel"
 #define ERRORI442 " :You're not on that channel"	//"<client> <channel> :You're not on that channel"
 #define ERRORI482 " :You're not channel operator"	//"<client> <channel> :You're not channel operator"
+#define ERRORI441 " :They aren't on that channel"	//"<client> <nick> <channel> :They aren't on that channel"
 #define ERRORI443 " :is already on channel"			//"<client> <nick> <channel> :is already on channel"
 
 /*class inviteException : public std::exception

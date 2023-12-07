@@ -24,6 +24,10 @@ class joinacceptedException : public std::exception
 		virtual const char* what() const throw();
 };
 
+void test(Channel channel, std::string nameMode)
+{
+	channel.checkRights(nameMode);
+}
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                  TOOLS                                     //
@@ -35,6 +39,16 @@ User	*findUserById(std::vector<User *> &users, int const &id)
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		if ((*it)->_fdUser == id)
+			return (*it);
+	}
+	return NULL;
+}
+
+User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
+{
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+	{
+		if ((*it)->nickname == cmd)
 			return (*it);
 	}
 	return NULL;
@@ -60,7 +74,7 @@ bool	findUserInChannel(Channel *channel, User *user)
 	}
 	return false;
 }
-
+//codé par le grand mdiamant mais il ne se souvient pas quand
 bool	checkRightsUserInChannel(Channel *channel, User *user)
 {
 	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
@@ -71,6 +85,7 @@ bool	checkRightsUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
+/// <code> <nickname> <msg>
 void	msgError(std::string const &code, User &user, std::string const &msg)
 {
 	std::stringstream ss;
@@ -137,9 +152,9 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 //fait par julien le 02/12/2023
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
-	std::string cmd = strtok((char *)msg.c_str() + 5, "\r\n");
-	// aaaaaaah berk une fonction c...
-	// j'ai code une fonction extractSubstring dans utils.cpp pour ca
+	std::string cmd = strtok((char *)msg.c_str() + 5, "\n");
+	std::cout << "cmd = " << cmd << std::endl;
+
 	if (cmd.size() == 0)
 		msgError("461", user, ERRORJ461);
 	if (errorCmd == true)
@@ -232,6 +247,7 @@ void parseCmd(std::string &cmd, User &user, Server &server)
 	channels.push_back(buffer);
 	if (key.find(',') == std::string::npos)
 	{
+		std::cout << "key = " << key << std::endl;
 		buffer = key.substr(0, key.find('\r'));
 		normKey(buffer, user, server);
 		keys.push_back(buffer);
@@ -257,12 +273,15 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 	size_t i;
 	std::string keyEmpty = "";
 
-	for (i = 0; i < keys.size() || i < channels.size(); ++i)
+	for (i = 0; i < keys.size() && i < channels.size(); ++i)
 	{
+		std::cout << "channel f1 = " << channels[i] << " " << keys[i] << std::endl;
 		joinOrCreatChannel(channels[i], user, server, keys[i]);
 	}
+	std::cout << "i = " << i << std::endl;
 	for (; i < channels.size(); ++i)
 	{
+		std::cout << "channel f2 = " << channels[i] << " " << keyEmpty << std::endl;
 		joinOrCreatChannel(channels[i], user, server, keyEmpty);
 	}
 }
@@ -272,7 +291,7 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 	//if (!checkRightsUserInChannel(channel, &user))
 	//		msgError("473", user, ERRORJ473);
 	channel->ft_checkMode(channel, user);
-	if (findUserInChannel(channel, &user))
+	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
 		msgError("475", user, ERRORJ475);
@@ -298,6 +317,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel->addUser(&user, key);
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
+		std::cout << "ici" << std::endl;
 	}
 }
 

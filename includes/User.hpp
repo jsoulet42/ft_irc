@@ -14,7 +14,8 @@ class User
 
 			User(int &fdUser);
 			~User();
-
-
+			bool	operator==(User const &rSym);
 	private :
 };
+
+bool findUser(User &user, std::vector<User *> &userList);
