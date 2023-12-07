@@ -98,7 +98,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	{
 		ircJoin(strmess, *user, server);
 	}
-	else if (strmess.compare(0, 6, "MODE #") == 0)
+/*	else if (strmess.compare(0, 6, "MODE #") == 0)
 	{
 		strmess.erase(0, 6);
 		if (strmess.find(" ") == std::string::npos)
@@ -119,7 +119,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 			else
 				chan.ft_insertChanMode(strmess, user, server, chan);
 		}
-	}
+	}*/
 	/*if (strmess.compare(0, 6, "INVITE") == 0)
 	{
 		ircInvite(strmess, *user, server);

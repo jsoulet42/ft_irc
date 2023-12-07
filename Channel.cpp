@@ -100,12 +100,14 @@ void Channel::ft_fillPtrCheckMode()
 
 void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan)
 {
+	(void)user;
+	(void)server;
 	std::string symbol;
 	symbol = strmess[0];
 	std::vector<User*>::iterator it = chan.users.begin();
 	while (it != chan.users.end())
 	{
-		if (user.nickname == it->)
+	//	if (user.nickname == it->)
 		++it;
 	}
 	strmess.erase(0, 1);
