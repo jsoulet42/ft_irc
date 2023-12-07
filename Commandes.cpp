@@ -28,6 +28,7 @@ void test(Channel channel, std::string nameMode)
 {
 	channel.checkRights(nameMode);
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                  TOOLS                                     //

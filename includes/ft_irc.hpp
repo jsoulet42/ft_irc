@@ -59,20 +59,25 @@ class	User;
 class	Server;
 class	Channel;
 
-void normKey(std::string &key, User &user, Server &server);
-void ircJoin(std::string &msg, User &user, Server &Server);
-void ircPrivmsg(std::string &msg, User &user, Server &Server);
+void	normKey(std::string &key, User &user, Server &server);
+void	ircJoin(std::string &msg, User &user, Server &Server);
+void	ircPrivmsg(std::string &msg, User &user, Server &Server);
 void	irc_who(std::string &message, User &user, Server &server);
-void parseCmd(std::string &cmd, User &user, Server &Server);
-void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
-void normNameChannel(std::string &channel, User &user, Server &server);
-void interpretCommand(Server &server, std::string strmess, int const &id);
-void msgError(std::string const &code, User &user, std::string const &msg);
-void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void	parseCmd(std::string &cmd, User &user, Server &Server);
+void	parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+void	normNameChannel(std::string &channel, User &user, Server &server);
+void	interpretCommand(Server &server, std::string strmess, int const &id);
+void	msgError(std::string const &code, User &user, std::string const &msg);
+void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
 User	*findUserByName(std::vector<User *> &users, std::string const &cmd);
-void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
-void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
-void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+void	interpretCommand(Server &server, std::string strmess, int const &id);
+void	msgError(std::string const &code, User &user, std::string const &msg);
+void	msgError(std::string const &code, User &user, std::string const &msg);
+void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
+void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
