@@ -16,7 +16,7 @@ class Channel
 		Channel(Channel const &src);
 		~Channel();
 		Channel &	operator=(Channel const &rSym);
-
+		/// @brief map of mode soit "modeI", "modeK", "modeL", "modeO", "modeT"
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
 		long unsigned int modeLMaxUser;
@@ -49,6 +49,14 @@ class Channel
 		void checkModeO(User &user);
 		void checkModeT(User &user);
 
+		/// @brief
+		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"
+		/// @return
+		bool checkRights(std::string &nameMode)
+		{
+			return (modeTab[nameMode]);
+		}
+
 //----------------------------------Exeption----------------------------------//
 		class UserIsAlredyInChannelException : public std::exception
 		{
@@ -67,3 +75,5 @@ class Channel
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
 //-------------------------------Other function-------------------------------//
 Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelList);
+
+

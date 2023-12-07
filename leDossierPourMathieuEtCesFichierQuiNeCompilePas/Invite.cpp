@@ -13,23 +13,17 @@
 //au lieu de me faire rire avec des blagues tu devrai tapercevoir que la fonction msgError est a moi et que tu devrai faire la tienne xD !
 void ircInvite(std::string &msg, User &user, Server &server)
 {
-
-	(void)server;
-	(void)msg;
-	(void)user;
-	// INVITE bob psg
 	std::vector<std::string> msgVec;
 
 	msgVec = splitString(msg, ' ');
 	if (msgVec.size() <= 2)
 		msgError("461", user, ERRORI461);
 	if (errorCmd == true)
-		throw inviteException();
+		throw std::runtime_error("ERROR : No enough parameters");
 	//dans un premier temps on verifie que le channel existe
 	Channel *channel = findChanelbyNameMatt(msgVec[2], server.channels);
 	if (channel == NULL)
 		msgError("403", user, ERRORI403);
-	//Channel *channel = findChannelByName(Server.channels, msgVec[1]);
 	//On verifie que celui qui invite est bien dans le channel "et qu'il a les droits"
 	//On verifie si le channel est en mode invitation seulement
 	//On verifie que l'utilisateur n'est pas deja dans le channel

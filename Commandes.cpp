@@ -24,6 +24,10 @@ class joinacceptedException : public std::exception
 		virtual const char* what() const throw();
 };
 
+void test(Channel channel, std::string nameMode)
+{
+	channel.checkRights(nameMode);
+}
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                  TOOLS                                     //
@@ -60,7 +64,7 @@ bool	findUserInChannel(Channel *channel, User *user)
 	}
 	return false;
 }
-
+//codé par le grand mdiamant mais il ne se souvient pas quand
 bool	checkRightsUserInChannel(Channel *channel, User *user)
 {
 	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
