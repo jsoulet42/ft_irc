@@ -67,3 +67,5 @@ class Server
 		};
 
 };
+
+User *findUserbyNick(std::string userName, std::vector<User *> &userList);

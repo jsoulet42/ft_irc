@@ -44,6 +44,16 @@ User	*findUserById(std::vector<User *> &users, int const &id)
 	return NULL;
 }
 
+User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
+{
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+	{
+		if ((*it)->nickname == cmd)
+			return (*it);
+	}
+	return NULL;
+}
+
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd)
 {
 	std::vector<Channel *>::iterator it = channels.begin();
@@ -75,6 +85,7 @@ bool	checkRightsUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
+/// <code> <nickname> <msg>
 void	msgError(std::string const &code, User &user, std::string const &msg)
 {
 	std::stringstream ss;

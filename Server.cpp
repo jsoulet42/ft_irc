@@ -257,4 +257,14 @@ const char* Server::UserException::what() const throw()
 	return "Error during USER command";
 }
 
-
+User *findUserbyNick(std::string nickname, std::vector<User *> &userList)
+{
+	std::vector<User *>::iterator it = userList.begin();
+	while (it != userList.end())
+	{
+		if ((*it)->nickname == nickname)
+			return (*it);
+		it++;
+	}
+	return NULL;
+}
