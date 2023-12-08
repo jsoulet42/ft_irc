@@ -127,8 +127,10 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 		name.erase(0, 1);
 	//else
 		//on peux décider de renvoyer une erreur ou de ne rien faire
+	std::cout << name << "|";
 	for (std::vector<Channel *>::iterator it = chanelList.begin(); it != chanelList.end(); it++)
 	{
+		std::cout << (*it)->name << "|";
 		if ((*it)->name == name)
 			return (*it);
 	}
