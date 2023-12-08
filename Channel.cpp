@@ -16,6 +16,7 @@ Channel::Channel(User *user, std::string &name)
 	this->name = name;
 	//this->operators.push_back(user);
 	this->invitedUsers.push_back(user);
+	this->modeI = true; // !!!!!!!!!!!!!!!a supprimer!!!!!!!!!!!!!!!
 }
 Channel::Channel(Channel const &src)
 {
@@ -43,15 +44,20 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
-	if (this->password.compare(password) == 0)
+	if (!this->password.empty())
 	{
-		this->users.push_back(user);
-		this->operators.insert(std::pair<std::string, bool>(user->nickname, false));
-		this->nbUsers++;
-		return 0;
+		if (this->password.compare(password) == 0)
+		{
+			this->users.push_back(user);
+			this->operators.insert(std::pair<std::string, bool>(user->nickname, false));
+			this->nbUsers++;
+			return 0;
+		}
+		else
+			return -1;
 	}
 	else
-		return -1;
+		return 0;
 }
 
 /* return 1 si une erreur a eter trouver dans un checkMode()*/

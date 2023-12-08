@@ -12,11 +12,8 @@
 #include <exception>
 #include <sstream>
 #include <csignal>
-#include "Utils.hpp"
-#include "Channel.hpp"
 #include "Color.hpp"
-#include "Server.hpp"
-#include "User.hpp"
+#include <map>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -83,6 +80,8 @@ void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+void	ircInvite(std::string &msg, User &user, Server &server);
+
 
 void irc_part(std::string &message, User &user, Server &server);
 //bool findUser(User &user, std::vector<User *> &userList);
@@ -95,8 +94,12 @@ void	irc_topic(std::string &message, User &user, Server &server);
 //                                   UTILS                                    //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-std::vector<std::string> splitString(const std::string &input, char delimiter);
-std::string	extractSubstring(std::string const &msg, int n);
+std::vector<std::string>	splitString(const std::string &input, char delimiter);
+std::string					extractSubstring(std::string const &msg, int n);
+bool						findElement(User const &user, std::vector<User *> &userList);
+int							countSpaces(const std::string &str, const char &delimiter);
+template <typename K, typename T>
+typename std::map<K, T>::const_iterator userInMap(const std::map<K, T> &inputMap, const User *userPtr);
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //
@@ -106,12 +109,13 @@ std::string	extractSubstring(std::string const &msg, int n);
 /*model de message d'erreur de la commande INVITE
 ":127.0.0.1 403 " + user->nickname + " #" + channel + " :No such channel\r\n"
 */
-#define ERRORI461 " :Not enough parameters"			//"<client> :Not enough parameters"
-#define ERRORI403 " :No such channel" 				//"<client> <channel> :No such channel"
-#define ERRORI442 " :You're not on that channel"	//"<client> <channel> :You're not on that channel"
-#define ERRORI482 " :You're not channel operator"	//"<client> <channel> :You're not channel operator"
-#define ERRORI441 " :They aren't on that channel"	//"<client> <nick> <channel> :They aren't on that channel"
-#define ERRORI443 " :is already on channel"			//"<client> <nick> <channel> :is already on channel"
+#define ERRORI401 " :No such nick/channel\r\n"			//"<client> <nick> :No such nick/channel"
+#define ERRORI403 " :No such channel\r\n" 				//"<client> <channel> :No such channel"
+#define ERRORI441 " :They aren't on that channel\r\n"	//"<client> <nick> <channel> :They aren't on that channel"
+#define ERRORI442 " :You're not on that channel\r\n"	//"<client> <channel> :You're not on that channel"
+#define ERRORI443 " :is already on channel\r\n"			//"<client> <nick> <channel> :is already on channel"
+#define ERRORI461 " :Not enough parameters\r\n"			//"<client> :Not enough parameters"
+#define ERRORI482 " :You're not channel operator\r\n"	//"<client> <channel> :You're not channel operator"
 
 /*class inviteException : public std::exception
 {
@@ -180,3 +184,16 @@ class notEnoughParamException : public std::exception
 //                                  MODE                                      //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                msgError.cpp                                //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+void msgError461(User const &user);
+void msgError403(User const &user, std::string const &channel);
+void msgError442(User const &user, std::string const &channel);
+void msgError443(User const &user, std::string const &userInvited, Channel const &channel);
+void msgError482(User const &user, std::string const &channel);
+void msgError401(User const &user, std::string const &userInvited);

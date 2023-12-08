@@ -19,7 +19,7 @@ class Channel
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
 		long unsigned int modeLMaxUser;
-		// bool modeI;
+		bool modeI;
 		// bool modeT;
 		// bool modeK;
 		// bool modeO;
@@ -37,7 +37,7 @@ class Channel
 		//std::vector<User *>		operators;
 		std::map<std::string, bool>		operators;
 		std::vector<User *>		invitedUsers;
-  
+
     void	channelSendLoop(std::string message, int & sFd);
 		bool	isInChannel(User *user);
 		bool	isOpInChannel(User *user);
