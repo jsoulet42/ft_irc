@@ -20,7 +20,7 @@ class Channel
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
 		long unsigned int modeLMaxUser;
-		// bool modeI;
+		bool modeI;
 		// bool modeT;
 		// bool modeK;
 		// bool modeO;

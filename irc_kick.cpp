@@ -9,7 +9,7 @@ void	irc_kick(std::string message, User * user, Server * server)
 	//std::istringstream iss(message);
 	//std::string word;
 	//std::getline(iss, word, ' '); // Read until the first space
-	
+
 	//std::string rpl_kick = word;
 	//bool hasReason = (rpl_kick.find(':') != std::string::npos);
 
@@ -61,7 +61,7 @@ void	irc_kick(std::string message, User * user, Server * server)
 	//{
 	//	std::getline(iss, reason);
 	//}
-	
+
 	//rpl_kick = ":" + user->nickname + " KICK #" + channelName + " " + kickedUser + " :" + reason + "\r\n";
 	//(*it)->channelSendLoop(rpl_kick, user->fd, server, 1);
 	//int rc = (*it)->deleteChannelUser((*it)->getUserByNick(kickedUser), server);
