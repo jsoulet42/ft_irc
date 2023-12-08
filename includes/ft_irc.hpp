@@ -79,6 +79,10 @@ Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
 
+void irc_part(std::string &message, User &user, Server &server);
+//bool findUser(User &user, std::vector<User *> &userList);
+void	irc_userhost(std::string &message, User &user, Server &server);
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   UTILS                                    //
