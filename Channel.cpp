@@ -14,8 +14,7 @@ Channel::Channel(User *user, std::string &name)
 	this->maxUsers = 10;
 	this->nbUsers = 1;
 	this->name = name;
-	//this->users.push_back(user);
-	this->operators.push_back(user);
+	//this->operators.push_back(user);
 	this->invitedUsers.push_back(user);
 }
 Channel::Channel(Channel const &src)
@@ -47,6 +46,7 @@ int Channel::addUser(User *user, std::string &password)
 	if (this->password.compare(password) == 0)
 	{
 		this->users.push_back(user);
+		this->operators.insert(std::pair<std::string, bool>(user->nickname, false));
 		this->nbUsers++;
 		return 0;
 	}

@@ -34,15 +34,18 @@ class Channel
 		// std::string				mode;
 		std::string				password;
 		std::vector<User *>		users;
-		std::vector<User *>		operators;
+		//std::vector<User *>		operators;
+		std::map<std::string, bool>		operators;
 		std::vector<User *>		invitedUsers;
-		void	channelSendLoop(std::string message, int & sFd);
+  
+    void	channelSendLoop(std::string message, int & sFd);
 		bool	isInChannel(User *user);
 		bool	isOpInChannel(User *user);
 		bool	isModeT();
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
+
 		int addUser(User *user, std::string &cmd);
 		void ft_fillPtrCheckMode();
 		void ft_checkMode(Channel *channel, User &user);
@@ -75,8 +78,11 @@ class Channel
 };
 
 //------------------------------Ostream overload------------------------------//
+
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
+
 //-------------------------------Other function-------------------------------//
+
 Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelList);
 
 

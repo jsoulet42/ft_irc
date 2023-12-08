@@ -63,6 +63,7 @@ class	User;
 class	Server;
 class	Channel;
 
+void	checkOperator(User *user);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	ircPrivmsg(std::string &msg, User &user, Server &Server);
