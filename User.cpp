@@ -30,3 +30,9 @@ bool findUser(User const &user, std::vector<User *> &userList)
 	}
 	return false;
 }
+
+template <typename T, typename container>
+bool findUser(T const &user, container &userList)
+{
+	return (std::find(userList.begin(), userList.end(), user) != userList.end());
+}

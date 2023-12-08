@@ -32,6 +32,7 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	// dans un premier temps on verifie que le channel existe
 	Channel *channel = findChanelbyNameMatt(msgVec[2], server.channels);
 	User *userInvited = findUserByName(server.users, msgVec[1]);
+	// error 401 a faire si user no existe
 	if (channel == NULL)
 		msgError403(user, msgVec[2]);
 	// On verifie que celui qui invite est bien dans le channel "et qu'il a les droits"
