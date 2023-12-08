@@ -230,6 +230,30 @@ std::vector<User *>::iterator Server::getUser(int fd)
 	return this->users.end();
 }
 
+std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
+{
+	if (name[0] == '#')
+		name = name.substr(1);
+
+	std::vector<Channel *>::iterator	it = this->channels.begin();
+
+	if (it == this->channels.end())
+		return this->channels.end();
+	while (it != this->channels.end())
+	{
+		ssize_t i = 0;
+		i = (*it)->name.find("\r\n");
+		if (i == -1)
+			i = (*it)->name.find("\n");
+		(*it)->name = (*it)->name.substr(0, i);
+		
+		if ((*it)->name.compare(0, (*it)->name.length(), name) == 0)
+			return it;
+		++it;
+	}
+	return this->channels.end();
+}
+
 void Server::deleteUser(int fd)
 {
 	std::vector<User *>::iterator	user = getUser(fd);

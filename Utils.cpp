@@ -1,11 +1,8 @@
 # include "./includes/ft_irc.hpp"
-# include "./includes/Server.hpp"
-# include "./includes/User.hpp"
-# include "./includes/Channel.hpp"
 
 
 // fait par le Baron Sanglant le 11 aout de l'an de grâce 1943 ich bin ein berliner
-std::vector<std::string> splitString(const std::string &input, char delimiter)
+std::vector<std::string> Utils::splitString(const std::string &input, char delimiter)
 {
 	std::vector<std::string> tokens;
 	std::stringstream ss(input);
@@ -21,7 +18,7 @@ std::vector<std::string> splitString(const std::string &input, char delimiter)
 
 // fonction pour enlever les \r\n des messages a partir du charactere n
 // s'il ne trouve pas \r\n renvoie la phrase d'origine
-std::string	extractSubstring(std::string const &msg, int n)
+std::string	Utils::extractSubstring(std::string const &msg, int n)
 {
 	if (n < 0)
 		n = 0;
@@ -39,7 +36,7 @@ std::string	extractSubstring(std::string const &msg, int n)
 	}
 }
 
-void printMessageSendToClient(std::string fonction, User &user, std::string message)
+void Utils::printMessageSendToClient(std::string fonction, User *user, std::string message)
 {
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user->nickname << "| pour la fonction |" << fonction << "|" << std::endl;
 }

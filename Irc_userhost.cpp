@@ -1,5 +1,10 @@
 # include "./includes/ft_irc.hpp"
 
+void printMessageSendToClientUserhost(std::string fonction, User &user, std::string message)
+{
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+}
+
 void	irc_userhost(std::string &message, User &user, Server &server)
 {
 	std::cout << "message recu dans IRC_USERHOST |" << message << "|" << std::endl;
@@ -21,13 +26,13 @@ void	irc_userhost(std::string &message, User &user, Server &server)
 		{
 			rpl_userhost = "127.0.0.1 302 :"+ message + "[]=+@127.0.0.1\r\n";
 			send(user._fdUser, rpl_userhost.c_str(), rpl_userhost.length(), 0);
-			printMessageSendToClient("IRC_USERHOST - reponse positive", user, rpl_userhost);
+			printMessageSendToClientUserhost("IRC_USERHOST - reponse positive", user, rpl_userhost);
 			return;
 		}
 		++it;
 	}
 	std::string err_no_such_nick = "127.0.0.1 401 " + message + " :No such nickname\r\n";
 	send(user._fdUser, err_no_such_nick.c_str(), err_no_such_nick.length(), 0);
-	printMessageSendToClient("IRC_USERHOST - reponse negative", user, err_no_such_nick);
+	printMessageSendToClientUserhost("IRC_USERHOST - reponse negative", user, err_no_such_nick);
 	return;
 }

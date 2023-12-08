@@ -1,8 +1,6 @@
 #pragma once
 
 # include "ft_irc.hpp"
-# include "User.hpp"
-# include "Channel.hpp"
 
 class Server
 {
@@ -41,6 +39,7 @@ class Server
 		void sendError(int fd, std::string error);
 		void resizeBuffer(std::string &buffer);
 		void deleteUser(int fd);
+		std::vector<Channel *>::iterator	getChannelByName(std::string name);
 
 		class PassException : public std::exception
 		{

@@ -1,5 +1,10 @@
 
-#include "./includes/Channel.hpp"
+#include "./includes/ft_irc.hpp"
+
+void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
+{
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+}
 
 void msgError(std::string const &code, User &user, std::string const &msg);
 
@@ -124,3 +129,70 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 	return NULL;
 }
 
+void	Channel::channelSendLoop(std::string message, int & sFd)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (sFd != (*it)->_fdUser)
+		{
+			send((*it)->_fdUser, message.c_str(), message.length(), 0);
+			printMessageSendToClientChannel("Channel send loop - user", (*(*it)), message);
+		}
+		it++;
+	}
+	//it = this->operators.begin();
+	//while (it != this->operators.end())
+	//{
+	//	if (sFd != (*it)->_fdUser)
+	//	{
+	//		send((*it)->_fdUser, message.c_str(), message.length(), 0);
+	//		printMessageSendToClientChannel("Channel send loop - operator", (*(*it)), message);
+	//	}
+	//	it++;
+	//}
+}
+
+bool	Channel::isInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	std::vector<User *>::iterator		it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (user == *it)
+			return true;
+		it++;
+	}
+	return false;
+}
+
+bool	Channel::isOpInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	//std::vector<User *>::iterator		it = this->operators.begin();
+
+	//while (it != operators.end())
+	//{
+	//	if (user == *it)
+	//	{
+	//		//std::cout << std::endl << std::endl << std::endl << "User finded" << std::endl;
+	//		return true;
+	//	}
+	//	it++;
+	//}
+	return false;
+}
+
+bool	Channel::isModeT()
+{
+	//if (this->mode.find('t') != std::string::npos)
+	//	return true;
+	std::cout << "ici il faut une fonction qui verifie que le channel est en mode T" << std::endl;
+	return false;
+}
