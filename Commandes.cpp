@@ -139,8 +139,10 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		//std::cout << "ici il y aura une fonction TOPIC" << std::endl;
 	else if (strmess.compare(0, 5, "KICK ") == 0)
 		std::cout << "ici il y aura une fonction KICK" << std::endl;
-	else if (strmess.compare(0, 7, "INVITE ") == 0)
-		std::cout << "ici il y aura une fonction INVITE" << std::endl;
+	else if (strmess.compare(0, 6, "INVITE") == 0)
+	{
+		ircInvite(strmess, *user, server);
+	}
 	else if (strmess.compare(0, 5, "WHOIS") == 0)
 		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
 	else if (strmess.compare(0, 3, "WHO") == 0)
@@ -302,6 +304,11 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
 	//channel->ft_checkMode(channel, user);
+	if (channel->modeI)
+	{
+		if (!findElement(user, channel->invitedUsers))
+			msgError("473", user, ERRORJ473);
+	}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
