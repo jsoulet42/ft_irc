@@ -82,6 +82,7 @@ void	sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 void irc_part(std::string &message, User &user, Server &server);
 //bool findUser(User &user, std::vector<User *> &userList);
 void	irc_userhost(std::string &message, User &user, Server &server);
+void printMessageSendToClient(std::string fonction, User &user, std::string message);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

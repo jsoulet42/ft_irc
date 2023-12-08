@@ -68,7 +68,7 @@ void msgError461(User const &user)
 void msgError403(User const &user, std::string const &channel)
 {
 	std::stringstream ss;
-	ss << IPHOST << " 403 " << user.nickname << " " << channel << " " << ERRORI403;
+	ss << IPHOST << " 403 " << channel << " " << ERRORI403;
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	errorCmd = true;
 	throw std::runtime_error(ERRORI403);

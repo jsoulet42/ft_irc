@@ -121,9 +121,9 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 					//le user existe je lui envoie le msg norme
 					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
 					std::cout << "rpl_privmsg " << rpl_privmsg << std::endl;
-					send(user._fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					//send_log((*it)->fd, rpl_privmsg, Server);
-					//throw Irc_privmsg_rpl();
+					send((*it)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+					printMessageSendToClient("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
+					return;
 				}
 			}
 			// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas

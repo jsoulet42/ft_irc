@@ -38,3 +38,8 @@ std::string	extractSubstring(std::string const &msg, int n)
 		return (msg);
 	}
 }
+
+void printMessageSendToClient(std::string fonction, User &user, std::string message)
+{
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+}
