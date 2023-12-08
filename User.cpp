@@ -10,7 +10,7 @@ User::~User()
 {
 }
 
-bool	User::operator==(User const &rSym)
+bool User::operator==(User const &rSym)
 {
 	return this->nickname == rSym.nickname;
 }
@@ -29,4 +29,18 @@ bool findUser(User const &user, std::vector<User *> &userList)
 			return true;
 	}
 	return false;
+}
+
+
+
+/// @brief 
+/// @tparam T
+/// @tparam Container
+/// @param element
+/// @param container
+/// @return
+template <typename T, typename Container>
+bool findElement(const T &element, const Container &container)
+{
+	return std::find(container.begin(), container.end(), element) != container.end();
 }
