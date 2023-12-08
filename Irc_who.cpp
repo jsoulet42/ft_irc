@@ -1,5 +1,10 @@
 # include "./includes/ft_irc.hpp"
 
+void printMessageSendToClientWho(std::string fonction, User &user, std::string message)
+{
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+}
+
 void	irc_who(std::string &message, User &user, Server &server)
 {
 	//std::cout << message << user.CAP_OK << server.current_size << std::endl;
@@ -36,62 +41,76 @@ void	irc_who(std::string &message, User &user, Server &server)
 	//	                                operator.
 
 	// Parsing the message
-	std::string copy = message.substr(4); // j'enleve de WHO et l'espace.
-	ssize_t pos = copy.find(' ');
-	std::string rpl_who;
-	if (pos > 0 && copy[pos + 1] == 'o')
-	{
-		// recherche operator
-		// print si operator ou non
-		// return;
-		pos = copy.find('*'); //je cherche si wildcard
-		if (pos >= 0)
-		{
-			std::cout << "I'm sorry but WHO can accept wildcard *" << std::endl;
-			return;
-		}
-		//recherche standard (sans wildcard)
-		std::vector<User *>::iterator it = server.users.begin();
-		while (it != server.users.end())
-		{
-			if ((*it)->nickname == user.nickname)
-			{
-				rpl_who = user.nickname + " is connected\r\n";
-				
-				return;
-			}
-			++it;
-		}
-		rpl_who = user.nickname + " not found\r\n";
-		
-		return;
-	}
-	if (pos == -1)
-	{
-		//recherche un seul user
-		pos = copy.find('*'); //je cherche si wildcard
-		if (pos >= 0)
-		{
-			std::cout << "I'm sorry but WHO can accept wildcard *" << std::endl;
-			return;
-		}
-		//recherche standard (sans wildcard)
-		std::vector<User *>::iterator it = server.users.begin();
-		while (it != server.users.end())
-		{
-			if ((*it)->nickname == user.nickname)
-			{
-				rpl_who = user.nickname + " is connected\r\n";
-				
-				return;
-			}
-			++it;
-		}
-		rpl_who = user.nickname + " not found\r\n";
-		
-		return;
-	}
-	rpl_who = " you can't search more than one nick\r\n";
+	std::cout << "message recu dans IRC_WHO |" << message << "|" << std::endl;
 	
+	ssize_t pos = message.find(' ');
+	std::string rpl_who;
+	std::cout << "test dans IRC_WHO |" << message << "|" << pos << "|" << std::endl;
 
+	if (pos == -1) //je ne trouve pas d'espace, WHO est vide ou mal formate
+	{
+		//WHO mal formate
+		std::string err_unknow_command = message.substr(0, message.size() - 1) + " :Unknow command\r\n";
+		send(user._fdUser, err_unknow_command.c_str(), err_unknow_command.length(), 0);
+		printMessageSendToClientWho("IRC_WHO - Unfomarted command or empty", user, err_unknow_command);
+	}
+	else
+	{
+		message = message.substr(4); // j'enleve de WHO et l'espace.
+		pos = message.find('*'); //je cherche si wildcard
+		if (pos >= 0)
+		{
+			std::string err_no_such_service = "408 WHO with wilcard :no such service\r\n";
+			send(user._fdUser, err_no_such_service.c_str(), err_no_such_service.length(), 0);
+			printMessageSendToClientWho("IRC_WHO - No wild card service", user, err_no_such_service);
+			return;
+		}
+		pos = message.find(" o\n");
+		int findOnce = 0;
+		if (pos >= 0)
+		{
+			//recherche d'un operateur nomme xxx ou xxx = message.substr(0, pos);
+			//doit verif que la personne est sur le chan ET quelle est OP.
+			std::cout << "le WHO d'operator n'est pas encore implante" << std::endl;
+		}
+		else
+		{
+			//recherche standard d'un simple user
+			
+			std::vector<Channel *>::iterator it2 = server.channels.begin();
+			
+			message = message.substr(0, message.size() - 1);
+			while(it2 != server.channels.end())
+			{
+				std::cout << "je check le channel : " << (*it2)->name << std::endl;
+				std::vector<User *>::iterator it = (*it2)->users.begin();
+				while (it != (*it2)->users.end())
+				{
+					std::cout << "test 2 dans IRC_WHO |" << message << "|" << (*it)->nickname << "|" << std::endl;
+					if ((*it)->nickname == message)
+					{
+						findOnce = 1;
+						rpl_who = "352 " + (*it2)->name + " " + (*it)->username + " ircserv 127.0.0.1 " + (*it)->nickname + "\r\n";
+						send(user._fdUser, rpl_who.c_str(), rpl_who.length(), 0);
+						printMessageSendToClientWho("IRC_WHO - find", user, rpl_who);
+					}
+					it++;
+				}
+				it2++;
+			}
+			if (findOnce == 1)
+			{
+				rpl_who = "315 " + user.nickname + " " + message + " :End of WHO list\r\n";
+				send(user._fdUser, rpl_who.c_str(), rpl_who.length(), 0);
+				printMessageSendToClientWho("IRC_WHO - end of who", user, rpl_who);
+			}
+			else
+			{
+				std::string err_was_no_such_nick = "406 " + message + " :There was no such nickname\r\n";
+				send(user._fdUser, err_was_no_such_nick.c_str(), err_was_no_such_nick.length(), 0);
+				printMessageSendToClientWho("IRC_WHO - end of who - attention renvoi 406 si aucun channel ouverts", user, err_was_no_such_nick);
+			}
+			return;
+		}
+	}
 }

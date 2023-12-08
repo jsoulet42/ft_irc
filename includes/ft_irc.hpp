@@ -12,7 +12,11 @@
 #include <exception>
 #include <sstream>
 #include <csignal>
+#include "Utils.hpp"
+#include "Channel.hpp"
 #include "Color.hpp"
+#include "Server.hpp"
+#include "User.hpp"
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -79,6 +83,12 @@ void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+
+void irc_part(std::string &message, User &user, Server &server);
+//bool findUser(User &user, std::vector<User *> &userList);
+void	irc_userhost(std::string &message, User &user, Server &server);
+void	printMessageSendToClient(std::string fonction, User &user, std::string message);
+void	irc_topic(std::string &message, User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

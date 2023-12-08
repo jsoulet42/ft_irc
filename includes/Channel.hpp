@@ -2,7 +2,6 @@
 #pragma once
 
 # include "ft_irc.hpp"
-# include "User.hpp"
 # include <map>
 
 extern bool errorCmd;
@@ -38,7 +37,11 @@ class Channel
 		//std::vector<User *>		operators;
 		std::map<std::string, bool>		operators;
 		std::vector<User *>		invitedUsers;
-
+  
+    void	channelSendLoop(std::string message, int & sFd);
+		bool	isInChannel(User *user);
+		bool	isOpInChannel(User *user);
+		bool	isModeT();
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//

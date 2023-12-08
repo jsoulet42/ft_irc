@@ -1,8 +1,5 @@
 
 # include "./includes/ft_irc.hpp"
-# include "./includes/Server.hpp"
-# include "./includes/User.hpp"
-# include "./includes/Channel.hpp"
 
 bool errorCmd = false;
 
@@ -123,7 +120,11 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		return;
 	}
 	else if (strmess.compare(0, 4, "PART") == 0)
-		std::cout << "ici il y aura une fonction PART" << std::endl;
+	{
+		irc_part(strmess, *user, server);
+		return;
+	}
+		//std::cout << "ici il y aura une fonction PART" << std::endl;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
 	{
 		std::cout << "ici il y aura une fonction MODE" << std::endl;
@@ -134,7 +135,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 5, "NICK ") == 0)
 		std::cout << "ici il y aura une fonction NICK" << std::endl;
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
-		std::cout << "ici il y aura une fonction TOPIC" << std::endl;
+		irc_topic(strmess, *user, server);
+		//std::cout << "ici il y aura une fonction TOPIC" << std::endl;
 	else if (strmess.compare(0, 5, "KICK ") == 0)
 		std::cout << "ici il y aura une fonction KICK" << std::endl;
 	else if (strmess.compare(0, 7, "INVITE ") == 0)
@@ -144,8 +146,9 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 3, "WHO") == 0)
 		irc_who(strmess, *user, server);
 		//std::cout << "ici il y aura une fonction WHO" << std::endl;
-	else if (strmess.compare(0, 9, "USERHOST") == 0)
-		std::cout << "ici il y aura une fonction USERHOST" << std::endl;
+	else if (strmess.compare(0, 9, "USERHOST ") == 0)
+		irc_userhost(strmess, *user, server);
+		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;
 	else {
 		msgError("421", *user, ERRORN421);
 	}
