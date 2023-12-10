@@ -14,7 +14,6 @@ Channel::Channel(User *user, std::string &name)
 	this->maxUsers = 10;
 	this->nbUsers = 1;
 	this->name = name;
-	//this->operators.push_back(user);
 	this->invitedUsers.push_back(user);
 	this->modeI = true; // !!!!!!!!!!!!!!!a supprimer!!!!!!!!!!!!!!!
 }

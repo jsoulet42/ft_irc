@@ -73,8 +73,7 @@ bool	findUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
-///@brief return 1 si l'utilisateur est operateur, 2 si il est invité, sinon 0,
-/// operateur etant un grade superieur a invité
+///@brief return 1  = OPERATOR define in irc-hpp , 2 = INVITED define in irc-hpp , 0 = no rights
 int	checkRightsUserInChannel(Channel *channel, User *user)
 {
 	std::map<User *, bool>::iterator it = channel->operators.begin();
@@ -306,7 +305,7 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 	//channel->ft_checkMode(channel, user);
 	if (channel->modeI)
 	{
-		if (!findElement(user, channel->invitedUsers))
+		if (checkRightsUserInChannel(channel, &user) != INVITED)
 			msgError("473", user, ERRORJ473);
 	}
 	if (findUserInChannel(channel, &user) == true)

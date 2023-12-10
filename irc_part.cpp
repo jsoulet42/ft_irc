@@ -62,7 +62,7 @@ int	deleteChannelUser(Channel *channel, User *user, Server *server)
 	std::vector<User *>::iterator	ite = channel->users.end();
 
 	// ce if passe l'operateur quittant le channel en non operateur
-	if (checkRightsUserInChannel(channel, user) == 1)
+	if (checkRightsUserInChannel(channel, user) == OPERATOR)
 		channel->operators[user] = false;
 
 	while (it != ite)

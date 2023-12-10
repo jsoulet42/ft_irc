@@ -39,7 +39,7 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	}
 	// else																		// si le channel est prive
 	// {
- 	if (checkRightsUserInChannel(channel, &user) != 1)						//on verifie que l'utilisateur est bien operateur du channel
+ 	if (checkRightsUserInChannel(channel, &user) != OPERATOR)						//on verifie que l'utilisateur est bien operateur du channel
 			msgError482(user, msgVec[2]);
 	// }
 	if (findElement(*userInvited, channel->invitedUsers) == true)				// on verifie que l'utilisateur n'est pas deja invité
