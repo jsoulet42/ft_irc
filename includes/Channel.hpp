@@ -1,9 +1,12 @@
 
 #pragma once
 
-# include <ft_irc.hpp>
-# include <User.hpp>
-# include <map>
+#include "ft_irc.hpp"
+#include "User.hpp"
+#include <map>
+#include <cctype>
+#include <iostream>
+#include <string>
 
 extern bool errorCmd;
 
@@ -42,15 +45,19 @@ class Channel
 //-------------------------------Other function-------------------------------//
 
 		int addUser(User *user, std::string &cmd);
-		void ft_fillPtrCheckMode();
 		void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
-		void ft_checkMode(Channel *channel, User &user);
+		bool ft_checkMode(Channel *channel, User &user, std::string mode); // exemple de string : "modeI", "modeL" etc...
+		void initModeMap();
 		void checkModeI(User &user);
 		void checkModeK(User &user);
-		void checkModeL(User &user);
+		void checkModeL(User &user, std::string strmess);
 		void checkModeO(User &user);
 		void checkModeT(User &user);
-
+		void setModeO(char c, std::string strmess, Channel &chan, User &user);
+		void setModeK(char c, std::string strmess);
+		void setModeL(char c, std::string strmess);
+		void setModeT(char c);
+		void setModeI(char c);
 //----------------------------------Exeption----------------------------------//
 		class UserIsAlredyInChannelException : public std::exception
 		{
