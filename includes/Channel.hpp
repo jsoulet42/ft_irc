@@ -40,7 +40,7 @@ class Channel
 
     void	channelSendLoop(std::string message, int & sFd);
 		bool	isInChannel(User *user);
-		bool	isOpInChannel(User *user);
+		//bool	isOpInChannel(User *user);
 		bool	isModeT();
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//

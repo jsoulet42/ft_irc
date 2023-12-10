@@ -73,16 +73,13 @@ bool	findUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
+
 ///@brief return 1  = OPERATOR define in irc-hpp , 2 = INVITED define in irc-hpp , 0 = no rights
 int	checkRightsUserInChannel(Channel *channel, User *user)
 {
-	std::map<User *, bool>::iterator it = channel->operators.begin();
-	for (; it != channel->operators.end(); ++it)
-	{
-		if (it->first == user)
-			return 1;
-	}
-
+	std::map<User *, bool>::iterator it = channel->operators.find(user);
+	if (it != channel->operators.end() && it->second == true)
+		return 1;
 	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
 	{
 		if ((*it)->_fdUser == user->_fdUser)
