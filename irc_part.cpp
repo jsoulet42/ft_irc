@@ -1,4 +1,4 @@
-# include "./includes/ft_irc.hpp"
+# include "includes/ft_irc.hpp"
 //# include "./includes/User.hpp"
 
 int	deleteChannelUser(Channel *channel, User *user, Server *server); // a mettre dans ft_irc.hpp
@@ -53,7 +53,7 @@ void irc_part(std::string &message, User &user, Server &server)
 	}
 }
 
-// a ajouter a utils 
+// a ajouter a utils
 
 int	deleteChannelUser(Channel *channel, User *user, Server *server)
 {
@@ -61,11 +61,9 @@ int	deleteChannelUser(Channel *channel, User *user, Server *server)
 	std::vector<User *>::iterator	it = channel->users.begin();
 	std::vector<User *>::iterator	ite = channel->users.end();
 
-	//if (channel->isOpInChannel(user))
-	//{
-	//	it = channel->operators.begin();
-	//	ite = channel->operators.end();
-	//}
+	// ce if passe l'operateur quittant le channel en non operateur
+	if (checkRightsUserInChannel(channel, user) == 1)
+		channel->operators[user] = false;
 
 	while (it != ite)
 	{

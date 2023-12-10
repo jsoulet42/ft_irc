@@ -73,14 +73,14 @@ bool	findUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
-///@brief je l'ai modifier pour qu'elle devienne generique return 1 si l'utilisateur est operateur, 2 si il est invité, sinon 0,
+///@brief return 1 si l'utilisateur est operateur, 2 si il est invité, sinon 0,
 /// operateur etant un grade superieur a invité
 int	checkRightsUserInChannel(Channel *channel, User *user)
 {
-	std::map<std::string, bool>::iterator it = channel->operators.begin();
+	std::map<User *, bool>::iterator it = channel->operators.begin();
 	for (; it != channel->operators.end(); ++it)
 	{
-		if (it->first == user->nickname)
+		if (it->first == user)
 			return 1;
 	}
 
@@ -332,7 +332,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
-		channel->operators[user.nickname] = true;
+		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
 		std::cout << "ici" << std::endl;

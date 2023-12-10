@@ -35,7 +35,7 @@ class Channel
 		std::string				password;
 		std::vector<User *>		users;
 		//std::vector<User *>		operators;
-		std::map<std::string, bool>		operators;
+		std::map<User *, bool>		operators;
 		std::vector<User *>		invitedUsers;
 
     void	channelSendLoop(std::string message, int & sFd);

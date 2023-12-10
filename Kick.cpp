@@ -22,8 +22,11 @@ void ircKick(std::string &msg, User &user, Server &server)
 		msgSplit.push_back(":" + user.nickname);
 	if (msgSplit[2][0] != '#')													// on verifie que le channel commence bien par #
 		msgError403(user, msgSplit[2]);
-
-
+	//Channel *channel = findChanelbyNameMatt(ici le nom du channel apres parsing, server.channels);
+	//if (channel == NULL)
+		//erreur channel inexistant
+	//if (checkRightsUserInChannel(channel, &user) != 1)							//on verifie que l'utilisateur est bien operateur du channel
+		//erreur pas les droits
 }
 
 // La commande KICK permet à un opérateur de canal de retirer un utilisateur de son canal.

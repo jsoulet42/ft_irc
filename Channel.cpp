@@ -49,7 +49,7 @@ int Channel::addUser(User *user, std::string &password)
 		if (this->password.compare(password) == 0)
 		{
 			this->users.push_back(user);
-			this->operators.insert(std::pair<std::string, bool>(user->nickname, false));
+			this->operators.insert(std::pair<User *, bool>(user, false));
 			this->nbUsers++;
 			return 0;
 		}
@@ -178,7 +178,7 @@ bool	Channel::isInChannel(User *user)
 	return false;
 }
 
-bool	Channel::isOpInChannel(User *user)
+/*bool	Channel::isOpInChannel(User *user)
 {
 	if (!user)
 		return false;
@@ -195,7 +195,7 @@ bool	Channel::isOpInChannel(User *user)
 	//	it++;
 	//}
 	return false;
-}
+}*/
 
 bool	Channel::isModeT()
 {
