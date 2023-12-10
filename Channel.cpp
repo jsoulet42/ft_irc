@@ -1,5 +1,10 @@
 
-#include "./includes/Channel.hpp"
+#include "./includes/ft_irc.hpp"
+
+void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
+{
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+}
 
 void msgError(std::string const &code, User &user, std::string const &msg);
 
@@ -9,9 +14,8 @@ Channel::Channel(User *user, std::string &name)
 	this->maxUsers = 10;
 	this->nbUsers = 1;
 	this->name = name;
-	this->users.push_back(user);
-	this->operators.push_back(user);
 	this->invitedUsers.push_back(user);
+	this->modeI = true; // !!!!!!!!!!!!!!!a supprimer!!!!!!!!!!!!!!!
 }
 Channel::Channel(Channel const &src)
 {
@@ -39,14 +43,20 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
-	if (this->password.compare(password) == 0)
+	if (!this->password.empty())
 	{
-		this->users.push_back(user);
-		this->nbUsers++;
-		return 0;
+		if (this->password.compare(password) == 0)
+		{
+			this->users.push_back(user);
+			this->operators.insert(std::pair<User *, bool>(user, false));
+			this->nbUsers++;
+			return 0;
+		}
+		else
+			return -1;
 	}
 	else
-		return -1;
+		return 0;
 }
 
 /* return 1 si une erreur a eter trouver dans un checkMode()*/
@@ -116,10 +126,80 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 		name.erase(0, 1);
 	//else
 		//on peux décider de renvoyer une erreur ou de ne rien faire
+	std::cout << name << "|";
 	for (std::vector<Channel *>::iterator it = chanelList.begin(); it != chanelList.end(); it++)
 	{
+		std::cout << (*it)->name << "|";
 		if ((*it)->name == name)
 			return (*it);
 	}
 	return NULL;
+}
+
+void	Channel::channelSendLoop(std::string message, int & sFd)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (sFd != (*it)->_fdUser)
+		{
+			send((*it)->_fdUser, message.c_str(), message.length(), 0);
+			printMessageSendToClientChannel("Channel send loop - user", (*(*it)), message);
+		}
+		it++;
+	}
+	//it = this->operators.begin();
+	//while (it != this->operators.end())
+	//{
+	//	if (sFd != (*it)->_fdUser)
+	//	{
+	//		send((*it)->_fdUser, message.c_str(), message.length(), 0);
+	//		printMessageSendToClientChannel("Channel send loop - operator", (*(*it)), message);
+	//	}
+	//	it++;
+	//}
+}
+
+bool	Channel::isInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	std::vector<User *>::iterator		it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (user == *it)
+			return true;
+		it++;
+	}
+	return false;
+}
+
+/*bool	Channel::isOpInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	//std::vector<User *>::iterator		it = this->operators.begin();
+
+	//while (it != operators.end())
+	//{
+	//	if (user == *it)
+	//	{
+	//		//std::cout << std::endl << std::endl << std::endl << "User finded" << std::endl;
+	//		return true;
+	//	}
+	//	it++;
+	//}
+	return false;
+}*/
+
+bool	Channel::isModeT()
+{
+	//if (this->mode.find('t') != std::string::npos)
+	//	return true;
+	std::cout << "ici il faut une fonction qui verifie que le channel est en mode T" << std::endl;
+	return false;
 }

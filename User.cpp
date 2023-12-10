@@ -1,5 +1,5 @@
 
-#include "./includes/User.hpp"
+#include "./includes/ft_irc.hpp"
 
 User::User(int &fdUser) : _fdUser(fdUser)
 {
@@ -8,4 +8,9 @@ User::User(int &fdUser) : _fdUser(fdUser)
 
 User::~User()
 {
+}
+
+bool	User::operator==(User const &rSym)
+{
+	return this->nickname == rSym.nickname;
 }

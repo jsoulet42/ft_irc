@@ -1,8 +1,5 @@
 
 # include "./includes/ft_irc.hpp"
-# include "./includes/Server.hpp"
-# include "./includes/User.hpp"
-# include "./includes/Channel.hpp"
 
 bool errorCmd = false;
 
@@ -24,6 +21,11 @@ class joinacceptedException : public std::exception
 		virtual const char* what() const throw();
 };
 
+void test(Channel channel, std::string nameMode)
+{
+	channel.checkRights(nameMode);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                  TOOLS                                     //
@@ -35,6 +37,16 @@ User	*findUserById(std::vector<User *> &users, int const &id)
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
 	{
 		if ((*it)->_fdUser == id)
+			return (*it);
+	}
+	return NULL;
+}
+
+User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
+{
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+	{
+		if ((*it)->nickname == cmd)
 			return (*it);
 	}
 	return NULL;
@@ -61,16 +73,25 @@ bool	findUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
-bool	checkRightsUserInChannel(Channel *channel, User *user)
+///@brief return 1  = OPERATOR define in irc-hpp , 2 = INVITED define in irc-hpp , 0 = no rights
+int	checkRightsUserInChannel(Channel *channel, User *user)
 {
+	std::map<User *, bool>::iterator it = channel->operators.begin();
+	for (; it != channel->operators.end(); ++it)
+	{
+		if (it->first == user)
+			return 1;
+	}
+
 	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
 	{
 		if ((*it)->_fdUser == user->_fdUser)
-			return true;
+			return 2;
 	}
-	return false;
+	return 0;
 }
 
+/// <code> <nickname> <msg>
 void	msgError(std::string const &code, User &user, std::string const &msg)
 {
 	std::stringstream ss;
@@ -87,33 +108,48 @@ void	msgError(std::string const &code, User &user, std::string const &msg)
 
 void interpretCommand(Server &server, std::string strmess, int const &id)
 {
+	std::cout << "strmess : " << strmess << std::endl;
 	User *user = findUserById(server.users, id);
 	errorCmd = false;
 	if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-		//std::cout << "ici il y aura une fonction PRIVMSG" << std::endl;
+	{
 		ircPrivmsg(strmess, *user, server);
+		return;
+	}
 	else if (strmess.compare(0, 4, "PART") == 0)
-		std::cout << "ici il y aura une fonction PART" << std::endl;
+	{
+		irc_part(strmess, *user, server);
+		return;
+	}
+		//std::cout << "ici il y aura une fonction PART" << std::endl;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
+	{
 		std::cout << "ici il y aura une fonction MODE" << std::endl;
+		// a implementer dans la fonction MODE : checkOperator(*user);
+	}
 	else if (strmess.compare(0, 4, "QUIT") == 0)
 		std::cout << "ici il y aura une fonction QUIT" << std::endl;
 	else if (strmess.compare(0, 5, "NICK ") == 0)
 		std::cout << "ici il y aura une fonction NICK" << std::endl;
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
-		std::cout << "ici il y aura une fonction TOPIC" << std::endl;
+		irc_topic(strmess, *user, server);
+		//std::cout << "ici il y aura une fonction TOPIC" << std::endl;
 	else if (strmess.compare(0, 5, "KICK ") == 0)
 		std::cout << "ici il y aura une fonction KICK" << std::endl;
-	else if (strmess.compare(0, 7, "INVITE ") == 0)
-		std::cout << "ici il y aura une fonction INVITE" << std::endl;
+	else if (strmess.compare(0, 6, "INVITE") == 0)
+	{
+		ircInvite(strmess, *user, server);
+	}
 	else if (strmess.compare(0, 5, "WHOIS") == 0)
 		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
 	else if (strmess.compare(0, 3, "WHO") == 0)
-		std::cout << "ici il y aura une fonction WHO" << std::endl;
-	else if (strmess.compare(0, 9, "USERHOST") == 0)
-		std::cout << "ici il y aura une fonction USERHOST" << std::endl;
+		irc_who(strmess, *user, server);
+		//std::cout << "ici il y aura une fonction WHO" << std::endl;
+	else if (strmess.compare(0, 9, "USERHOST ") == 0)
+		irc_userhost(strmess, *user, server);
+		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;
 	else {
 		msgError("421", *user, ERRORN421);
 	}
@@ -130,7 +166,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-//fait par julien le 02/12/2023
+
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
 	std::string cmd = strtok((char *)msg.c_str() + 5, "\n");
@@ -143,7 +179,6 @@ void ircJoin(std::string &msg, User &user, Server &Server)
 	parseCmd(cmd, user, Server);
 }
 
-//fait par julien le 02/12/2023
 void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 {
 	std::string channel;
@@ -172,7 +207,6 @@ void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 	}
 }
 
-//fait par julien le 03/12/2023
 void normKey(std::string &key, User &user, Server &server)
 {
 	(void)server;
@@ -188,7 +222,6 @@ void normKey(std::string &key, User &user, Server &server)
 		throw keyException();
 }
 
-//fait par julien le 03/12/2023
 void normNameChannel(std::string &channel, User &user, Server &server)
 {
 		(void)server;
@@ -269,9 +302,12 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
-	if (!checkRightsUserInChannel(channel, &user))
+	//channel->ft_checkMode(channel, user);
+	if (channel->modeI)
+	{
+		if (checkRightsUserInChannel(channel, &user) != INVITED)
 			msgError("473", user, ERRORJ473);
-	channel->ft_checkMode(channel, user);
+	}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
@@ -288,7 +324,6 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	if (channel)
 	{
 		protocolForJoinChannel(channel, user, key);
-		//channel->addUser(&user, key);
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
@@ -296,6 +331,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
+		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
 		std::cout << "ici" << std::endl;
@@ -308,29 +344,40 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 
 	if (createOrJoin == 0)
 	{
+		channel->topic = "No topic is set";
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+			std::cout << "nick : " << (*it)->nickname << std::endl;
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "332 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
+		ss << IPHOST << "331 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :";
+		ss << IPHOST << "353 #" << channel->name << " :";
 		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
 			ss << (*it)->nickname << " ";
 		ss << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+		{
+			if ((*it)->_fdUser != user._fdUser)
+				send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+		}
 		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss << IPHOST << "366 #" << channel->name << " :End of /NAMES list.\r\n";
+		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+		{
+			if ((*it)->_fdUser != user._fdUser)
+				send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+		}
 	}
 	else if (createOrJoin)
 	{
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		/*ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
+		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");*/
+		ss.str("");
 	}
 }
 
