@@ -75,37 +75,47 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 				// je modifie le message pour la norme
 				rpl_privmsg = ":" + user.nickname + " PRIVMSG #" + chan->name + " :" + messageToSend;
 				// envoi a tous les users (sauf la personne qui envoie le message)
-				for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
+				printUsersOfAChannel(chan);
+				printOperatorsOfAChannel(chan);
+				printInvitedUsersOfAChannel(chan);
+				if (findUserInChannel(chan, &user) == true)
 				{
-					//std::cout << "envoye : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
-					if ((*it2)->_fdUser != user._fdUser)
+					for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
 					{
-						//std::cout << "envoye dans if : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
-						send((*it2)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-						//throw Irc_privmsg_rpl();
+						std::cout << "envoye : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
+						if ((*it2)->_fdUser != user._fdUser)
+						{
+							//std::cout << "envoye dans if : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
+							send((*it2)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec user", (*(*it2)), rpl_privmsg);
+						}
 					}
+					// envoi a tous les operators (sauf la personne qui envoie le message)
+					for (std::map<User *, bool>::iterator it3 = chan->operators.begin(); it3 != chan->operators.end(); it3++)
+					{
+						//std::cout << "22" << std::endl;
+						if (checkRightsUserInChannel(chan, &user) == OPERATOR && it3->first->_fdUser != user._fdUser)
+						{
+							send(it3->first->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec operator", (*(it3->first)), rpl_privmsg);
+						}
+					}
+					//// envoi a tous les invitedUsers (sauf la personne qui envoie le message)
+					for (std::vector<User *>::iterator it4 = chan->invitedUsers.begin(); it4 != chan->invitedUsers.end(); it4++)
+					{
+						//std::cout << "23" << std::endl;
+						if ((*it4)->_fdUser != user._fdUser && checkRightsUserInChannel(chan, &user) != INVITED)
+						{
+							send((*it4)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec invited", (*(*it4)), rpl_privmsg);
+						}
+					}
+					throw Irc_privmsg_rpl();
 				}
-				// envoi a tous les operators (sauf la personne qui envoie le message)
-				//for (std::vector<User *>::iterator it3 = chan->operators.begin(); it3 != chan->operators.end(); it3++)
-				//{
-				//	std::cout << "22" << std::endl;
-				//	if ((*it3)->_fdUser != user._fdUser)
-				//	{
-				//		send((*it3)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-				//		//throw Irc_privmsg_rpl();
-				//	}
-				//}
-				//// envoi a tous les invitedUsers (sauf la personne qui envoie le message)
-				//for (std::vector<User *>::iterator it4 = chan->invitedUsers.begin(); it4 != chan->invitedUsers.end(); it4++)
-				//{
-				//	std::cout << "23" << std::endl;
-				//	if ((*it4)->_fdUser != user._fdUser)
-				//	{
-				//		send((*it4)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-				//		//throw Irc_privmsg_rpl();
-				//	}
-				//}
-				throw Irc_privmsg_rpl();
+				// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
+				std::string err_cannot_send_to_chan = "127.0.0.1 404 " + chan->name + " :Cannot send to channel\r\n";
+				send(user._fdUser, err_cannot_send_to_chan.c_str(), err_cannot_send_to_chan.length(), 0);
+				printMessageSendToClient("IRC_PRIVMSG - err le user n'est pas dans le chan avec lequel il souhaite communiquer", user, err_cannot_send_to_chan);
 			}
 			else // il n'a pas trouve le channel
 			{

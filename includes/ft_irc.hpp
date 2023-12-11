@@ -49,6 +49,8 @@
 #define ERRORJ473 " JOIN :Cannot join channel (+i)\r\n"
 #define ERRORJ475 " JOIN :Cannot join channel (+k)\r\n"
 #define ERRORJ476 " JOIN :Bad Channel Mask\r\n"
+#define INVITED 2
+#define OPERATOR 1
 extern bool isRunning;
 extern bool errorCmd;
 
@@ -61,11 +63,12 @@ class	Server;
 class	Channel;
 
 void	checkOperator(User *user);
+int		checkRightsUserInChannel(Channel *channel, User *user);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
+void	parseCmd(std::string &cmd, User &user, Server &Server);
 void	ircPrivmsg(std::string &msg, User &user, Server &Server);
 void	irc_who(std::string &message, User &user, Server &server);
-void	parseCmd(std::string &cmd, User &user, Server &Server);
 void	parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
 void	normNameChannel(std::string &channel, User &user, Server &server);
 void	interpretCommand(Server &server, std::string strmess, int const &id);
@@ -88,6 +91,11 @@ void irc_part(std::string &message, User &user, Server &server);
 void	irc_userhost(std::string &message, User &user, Server &server);
 void	printMessageSendToClient(std::string fonction, User &user, std::string message);
 void	irc_topic(std::string &message, User &user, Server &server);
+
+void printUsersOfAChannel(Channel *chan);
+void printOperatorsOfAChannel(Channel *chan);
+void printInvitedUsersOfAChannel(Channel *chan);
+bool	findUserInChannel(Channel *channel, User *user);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

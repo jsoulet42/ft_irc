@@ -97,5 +97,33 @@ int countSpaces(const std::string &str, const char &delimiter)
 
 void printMessageSendToClient(std::string fonction, User &user, std::string message)
 {
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+	std::cout << "J'ai envoye au client le message : |" << message << "|\nde |" << user.nickname << "| \npour la fonction |" << fonction << "|" << std::endl;
+}
+
+void printUsersOfAChannel(Channel *chan)
+{
+	std::cout << "je tente de print les users du channel : " << chan->name << std::endl;
+	for (std::vector<User *>::iterator it = chan->users.begin(); it != chan->users.end(); it++)
+	{
+		std::cout << "nick : " << (*it)->nickname << " | username : " << (*it)->username << std::endl;
+	}
+}
+
+void printOperatorsOfAChannel(Channel *chan)
+{
+	std::cout << "je tente de print les operators du channel : " << chan->name << std::endl;
+	for (std::map<User *, bool>::iterator it = chan->operators.begin(); it != chan->operators.end(); it++)
+	{
+		if(checkRightsUserInChannel(chan, it->first) == OPERATOR)
+		std::cout << "nick : " << it->first->nickname << " | username : " << it->first->username << std::endl;
+	}
+}
+
+void printInvitedUsersOfAChannel(Channel *chan)
+{
+	std::cout << "je tente de print les Invited users du channel : " << chan->name << std::endl;
+	for (std::vector<User *>::iterator it = chan->invitedUsers.begin(); it != chan->invitedUsers.end(); it++)
+	{
+		std::cout << "nick : " << (*it)->nickname << " | username : " << (*it)->username << std::endl;
+	}
 }

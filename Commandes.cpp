@@ -73,17 +73,13 @@ bool	findUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
-///@brief je l'ai modifier pour qu'elle devienne generique return 1 si l'utilisateur est operateur, 2 si il est invité, sinon 0,
-/// operateur etant un grade superieur a invité
+
+///@brief return 1  = OPERATOR define in irc-hpp , 2 = INVITED define in irc-hpp , 0 = no rights
 int	checkRightsUserInChannel(Channel *channel, User *user)
 {
-	std::map<std::string, bool>::iterator it = channel->operators.begin();
-	for (; it != channel->operators.end(); ++it)
-	{
-		if (it->first == user->nickname)
-			return 1;
-	}
-
+	std::map<User *, bool>::iterator it = channel->operators.find(user);
+	if (it != channel->operators.end() && it->second == true)
+		return 1;
 	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
 	{
 		if ((*it)->_fdUser == user->_fdUser)
@@ -304,11 +300,11 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
 	//channel->ft_checkMode(channel, user);
-	if (channel->modeI)
-	{
-		if (!findElement(user, channel->invitedUsers))
-			msgError("473", user, ERRORJ473);
-	}
+	//if (channel->modeI)
+	//{
+	//	if (checkRightsUserInChannel(channel, &user) != INVITED)
+	//		msgError("473", user, ERRORJ473);
+	//}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
@@ -332,7 +328,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
-		channel->operators[user.nickname] = true;
+		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
 		std::cout << "ici" << std::endl;
