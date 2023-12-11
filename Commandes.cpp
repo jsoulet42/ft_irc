@@ -15,7 +15,7 @@ class keyException : public std::exception
 		virtual const char* what() const throw();
 };
 
-class joinacceptedException : public std::exception
+class joinAcceptedException : public std::exception
 {
 	public:
 		virtual const char* what() const throw();
@@ -76,18 +76,27 @@ bool	findUserInChannel(Channel *channel, User *user)
 }
 
 
-///@brief return 1  = OPERATOR define in irc-hpp , 2 = INVITED define in irc-hpp , 0 = no rights
-int	checkRightsUserInChannel(Channel *channel, User *user)
+///@brief return the grade of the user in the channel
+///@param 3 is OPERATOR or INVITED
+int	checkRightsUserInChannel(Channel *channel, User *user, int grade)
 {
-	std::map<User *, bool>::iterator it = channel->operators.find(user);
-	if (it != channel->operators.end() && it->second == true)
-		return 1;
-	for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
+	if (grade == OPERATOR)
 	{
-		if ((*it)->_fdUser == user->_fdUser)
-			return 2;
+		std::map<User *, bool>::iterator it = channel->operators.find(user);
+		if (it != channel->operators.end() && it->second == true)
+			return true;
+		return false;
 	}
-	return 0;
+	if (grade == INVITED)
+	{
+		for(std::vector<User *>::iterator it = channel->invitedUsers.begin(); it != channel->invitedUsers.end(); ++it)
+		{
+			if ((*it)->_fdUser == user->_fdUser)
+				return true;
+		}
+		return false;
+	}
+	return false;
 }
 
 /// <code> <nickname> <msg>
@@ -117,11 +126,11 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		ircPrivmsg(strmess, *user, server);
 		return;
 	}
-	else if (strmess.compare(0, 4, "PART") == 0)
+	/*else if (strmess.compare(0, 4, "PART") == 0)
 	{
 		irc_part(strmess, *user, server);
 		return;
-	}
+	}*/
 		//std::cout << "ici il y aura une fonction PART" << std::endl;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
 	{
@@ -188,7 +197,7 @@ void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 		channel = cmd.substr(0, cmd.find('\r'));
 		normNameChannel(channel, user, server);
 		joinOrCreatChannel(channel, user, server, key);
-		throw joinacceptedException();
+		throw joinAcceptedException();
 
 	}
 	if (cmd.find(' ') == std::string::npos)
@@ -333,7 +342,6 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
-		std::cout << "ici" << std::endl;
 	}
 }
 
@@ -390,7 +398,7 @@ const char* keyException::what() const throw()
 	return "[Error] during JOIN command , key is too long";
 }
 
-const char* joinacceptedException::what() const throw()
+const char* joinAcceptedException::what() const throw()
 {
 	return "[RPL] during JOIN command , user is accepted on channel";
 }
