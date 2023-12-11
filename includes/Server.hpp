@@ -2,6 +2,8 @@
 
 # include "ft_irc.hpp"
 
+class Channel;
+
 class Server
 {
 	private:

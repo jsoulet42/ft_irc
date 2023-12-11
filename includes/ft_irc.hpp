@@ -194,6 +194,11 @@ class notEnoughParamException : public std::exception
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define DEFAULTMAXUSER 100
+#define ERRORM403 ":No such channel"
+bool checkMode(Channel *channel, std::string mode);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                msgError.cpp                                //
