@@ -36,9 +36,6 @@ void ircKick(std::string &msg, User &user, Server &server)
 			channel->users.erase(std::find(channel->users.begin(), channel->users.end(), userKicked));
 		}
 	}
-
-
-
 }
 
 // DOC 1------------------------------------------------------------------------
