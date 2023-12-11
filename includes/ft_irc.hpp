@@ -61,6 +61,7 @@ class	Server;
 class	Channel;
 
 void	checkOperator(User *user);
+int		checkRightsUserInChannel(Channel *channel, User *user);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	ircPrivmsg(std::string &msg, User &user, Server &Server);
@@ -95,11 +96,8 @@ void	irc_topic(std::string &message, User &user, Server &server);
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string>	splitString(const std::string &input, char delimiter);
-std::string					extractSubstring(std::string const &msg, int n);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
-template <typename K, typename T>
-typename std::map<K, T>::const_iterator userInMap(const std::map<K, T> &inputMap, const User *userPtr);
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //

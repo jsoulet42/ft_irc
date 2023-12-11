@@ -41,7 +41,9 @@ User	*findUserById(std::vector<User *> &users, int const &id)
 	}
 	return NULL;
 }
-
+/// @brief Renvoie un pointeur sur l'utilisateur si il existe, sinon NULL
+/// @param users : liste des utilisateurs
+/// @param cmd : nom de l'utilisateur
 User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
 {
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
