@@ -26,4 +26,23 @@ void irc_part(std::string strmess, User *user, Server server)
 		channel = splitString(chan, ',');
 	else
 		channel.push_back(chan);
+	for (std::vector<std::string>::iterator it = channel.begin(); it != channel.end(); ++it)
+	{
+		Channel *chan = findChannelByName(server.channels, *it);
+		if (findUserInChannel(chan, user) == true)
+		{
+			//on boucle un message de depart pour chaque channel
+		}
+	}
 }
+
+/*for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
+{
+	std::cout << "envoye : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
+	if ((*it2)->_fdUser != user._fdUser)
+	{
+		//std::cout << "envoye dans if : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
+		send((*it2)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+		printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec user", (*(*it2)), rpl_privmsg);
+	}
+}*/
