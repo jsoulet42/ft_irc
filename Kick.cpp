@@ -25,7 +25,7 @@ void ircKick(std::string &msg, User &user, Server &server)
 	//Channel *channel = findChanelbyNameMatt(ici le nom du channel apres parsing, server.channels);
 	//if (channel == NULL)
 		//erreur channel inexistant
-	//if (checkRightsUserInChannel(channel, &user) != OPERATOR)							//on verifie que l'utilisateur est bien operateur du channel
+	//if (checkRightsUserInChannel(channel, &user, OPERATOR) == false )							//on verifie que l'utilisateur est bien operateur du channel
 		//erreur pas les droits
 }
 

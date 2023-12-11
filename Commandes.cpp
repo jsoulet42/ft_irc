@@ -311,7 +311,7 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 	//channel->ft_checkMode(channel, user);
 	//if (channel->modeI)
 	//{
-	//	if (checkRightsUserInChannel(channel, &user) != INVITED)
+	//	if (checkRightsUserInChannel(channel, &user, INVITED) == false))
 	//		msgError("473", user, ERRORJ473);
 	//}
 	if (findUserInChannel(channel, &user) == true)

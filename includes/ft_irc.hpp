@@ -63,7 +63,7 @@ class	Server;
 class	Channel;
 
 void	checkOperator(User *user);
-int		checkRightsUserInChannel(Channel *channel, User *user);
+int		checkRightsUserInChannel(Channel *channel, User *user, int grade);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	parseCmd(std::string &cmd, User &user, Server &Server);
