@@ -26,8 +26,7 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	Channel *channel = findChanelbyNameMatt(msgVec[2], server.channels);
 	if (channel == NULL)
 	{
-		std::cout << "yolo" << std::endl;														// on verifie que le channel existe
-		msgError403(user, msgVec[2]);
+		msgError403(user, msgVec[2]);											// on verifie que le channel existe
 	}
 	User *userInvited = findUserByName(server.users, msgVec[1]);
 	if (userInvited == NULL)													// on verifie que l'utilisateur existe
@@ -39,7 +38,7 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	}
 	// else																		// si le channel est prive
 	// {
- 	if (checkRightsUserInChannel(channel, &user) != OPERATOR)						//on verifie que l'utilisateur est bien operateur du channel
+ 	if (checkRightsUserInChannel(channel, &user, OPERATOR) == false)						//on verifie que l'utilisateur est bien operateur du channel
 			msgError482(user, msgVec[2]);
 	// }
 	if (findElement(*userInvited, channel->invitedUsers) == true)				// on verifie que l'utilisateur n'est pas deja invité

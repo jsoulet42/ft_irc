@@ -59,7 +59,14 @@ int Channel::addUser(User *user, std::string &password)
 			return -1;
 	}
 	else
+	{
+		//std::cout << "dans addUser : " << user->nickname << std::endl;
+		this->users.push_back(user);
+		//printUsersOfAChannel(this);
+
+		this->nbUsers++;
 		return 0;
+	}
 }
 
 bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
