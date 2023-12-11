@@ -300,11 +300,11 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
 	//channel->ft_checkMode(channel, user);
-	if (channel->modeI)
-	{
-		if (checkRightsUserInChannel(channel, &user) != INVITED)
-			msgError("473", user, ERRORJ473);
-	}
+	//if (channel->modeI)
+	//{
+	//	if (checkRightsUserInChannel(channel, &user) != INVITED)
+	//		msgError("473", user, ERRORJ473);
+	//}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
