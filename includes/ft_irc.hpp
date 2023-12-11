@@ -201,6 +201,7 @@ class notEnoughParamException : public std::exception
 
 void msgError461(User const &user);
 void msgError403(User const &user, std::string const &channel);
+void msgError441(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError442(User const &user, std::string const &channel);
 void msgError443(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError482(User const &user, std::string const &channel);

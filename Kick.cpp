@@ -5,6 +5,7 @@
 
 
 // KICK <channel> <nick> [<reason>]
+void msgAllUserInChannel(Channel *channel, std::string const &nameKicked, std::string const &reason);
 
 void ircKick(std::string &msg, User &user, Server &server)
 {
@@ -21,23 +22,46 @@ void ircKick(std::string &msg, User &user, Server &server)
 	channel = findChanelbyNameMatt(msgSplit[1], server.channels);
 	if (channel == NULL)														// on verifie que le channel existe
 		msgError403(user, msgSplit[1]);
-	if (checkRightsUserInChannel(channel, &user, OPERATOR) != OPERATOR)		// on verifie que l'utilisateur est bien operateur du channel
+	if(findElement(user, channel->users) == false)								// on verifie que l'utilisateur est bien dans le channel
 		msgError442(user, msgSplit[1]);
+	if (checkRightsUserInChannel(channel, &user, OPERATOR) != OPERATOR)			// on verifie que l'utilisateur est bien operateur du channel
+		msgError482(user, msgSplit[1]);
 	if (findUserByName(channel->users, msgSplit[msgSplit.size() - 1]) != NULL)	//ajout du message de kick s'il n'y en a pas
-		msgSplit.push_back(":" + user.nickname);
+		msgSplit.push_back(":" + user.nickname + "\r\n");
 	for(std::vector<std::string>::iterator it = msgSplit.begin() + 2; it != msgSplit.end() - 1; ++it)	// envoie les messages de kick a tous les users du channel
 	{
 		User *userKicked = findUserByName(channel->users, *it);
-		if (userKicked != NULL)
+		if(userKicked == NULL)
+			msgError441(user, *it, *channel);
+		else
 		{
 			std::stringstream ss;
 			ss << IPHOST << userKicked->nickname << " " << channel->name << " " << msgSplit[msgSplit.size() - 1] << "\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 			remouveUser(*userKicked, channel->users);
+			msgAllUserInChannel(channel, userKicked->nickname, msgSplit[msgSplit.size() - 1]);
 		}
 	}
 }
 
+// :dan!d@localhost KICK #test alice :nah mate
+void msgAllUserInChannel(Channel *channel, std::string const &nameKicked, std::string const &reason)
+{
+	for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); it++)
+	{
+		std::stringstream ss;
+		ss << IPHOST << nameKicked << " " << channel->name << reason;
+		send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+	}
+}
+
+// ERR_NOSUCHNICK (401)
+// ERR_NOSUCHCHANNEL (403)
+// ERR_USERNOTINCHANNEL (441)
+// ERR_NOTONCHANNEL (442)
+// ERR_BADCHANMASK (476)
+// ERR_CHANOPRIVSNEEDED (482)
+// ERR_CHANOPRIVSNEEDED (482)
 // DOC 1------------------------------------------------------------------------
 // KICK message
 //       Commande : KICK
@@ -95,3 +119,5 @@ void ircKick(std::string &msg, User &user, Server &server)
 // ERR_NOSUCHNICK. Si l'utilisateur à expulser existe mais n'est pas sur le canal,
 // l'opérateur du canal envoie ERR_USERNOTINCHANNEL. Et si le canal n'existe pas,
 // ERR_NOSUCHCHANNEL est retourné.
+
+
