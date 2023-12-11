@@ -91,6 +91,7 @@ void irc_part(std::string &message, User &user, Server &server);
 void	irc_userhost(std::string &message, User &user, Server &server);
 void	printMessageSendToClient(std::string fonction, User &user, std::string message);
 void	irc_topic(std::string &message, User &user, Server &server);
+bool	findUserInChannel(Channel *channel, User *user);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
