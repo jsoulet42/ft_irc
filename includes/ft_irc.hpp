@@ -105,6 +105,8 @@ bool	findUserInChannel(Channel *channel, User *user);
 std::vector<std::string>	splitString(const std::string &input, char delimiter);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
+void						remouveUser(User &user, std::vector<User *> &userList);
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //

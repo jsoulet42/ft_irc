@@ -21,7 +21,7 @@ void ircKick(std::string &msg, User &user, Server &server)
 	channel = findChanelbyNameMatt(msgSplit[1], server.channels);
 	if (channel == NULL)														// on verifie que le channel existe
 		msgError403(user, msgSplit[1]);
-	if (checkRightsUserInChannel(channel, &user) != OPERATOR)								// on verifie que l'utilisateur est bien dans le channel
+	if (checkRightsUserInChannel(channel, &user, OPERATOR) != OPERATOR)		// on verifie que l'utilisateur est bien operateur du channel
 		msgError442(user, msgSplit[1]);
 	if (findUserByName(channel->users, msgSplit[msgSplit.size() - 1]) != NULL)	//ajout du message de kick s'il n'y en a pas
 		msgSplit.push_back(":" + user.nickname);
@@ -33,7 +33,7 @@ void ircKick(std::string &msg, User &user, Server &server)
 			std::stringstream ss;
 			ss << IPHOST << userKicked->nickname << " " << channel->name << " " << msgSplit[msgSplit.size() - 1] << "\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-			channel->users.erase(std::find(channel->users.begin(), channel->users.end(), userKicked));
+			remouveUser(*userKicked, channel->users);
 		}
 	}
 }

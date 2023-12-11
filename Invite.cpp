@@ -26,8 +26,7 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	Channel *channel = findChanelbyNameMatt(msgVec[2], server.channels);
 	if (channel == NULL)
 	{
-		std::cout << "yolo" << std::endl;														// on verifie que le channel existe
-		msgError403(user, msgVec[2]);
+		msgError403(user, msgVec[2]);											// on verifie que le channel existe
 	}
 	User *userInvited = findUserByName(server.users, msgVec[1]);
 	if (userInvited == NULL)													// on verifie que l'utilisateur existe

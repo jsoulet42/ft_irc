@@ -86,3 +86,16 @@ void printInvitedUsersOfAChannel(Channel *chan)
 		std::cout << "nick : " << (*it)->nickname << " | username : " << (*it)->username << std::endl;
 	}
 }
+
+void remouveUser(User &user, std::vector<User *> &userList)
+{
+	for (std::vector<User *>::iterator it = userList.begin(); it != userList.end(); it++)
+	{
+		if (*(*it) == user)
+		{
+			userList.erase(it);
+			return;
+		}
+	}
+}
+
