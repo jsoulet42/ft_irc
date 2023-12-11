@@ -306,7 +306,7 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 	//channel->ft_checkMode(channel, user);
 	if (checkMode(channel, "modeI") == true)
 	{
-		if (checkRightsUserInChannel(channel, &user) != INVITED)
+		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
 			msgError("473", user, ERRORJ473);
 	}
 	if (findUserInChannel(channel, &user) == true)
@@ -435,7 +435,7 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	//	send(ERRORM403); // "<client> <channel> :No such channel"
 		throw modeException();
 	}
-	if (checkRightsUserInChannel(chan, &user) != OPERATOR)
+	if (checkRightsUserInChannel(chan, &user, OPERATOR) == false)
 	{
 		std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + chan->name + " :You're not channel operator\r\n";
 		send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
