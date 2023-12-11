@@ -124,12 +124,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		ircPrivmsg(strmess, *user, server);
 		return;
 	}
-	/*else if (strmess.compare(0, 4, "PART") == 0)
-	{
+	else if (strmess.compare(0, 4, "PART") == 0)
 		irc_part(strmess, *user, server);
-		return;
-	}*/
-		//std::cout << "ici il y aura une fonction PART" << std::endl;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
 	{
 		std::cout << "ici il y aura une fonction MODE" << std::endl;
