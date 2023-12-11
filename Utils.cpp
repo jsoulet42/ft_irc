@@ -73,7 +73,7 @@ void printOperatorsOfAChannel(Channel *chan)
 	std::cout << "je tente de print les operators du channel : " << chan->name << std::endl;
 	for (std::map<User *, bool>::iterator it = chan->operators.begin(); it != chan->operators.end(); it++)
 	{
-		if(checkRightsUserInChannel(chan, it->first) == OPERATOR)
+		if(checkRightsUserInChannel(chan, it->first, OPERATOR) == true)
 		std::cout << "nick : " << it->first->nickname << " | username : " << it->first->username << std::endl;
 	}
 }
