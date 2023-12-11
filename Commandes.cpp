@@ -412,10 +412,10 @@ void send324(Channel &chan, User user, std::string code)
 	send(user._fdUser, rpl_mess.str().c_str(), rpl_mess.str().size(), 0);
 }
 
-void send329(User &user, Channel &chan, std::string timestamp, std::string code)
+/*void send329(User &user, Channel &chan, std::string timestamp, std::string code)
 {
 
-}
+}*/
 
 void ft_launchMode(std::string &strmess, User &user, Server &server)
 {
@@ -447,7 +447,7 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 		if (str.empty() == true)
 		{
 			send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
-			send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
+			//send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
 		}
 		else
 			chan->ft_insertChanMode(strmess, user, server, *chan);
