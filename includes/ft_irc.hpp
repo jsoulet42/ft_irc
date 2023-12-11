@@ -105,11 +105,10 @@ bool	findUserInChannel(Channel *channel, User *user);
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string>	splitString(const std::string &input, char delimiter);
-std::string					extractSubstring(std::string const &msg, int n);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
-template <typename K, typename T>
-typename std::map<K, T>::const_iterator userInMap(const std::map<K, T> &inputMap, const User *userPtr);
+void						remouveUser(User &user, std::vector<User *> &userList);
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //
@@ -203,6 +202,7 @@ class notEnoughParamException : public std::exception
 
 void msgError461(User const &user);
 void msgError403(User const &user, std::string const &channel);
+void msgError441(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError442(User const &user, std::string const &channel);
 void msgError443(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError482(User const &user, std::string const &channel);

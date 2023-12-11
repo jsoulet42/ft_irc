@@ -21,6 +21,17 @@ void msgError403(User const &user, std::string const &channel)
 	errorCmd = true;
 	throw std::runtime_error(ERRORI403);
 }
+
+/// @brief Erreur qui se produit l'utilisateur cible un autre utilisateur qui n'est pas dans le channel
+void msgError441(User const &user, std::string const &userInvited, Channel const &channel)
+{
+	std::stringstream ss;
+	ss << IPHOST << userInvited << " " << channel.name << ERRORI441;
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	errorCmd = true;
+	throw std::runtime_error(ERRORI441);
+}
+
 /// @brief Erreur qui se produit quand celui qui invite n'est pas dans le channel
 void msgError442(User const &user, std::string const &channel)
 {
