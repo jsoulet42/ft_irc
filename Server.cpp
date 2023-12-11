@@ -112,7 +112,7 @@ void Server::protocolNewUser(int newFd)
 	this->fdP[this->fdNb].fd = newFd;
 	this->fdP[this->fdNb].events = POLLIN;
 
-	std::string message = IPHOST + std::string(" 001 ") + newuser->nickname + " :Welcome to the ft_irc network, " + newuser->nickname + "\r\n";
+	std::string message = newuser->nickname + ":" + IPHOST + " 001  Welcome to the Internet Relay Network\n" + newuser->nickname + "!" + newuser->username +"@127.0.0.1\r\n";
 	send(newFd, message.c_str(), message.length(), 0);
 	std::cout << YELLOW << ON_BLACK << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << RESET << std::endl;
 }
@@ -230,6 +230,30 @@ std::vector<User *>::iterator Server::getUser(int fd)
 	return this->users.end();
 }
 
+std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
+{
+	if (name[0] == '#')
+		name = name.substr(1);
+
+	std::vector<Channel *>::iterator	it = this->channels.begin();
+
+	if (it == this->channels.end())
+		return this->channels.end();
+	while (it != this->channels.end())
+	{
+		ssize_t i = 0;
+		i = (*it)->name.find("\r\n");
+		if (i == -1)
+			i = (*it)->name.find("\n");
+		(*it)->name = (*it)->name.substr(0, i);
+		
+		if ((*it)->name.compare(0, (*it)->name.length(), name) == 0)
+			return it;
+		++it;
+	}
+	return this->channels.end();
+}
+
 void Server::deleteUser(int fd)
 {
 	std::vector<User *>::iterator	user = getUser(fd);
@@ -256,5 +280,3 @@ const char* Server::UserException::what() const throw()
 {
 	return "Error during USER command";
 }
-
-

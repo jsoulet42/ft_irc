@@ -1,8 +1,5 @@
 
 #include "./includes/ft_irc.hpp"
-#include "./includes/Server.hpp"
-#include "./includes/User.hpp"
-#include "./includes/Channel.hpp"
 
 bool isRunning = true;
 

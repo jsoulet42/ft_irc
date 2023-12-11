@@ -1,5 +1,10 @@
 
-#include "./includes/Channel.hpp"
+#include "./includes/ft_irc.hpp"
+
+void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
+{
+	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
+}
 
 void msgError(std::string const &code, User &user, std::string const &msg);
 
@@ -9,11 +14,12 @@ Channel::Channel(User *user, std::string &name)
 	this->maxUsers = 10;
 	this->nbUsers = 1;
 	this->name = name;
-	this->users.push_back(user);
-	this->operators.push_back(user);
 	this->invitedUsers.push_back(user);
 	this->initModeMap();
+	this->password = "";
+	this->modeLMaxUser = DEFAULTMAXUSER;
 }
+
 Channel::Channel(Channel const &src)
 {
 	*this = src;
@@ -40,17 +46,22 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
-	if (this->password.compare(password) == 0)
+	if (!this->password.empty())
 	{
-		this->users.push_back(user);
-		this->nbUsers++;
-		return 0;
+		if (this->password.compare(password) == 0)
+		{
+			this->users.push_back(user);
+			this->operators.insert(std::pair<User *, bool>(user, false));
+			this->nbUsers++;
+			return 0;
+		}
+		else
+			return -1;
 	}
 	else
-		return -1;
+		return 0;
 }
 
-/* return 1 si une erreur a eter trouver dans un checkMode()*/
 bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
 {
 	std::map<std::string, bool>::iterator it = channel->modeTab.find(mode);
@@ -62,98 +73,47 @@ bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
 	return false;
 }
 
-bool Channel::checkModeI(User &user)
-{
-
-}
-
-void Channel::checkModeK(User &user)
-{
-	(void)user;
-}
-
-bool Channel::checkModeL(User &user)
-{
-	if (this->users.size() >= this->modeLMaxUser)
-	{
-		send(); // ERR_CHANNELISFULL (471)
-		throw;
-	}
-	return true;
-}
-
-void Channel::checkModeO(User &user)
-{
-	(void)user;
-}
-
-void Channel::checkModeT(User &user)
-{
-	(void)user;
-}
-
 void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan)
 {
 	char symbol;
-	size_t i;
-	if (strmess[0] == '+' || strmess[0] == '-')
+	if (!strmess.empty() && (strmess[0] == '+' || strmess[0] == '-'))
 		symbol = strmess[0];
 	else
 	{
-		send(error404);
-		throw;
-	}
-	std::vector<User*>::iterator it = chan.operators.begin();
-	while (it != chan.operators.end())
-	{
-		if (user.nickname != it.nickname)
-			++it;
-		else
-			break;
-	}
-	if (it == chan.operators.end())
-	{
-	//	send(ERRORI482); "<client> <channel> :You're not channel operator"
+		msgError("403", user, ERRORM403);
 		throw;
 	}
 	strmess.erase(0, 1);
 	if (!strmess.empty())
 	{
-		for (i = 0; i < strmess.find(" "); ++i)
+		for ( size_t i = 0; i < strmess.find(" "); ++i)
 		{
 			if (strmess[i] == 't')
 				chan.setModeT(symbol);
 			else if (strmess[i] == 'i')
 				chan.setModeI(symbol);
 			else if (strmess[i] == 'l')
-			{
 				chan.setModeL(symbol, strmess);
-				break;
-			}
 			else if (strmess[i] == 'k')
-			{
 				chan.setModeK(symbol, strmess);
-				break;
-			}
 			else if (strmess[i] == 'o')
-			{
 				chan.setModeO(symbol, strmess, chan, user);
-				break;
-			}
 			else if (strmess[i] == '+' || strmess[i] == '-')
 				symbol = strmess[i];
 		}
-		for (size_t j = i; j < strmess.find(" "); ++j)
-		{
-			if (strmess[j] == 't')
-				chan.setModeT(symbol);
-			else if (strmess[j] == 'i')
-				chan.setModeI(symbol);
-			else if (strmess[j] == '+' || strmess[j] == '-')
-				symbol = strmess[j];
-		}
 	}
 }
+
+// si j'ai un enchainement de mode il ne peut pas y avoir d'argument dans la commande sinon erreur et throw,
+//et si dans l'enchainement exemple +itko il y un mode qui normalement necessite un argument on l'ignore et active quand meme les autre mode
+// sinon un seul mode avec son argument
+/*/MODE #channel +tolki argument
+
++tolki (t)
++tolki (o) nickname
++tolki (l) nbusermax
++tolki (k) password
++tolki (i)*/
 
 void Channel::initModeMap()
 {
@@ -178,36 +138,65 @@ void Channel::setModeI(char c)
 	}
 }
 
-void Channel::setModeK(char c)
+void Channel::setModeK(char symbol, std::string &strmess)
 {
+	std::map<std::string, bool>::iterator it = this->modeTab.find("modeK");
+	std::string temp;
 
+	if (symbol == '-')
+	{
+		it->second = false;
+		this->password = "";
+	}
+	else
+	{
+		if (strmess.find(" ") != std::string::npos)
+			strmess.erase(0, (strmess.find(" ") + 1));
+		if (!strmess.empty())
+		{
+			temp = strmess.substr(0, strmess.find(" "));
+			this->password = temp;
+			it->second = true;
+		}
+		else
+		{
+		//	send(error 525); // "<client> <target chan> :Key is not well-formed"
+			std::cout << "Wrong param mode" << std::endl;
+			return;
+		}
+	}
 }
 
-void Channel::setModeL(char symbol, std::string strmess)
+void Channel::setModeL(char symbol, std::string &strmess)
 {
-	int resultat = MAXUSER;
+	int resultat;
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeL");
 	if (symbol == '-')
 	{
-		this->modeLMaxUser = resultat;
+		this->modeLMaxUser = DEFAULTMAXUSER;;
 		if (it != modeTab.end())
 			it->second = false;
-		std::cout << "mode correctly removed" << std::endl;
+		std::cout << "mode -l correctly removed" << std::endl;
+		return;
 	}
-	if (strmess.find(" ") != std::string::npos)
+	else if (strmess.find(" ") != std::string::npos)
 	{
 		strmess.erase(0, (strmess.find(" ") + 1)); // et quil ya un int apres, on recup le int et le met dans modLMaxUser
-		for (size_t i = 0; i < strmess.size(); i++)
+		for (size_t i = 0; i < strmess.find(" "); i++)
 		{
-			if (!std::isdigit(strmess[i]))
+			if (!strmess.empty())
 			{
-				send(erreur inconnu);
-				throw;
+				if (!std::isdigit(strmess[i]))
+				{
+				//	send(erreur inconnu);
+					throw;
+				}
 			}
 		}
 	}
+	std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
 	try {
-        resultat = std::stoi(strmess);
+        resultat = std::atoi(temp.c_str());
     }
 	catch (const std::invalid_argument& e) {
         std::cerr << "Erreur d'argument invalide : " << e.what() << std::endl;
@@ -216,45 +205,39 @@ void Channel::setModeL(char symbol, std::string strmess)
         std::cerr << "Dépassement de capacité : " << e.what() << std::endl;
 		return;
     }
-	it = this->modeTab.find("modeL");
-	if (it != modeTab.end())
-	{
-		if (symbol == '+')
-			it->second = true;
-		else
-			it->second = false;
-	}
+	it->second = true;
 	this->modeLMaxUser = resultat;
-	std::cout << "mode correctly added" << std::endl;
+	std::cout << "mode +l correctly added" << std::endl;
 }
 
-void Channel::setModeO(char symbol, std::string strmess, Channel &chan, User &user)
+void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
 {
-	std::map<std::string, bool>::iterator it_m = this->modeTab.find("modeL");
-	std::vector<User*>::iterator it_v = chan.users.begin();
+	std::map<std::string, bool>::iterator it_m = this->modeTab.find("modeO");
 	std::string nameParse;
 	if (strmess.find(" ") != std::string::npos)
 	{
 		strmess.erase(0, (strmess.find(" ") + 1));
-		nameParse = strmess.substr(0, strmess.size());
-		while (it_v != chan.users.end())
+		if (!strmess.empty())
+			nameParse = strmess.substr(0, strmess.find(" "));
+		User *tempUser = findUserByName(chan.users, nameParse);
+		if (symbol == '-')
 		{
-			if (nameParse != it_v.nickname)
-				++it_v;
+			if (tempUser)
+			{
+				std::map<User*, bool>::iterator it = this->operators.find(tempUser);
+				if (it != this->operators.end())
+					operators.erase(tempUser);
+			}
 			else
-				break;
+				std::cout << "User is not an operator" << std::endl;
 		}
-		if (it_v == chan.users.end())
-		{
-		//	send(ERRORI482); "<client> <channel> :You're not channel operator"
-			throw;
-		}
-		if (symbol == '-') // faire la verif si il est dans operator et lenlever
-			std::vector<User*>::iterator = std::find(myVector.begin(), myVector.end(), valueToFind);
-			chan.operators.find(nameParse);
-			chan.operators.erase(nameParse);
-		if (symbol == '+') // faire la verif si l est pas deja operator et l'ajouter
-			chan.operators.push_back(it_v);
+		else if (symbol == '+')
+			if (checkRightsUserInChannel(&chan, &user) != OPERATOR)
+				this->operators.insert(std::pair<User*, bool>(tempUser, true));
+	}
+	else
+	{
+		/*renvoiyer a l'utiisateur la liste des operators*/
 	}
 }
 
@@ -284,10 +267,80 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 		name.erase(0, 1);
 	//else
 		//on peux décider de renvoyer une erreur ou de ne rien faire
+	std::cout << name << "|";
 	for (std::vector<Channel *>::iterator it = chanelList.begin(); it != chanelList.end(); it++)
 	{
+		std::cout << (*it)->name << "|";
 		if ((*it)->name == name)
 			return (*it);
 	}
 	return NULL;
+}
+
+void	Channel::channelSendLoop(std::string message, int & sFd)
+{
+	std::vector<User *>::iterator	it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (sFd != (*it)->_fdUser)
+		{
+			send((*it)->_fdUser, message.c_str(), message.length(), 0);
+			printMessageSendToClientChannel("Channel send loop - user", (*(*it)), message);
+		}
+		it++;
+	}
+	//it = this->operators.begin();
+	//while (it != this->operators.end())
+	//{
+	//	if (sFd != (*it)->_fdUser)
+	//	{
+	//		send((*it)->_fdUser, message.c_str(), message.length(), 0);
+	//		printMessageSendToClientChannel("Channel send loop - operator", (*(*it)), message);
+	//	}
+	//	it++;
+	//}
+}
+
+bool	Channel::isInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	std::vector<User *>::iterator		it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (user == *it)
+			return true;
+		it++;
+	}
+	return false;
+}
+
+/*bool	Channel::isOpInChannel(User *user)
+{
+	if (!user)
+		return false;
+
+	//std::vector<User *>::iterator		it = this->operators.begin();
+
+	//while (it != operators.end())
+	//{
+	//	if (user == *it)
+	//	{
+	//		//std::cout << std::endl << std::endl << std::endl << "User finded" << std::endl;
+	//		return true;
+	//	}
+	//	it++;
+	//}
+	return false;
+}*/
+
+bool	Channel::isModeT()
+{
+	//if (this->mode.find('t') != std::string::npos)
+	//	return true;
+	std::cout << "ici il faut une fonction qui verifie que le channel est en mode T" << std::endl;
+	return false;
 }

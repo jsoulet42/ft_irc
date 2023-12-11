@@ -13,6 +13,7 @@
 #include <sstream>
 #include <csignal>
 #include "Color.hpp"
+#include <map>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -48,6 +49,8 @@
 #define ERRORJ473 " JOIN :Cannot join channel (+i)\r\n"
 #define ERRORJ475 " JOIN :Cannot join channel (+k)\r\n"
 #define ERRORJ476 " JOIN :Bad Channel Mask\r\n"
+#define INVITED 2
+#define OPERATOR 1
 extern bool isRunning;
 extern bool errorCmd;
 
@@ -59,26 +62,47 @@ class	User;
 class	Server;
 class	Channel;
 
-void normKey(std::string &key, User &user, Server &server);
-void ircJoin(std::string &msg, User &user, Server &Server);
-void ircPrivmsg(std::string &msg, User &user, Server &Server);
-void parseCmd(std::string &cmd, User &user, Server &Server);
-void parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
-void normNameChannel(std::string &channel, User &user, Server &server);
-void interpretCommand(Server &server, std::string strmess, int const &id);
-void msgError(std::string const &code, User &user, std::string const &msg);
-void protocolForJoinChannel(Channel *channel, User &user, std::string &key);
-void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
-void joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
-void sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+void	checkOperator(User *user);
+int		checkRightsUserInChannel(Channel *channel, User *user);
+void	normKey(std::string &key, User &user, Server &server);
+void	ircJoin(std::string &msg, User &user, Server &Server);
+void	parseCmd(std::string &cmd, User &user, Server &Server);
+void	ircPrivmsg(std::string &msg, User &user, Server &Server);
+void	irc_who(std::string &message, User &user, Server &server);
+void	parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
+void	normNameChannel(std::string &channel, User &user, Server &server);
+void	interpretCommand(Server &server, std::string strmess, int const &id);
+void	msgError(std::string const &code, User &user, std::string const &msg);
+void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+User	*findUserByName(std::vector<User *> &users, std::string const &cmd);
+void	interpretCommand(Server &server, std::string strmess, int const &id);
+void	msgError(std::string const &code, User &user, std::string const &msg);
+void	msgError(std::string const &code, User &user, std::string const &msg);
+void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
+Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
+void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
+void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+void	ircInvite(std::string &msg, User &user, Server &server);
+
+
+void irc_part(std::string &message, User &user, Server &server);
+//bool findUser(User &user, std::vector<User *> &userList);
+void	irc_userhost(std::string &message, User &user, Server &server);
+void	printMessageSendToClient(std::string fonction, User &user, std::string message);
+void	irc_topic(std::string &message, User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   UTILS                                    //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-std::vector<std::string> splitString(const std::string &input, char delimiter);
-std::string	extractSubstring(std::string const &msg, int n);
+std::vector<std::string>	splitString(const std::string &input, char delimiter);
+std::string					extractSubstring(std::string const &msg, int n);
+bool						findElement(User const &user, std::vector<User *> &userList);
+int							countSpaces(const std::string &str, const char &delimiter);
+template <typename K, typename T>
+typename std::map<K, T>::const_iterator userInMap(const std::map<K, T> &inputMap, const User *userPtr);
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //
@@ -88,11 +112,13 @@ std::string	extractSubstring(std::string const &msg, int n);
 /*model de message d'erreur de la commande INVITE
 ":127.0.0.1 403 " + user->nickname + " #" + channel + " :No such channel\r\n"
 */
-#define ERRORI461 " :Not enough parameters"			//"<client> :Not enough parameters"
-#define ERRORI403 " :No such channel" 				//"<client> <channel> :No such channel"
-#define ERRORI442 " :You're not on that channel"	//"<client> <channel> :You're not on that channel"
-#define ERRORI482 " :You're not channel operator"	//"<client> <channel> :You're not channel operator"
-#define ERRORI443 " :is already on channel"			//"<client> <nick> <channel> :is already on channel"
+#define ERRORI401 " :No such nick/channel\r\n"			//"<client> <nick> :No such nick/channel"
+#define ERRORI403 " :No such channel\r\n" 				//"<client> <channel> :No such channel"
+#define ERRORI441 " :They aren't on that channel\r\n"	//"<client> <nick> <channel> :They aren't on that channel"
+#define ERRORI442 " :You're not on that channel\r\n"	//"<client> <channel> :You're not on that channel"
+#define ERRORI443 " :is already on channel\r\n"			//"<client> <nick> <channel> :is already on channel"
+#define ERRORI461 " :Not enough parameters\r\n"			//"<client> :Not enough parameters"
+#define ERRORI482 " :You're not channel operator\r\n"	//"<client> <channel> :You're not channel operator"
 
 /*class inviteException : public std::exception
 {
@@ -162,5 +188,20 @@ class notEnoughParamException : public std::exception
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define MAXUSER 100
+#define DEFAULTMAXUSER 100
 #define ERRORM403 ":No such channel"
+bool checkMode(Channel *channel, std::string mode);
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//                                msgError.cpp                                //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+void msgError461(User const &user);
+void msgError403(User const &user, std::string const &channel);
+void msgError442(User const &user, std::string const &channel);
+void msgError443(User const &user, std::string const &userInvited, Channel const &channel);
+void msgError482(User const &user, std::string const &channel);
+void msgError401(User const &user, std::string const &userInvited);

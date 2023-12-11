@@ -19,16 +19,10 @@ class Channel
 		Channel(Channel const &src);
 		~Channel();
 		Channel &	operator=(Channel const &rSym);
-
+		/// @brief map of mode soit "modeI", "modeK", "modeL", "modeO", "modeT"
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
 		long unsigned int modeLMaxUser;
-		// bool modeI;
-		// bool modeT;
-		// bool modeK;
-		// bool modeO;
-		// bool modeL;
-
 		int						maxUsers;
 		int						nbUsers;
 		std::string				name;
@@ -38,8 +32,13 @@ class Channel
 		// std::string				mode;
 		std::string				password;
 		std::vector<User *>		users;
-		std::vector<User *>		operators;
+		std::map<User *, bool>		operators;
 		std::vector<User *>		invitedUsers;
+
+    void	channelSendLoop(std::string message, int & sFd);
+		bool	isInChannel(User *user);
+		bool	isOpInChannel(User *user);
+		bool	isModeT();
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 //-------------------------------Other function-------------------------------//
@@ -53,11 +52,20 @@ class Channel
 		void checkModeL(User &user, std::string strmess);
 		void checkModeO(User &user);
 		void checkModeT(User &user);
-		void setModeO(char c, std::string strmess, Channel &chan, User &user);
-		void setModeK(char c, std::string strmess);
-		void setModeL(char c, std::string strmess);
+		void setModeO(char symbol, std::string &strmess, Channel &chan, User &user);
+		void setModeK(char symbol, std::string &strmess);
+		void setModeL(char symbol, std::string &strmess);
 		void setModeT(char c);
 		void setModeI(char c);
+
+		/// @brief
+		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"
+		/// @return
+		bool checkRights(std::string &nameMode)
+		{
+			return (modeTab[nameMode]);
+		}
+
 //----------------------------------Exeption----------------------------------//
 		class UserIsAlredyInChannelException : public std::exception
 		{
@@ -73,6 +81,11 @@ class Channel
 };
 
 //------------------------------Ostream overload------------------------------//
+
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym);
+
 //-------------------------------Other function-------------------------------//
+
 Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelList);
+
+
