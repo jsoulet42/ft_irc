@@ -62,8 +62,9 @@ class	User;
 class	Server;
 class	Channel;
 
-void	checkOperator(User *user);
-int		checkRightsUserInChannel(Channel *channel, User *user);
+int		checkRightsUserInChannel(Channel *channel, User *user, int grade);
+void	irc_part(std::string strmess, User &user, Server server);
+void	inheritanceOperator(Channel *chan, User *user);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	parseCmd(std::string &cmd, User &user, Server &Server);
@@ -83,10 +84,10 @@ void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+void	sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, std::string reason, Server server);
 void	ircInvite(std::string &msg, User &user, Server &server);
 
 
-void irc_part(std::string &message, User &user, Server &server);
 //bool findUser(User &user, std::vector<User *> &userList);
 void	irc_userhost(std::string &message, User &user, Server &server);
 void	printMessageSendToClient(std::string fonction, User &user, std::string message);
