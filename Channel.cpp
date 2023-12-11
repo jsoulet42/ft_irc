@@ -14,7 +14,6 @@ Channel::Channel(User *user, std::string &name)
 	this->maxUsers = 10;
 	this->nbUsers = 1;
 	this->name = name;
-	//this->operators.push_back(user);
 	this->invitedUsers.push_back(user);
 	this->modeI = true; // !!!!!!!!!!!!!!!a supprimer!!!!!!!!!!!!!!!
 }
@@ -49,7 +48,7 @@ int Channel::addUser(User *user, std::string &password)
 		if (this->password.compare(password) == 0)
 		{
 			this->users.push_back(user);
-			this->operators.insert(std::pair<std::string, bool>(user->nickname, false));
+			this->operators.insert(std::pair<User *, bool>(user, false));
 			this->nbUsers++;
 			return 0;
 		}
@@ -127,8 +126,10 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 		name.erase(0, 1);
 	//else
 		//on peux décider de renvoyer une erreur ou de ne rien faire
+	std::cout << name << "|";
 	for (std::vector<Channel *>::iterator it = chanelList.begin(); it != chanelList.end(); it++)
 	{
+		std::cout << (*it)->name << "|";
 		if ((*it)->name == name)
 			return (*it);
 	}
@@ -176,7 +177,7 @@ bool	Channel::isInChannel(User *user)
 	return false;
 }
 
-bool	Channel::isOpInChannel(User *user)
+/*bool	Channel::isOpInChannel(User *user)
 {
 	if (!user)
 		return false;
@@ -193,7 +194,7 @@ bool	Channel::isOpInChannel(User *user)
 	//	it++;
 	//}
 	return false;
-}
+}*/
 
 bool	Channel::isModeT()
 {
