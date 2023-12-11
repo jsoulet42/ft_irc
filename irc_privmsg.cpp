@@ -94,7 +94,7 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 					for (std::map<User *, bool>::iterator it3 = chan->operators.begin(); it3 != chan->operators.end(); it3++)
 					{
 						//std::cout << "22" << std::endl;
-						if (checkRightsUserInChannel(chan, &user) == OPERATOR && it3->first->_fdUser != user._fdUser)
+						if (checkRightsUserInChannel(chan, &user, OPERATOR) == true && it3->first->_fdUser != user._fdUser)
 						{
 							send(it3->first->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
 							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec operator", (*(it3->first)), rpl_privmsg);
@@ -104,7 +104,7 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 					for (std::vector<User *>::iterator it4 = chan->invitedUsers.begin(); it4 != chan->invitedUsers.end(); it4++)
 					{
 						//std::cout << "23" << std::endl;
-						if ((*it4)->_fdUser != user._fdUser && checkRightsUserInChannel(chan, &user) != INVITED)
+						if ((*it4)->_fdUser != user._fdUser && checkRightsUserInChannel(chan, &user, INVITED) == false)
 						{
 							send((*it4)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
 							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec invited", (*(*it4)), rpl_privmsg);

@@ -57,7 +57,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 		}
 		else
 		{
-			if (!(*it)->isInChannel(&user) && checkRightsUserInChannel(*it, &user) != OPERATOR)
+			if (!(*it)->isInChannel(&user) && checkRightsUserInChannel(*it, &user, OPERATOR) == false)
 			{
 				std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - ASK - channel found but user not in it" << RESET << std::endl;
 				std::string err_not_valid_name = ":127.0.0.1 442 " + user.nickname + " #" + channel + " :You're not on that channel\r\n";
@@ -111,7 +111,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 		{
 			std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found" << RESET << std::endl;
 			//je verifie que le user est sur le channel
-			if (!(*it)->isInChannel(&user) && checkRightsUserInChannel(*it, &user) != OPERATOR)
+			if (!(*it)->isInChannel(&user) && checkRightsUserInChannel(*it, &user, OPERATOR) == false)
 			{
 				std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found but user not in it" << RESET << std::endl;
 				std::string err_not_valid_name = ":127.0.0.1 442 " + user.nickname + " #" + channel + " :You're not on that channel\r\n";
@@ -125,7 +125,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 				//verif du mode T (topic ne peut etre changer que par un operateur)
 				if ((*it)->isModeT())
 				{
-					if (checkRightsUserInChannel(*it, &user) != OPERATOR)
+					if (checkRightsUserInChannel(*it, &user, OPERATOR) == false)
 					{
 						std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found - user found but ModeT is on and user not an operator" << RESET << std::endl;
 						std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + channel + " :You're not channel operator\r\n";
