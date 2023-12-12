@@ -7,7 +7,7 @@ void signalHandler(int signum)
 {
 	if (signum == SIGINT)
 	{
-		std::cout << RED << ON_BLACK << "Received SIGINT. Shutting down..." << RESET << std::endl;
+		std::cout << RED << ON_BLACK << "\b\bReceived SIGINT. Shutting down..." << RESET << std::endl;
 		isRunning = false;
 	}
 }
