@@ -31,11 +31,11 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	User *userInvited = findUserByName(server.users, msgVec[1]);
 	if (userInvited == NULL)													// on verifie que l'utilisateur existe
 		msgError401(user, msgVec[1]);
-	if(!channel->modeI)															// si le channel est public
+	/*if(!channel->modeI)															// si le channel est public
 	{
 		if (findElement(user, channel->users) == false)
 			msgError442(user, msgVec[2]);
-	}
+	}*/
 	// else																		// si le channel est prive
 	// {
  	if (checkRightsUserInChannel(channel, &user, OPERATOR) == false)						//on verifie que l'utilisateur est bien operateur du channel

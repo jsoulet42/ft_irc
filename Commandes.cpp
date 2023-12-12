@@ -131,10 +131,10 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		ircPrivmsg(strmess, *user, server);
 		return;
 	}
-	else if (strmess.compare(0, 4, "PART") == 0)
+	else if (strmess.compare(0, 5, "PART ") == 0)
 		irc_part(strmess, *user, server);
-	else if (strmess.compare(0, 5, "MODE ") == 0)
-		ft_launchMode(strmess, *user, server);
+	/*else if (strmess.compare(0, 5, "MODE ") == 0)
+		ft_launchMode(strmess, *user, server);*/
 	else if (strmess.compare(0, 4, "QUIT") == 0)
 		std::cout << "ici il y aura une fonction QUIT" << std::endl;
 	else if (strmess.compare(0, 5, "NICK ") == 0)
@@ -156,9 +156,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 9, "USERHOST ") == 0)
 		irc_userhost(strmess, *user, server);
 		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;
-	else {
-		msgError("421", *user, ERRORN421);
-	}
+	else
+		return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +305,7 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 	//channel->ft_checkMode(channel, user);
 	if (checkMode(channel, "modeI") == true)
 	{
-		if (checkRightsUserInChannel(channel, &user) != INVITED)
+		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
 			msgError("473", user, ERRORJ473);
 	}
 	if (findUserInChannel(channel, &user) == true)
@@ -333,6 +332,8 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	if (channel)
 	{
 		protocolForJoinChannel(channel, user, key);
+		std::cout << channel->users[0]->nickname << " first client dans /JOIN" << std::endl;
+		std::cout << channel->users[1]->nickname << " second client dans /JOIN" << std::endl;
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
@@ -340,6 +341,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
+		std::cout << channel->users[0]->nickname << " first client dans /JOIN" << std::endl;
 		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
@@ -389,7 +391,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	}
 }
 
-void send324(Channel &chan, User user, std::string code)
+/*void send324(Channel &chan, User user, std::string code)
 {
 	bool t = false;
 	bool o = false;
@@ -410,14 +412,14 @@ void send324(Channel &chan, User user, std::string code)
 		str += "I";
 	rpl_mess << IPHOST << code << " #" << chan.name << " ";
 	send(user._fdUser, rpl_mess.str().c_str(), rpl_mess.str().size(), 0);
-}
+}*/
 
-void send329(User &user, Channel &chan, std::string timestamp, std::string code)
+/*void send329(User &user, Channel &chan, std::string timestamp, std::string code)
 {
 
-}
+}*/
 
-void ft_launchMode(std::string &strmess, User &user, Server &server)
+/*void ft_launchMode(std::string &strmess, User &user, Server &server)
 {
 	Channel *chan = NULL;
 	std::string str = strtok((char *)strmess.c_str() + 5, "\r\n");
@@ -435,7 +437,7 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	//	send(ERRORM403); // "<client> <channel> :No such channel"
 		throw modeException();
 	}
-	if (checkRightsUserInChannel(chan, &user) != OPERATOR)
+	if (checkRightsUserInChannel(chan, &user, OPERATOR) == false)
 	{
 		std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + chan->name + " :You're not channel operator\r\n";
 		send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
@@ -447,12 +449,12 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 		if (str.empty() == true)
 		{
 			send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
-			send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
+			//send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
 		}
 		else
 			chan->ft_insertChanMode(strmess, user, server, *chan);
 	}
-}
+}*/
 
 const char* joinException::what() const throw()
 {
