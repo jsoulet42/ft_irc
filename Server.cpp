@@ -260,6 +260,19 @@ void Server::deleteUser(int fd)
 	delete *user;
 }
 
+void Server::deleteUser(User *user)
+{
+	for (std::vector<struct pollfd>::iterator it = this->fdP.begin(); it != this->fdP.end(); ++it)
+	{
+		if ((*it).fd == user->_fdUser)
+		{
+			close((*it).fd);
+			(*it).fd = -1;
+		}
+	}
+	delete (user);
+}
+
 const char* Server::PassException::what() const throw()
 {
 	return "Error during PASS command";

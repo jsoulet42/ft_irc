@@ -65,7 +65,8 @@ void irc_part(std::string strmess, User &user, Server server)
 	else
 		channel.push_back(chan);
 	sendPartToAllUsersInChannel(channel, &user, reason, server);
-	throw irc_part_rpl();
+	return;
+	//throw irc_part_rpl();
 }
 
 void sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, std::string reason, Server server)
@@ -114,8 +115,8 @@ void sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, s
 		chan->nbUsers--;
 		std::cout << chan->users[0]->nickname << " first client dans /PART" << std::endl;
 		std::cout << chan->users[1]->nickname << " second client dans /PART" << std::endl;
-		std::cout << chan->users[2]->nickname << " doublon client dans /PART" << std::endl;
-		exit(0);
+		//std::cout << chan->users[2]->nickname << " doublon client dans /PART" << std::endl;
+		//exit(0);
 	}
 }
 

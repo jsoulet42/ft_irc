@@ -82,13 +82,13 @@ int main(int argc, char const* argv[])
 				rc = recv(server->fdP[i].fd, buffer, sizeof(buffer), 0);
 				if (rc == 0)	// Lorsque le retour de recv cela signifie que le client a fermé la connexion
 				{
-					/*close(server->fdP[i].fd);
+					close(server->fdP[i].fd);
 					server->deleteUser(server->fdP[i].fd);
 					//server->checkChannel(); a faire et comprendre
 					server->fdP[i].fd = -1;
 					std::cout << "User succesfully deleted" << std::endl;
 					std::cout << std::endl;
-					continue;*/
+					continue;
 					// ctrl-c de netcat, utilisateur quit
 				}
 				buffer[rc] = '\0';
