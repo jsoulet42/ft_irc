@@ -1,8 +1,12 @@
 
 #pragma once
 
-# include "ft_irc.hpp"
-# include <map>
+#include "ft_irc.hpp"
+#include "User.hpp"
+#include <map>
+#include <cctype>
+#include <iostream>
+#include <string>
 
 extern bool errorCmd;
 
@@ -19,12 +23,6 @@ class Channel
 		std::map<std::string, bool> modeTab;
 		void (Channel::*ftPtr[5])(User &user);
 		long unsigned int modeLMaxUser;
-		bool modeI;
-		// bool modeT;
-		// bool modeK;
-		// bool modeO;
-		// bool modeL;
-
 		int						maxUsers;
 		int						nbUsers;
 		std::string				name;
@@ -34,7 +32,6 @@ class Channel
 		// std::string				mode;
 		std::string				password;
 		std::vector<User *>		users;
-		//std::vector<User *>		operators;
 		std::map<User *, bool>		operators;
 		std::vector<User *>		invitedUsers;
 
@@ -47,13 +44,19 @@ class Channel
 //-------------------------------Other function-------------------------------//
 
 		int addUser(User *user, std::string &cmd);
-		void ft_fillPtrCheckMode();
-		void ft_checkMode(Channel *channel, User &user);
+		void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
+		bool ft_checkMode(Channel *channel, User &user, std::string mode); // exemple de string : "modeI", "modeL" etc...
+		void initModeMap();
 		void checkModeI(User &user);
 		void checkModeK(User &user);
-		void checkModeL(User &user);
+		void checkModeL(User &user, std::string strmess);
 		void checkModeO(User &user);
 		void checkModeT(User &user);
+		void setModeO(char symbol, std::string &strmess, Channel &chan, User &user);
+		void setModeK(char symbol, std::string &strmess);
+		void setModeL(char symbol, std::string &strmess);
+		void setModeT(char c);
+		void setModeI(char c);
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"

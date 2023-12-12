@@ -21,6 +21,11 @@ class joinAcceptedException : public std::exception
 		virtual const char* what() const throw();
 };
 
+class modeException : public std::exception
+{
+	public:
+		virtual const char *what() const throw();
+};
 void test(Channel channel, std::string nameMode)
 {
 	channel.checkRights(nameMode);
@@ -41,7 +46,9 @@ User	*findUserById(std::vector<User *> &users, int const &id)
 	}
 	return NULL;
 }
-
+/// @brief Renvoie un pointeur sur l'utilisateur si il existe, sinon NULL
+/// @param users : liste des utilisateurs
+/// @param cmd : nom de l'utilisateur
 User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
 {
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
@@ -124,17 +131,10 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		ircPrivmsg(strmess, *user, server);
 		return;
 	}
-	/*else if (strmess.compare(0, 4, "PART") == 0)
-	{
+	else if (strmess.compare(0, 5, "PART ") == 0)
 		irc_part(strmess, *user, server);
-		return;
-	}*/
-		//std::cout << "ici il y aura une fonction PART" << std::endl;
-	else if (strmess.compare(0, 5, "MODE ") == 0)
-	{
-		std::cout << "ici il y aura une fonction MODE" << std::endl;
-		// a implementer dans la fonction MODE : checkOperator(*user);
-	}
+	/*else if (strmess.compare(0, 5, "MODE ") == 0)
+		ft_launchMode(strmess, *user, server);*/
 	else if (strmess.compare(0, 4, "QUIT") == 0)
 		std::cout << "ici il y aura une fonction QUIT" << std::endl;
 	else if (strmess.compare(0, 5, "NICK ") == 0)
@@ -156,14 +156,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 9, "USERHOST ") == 0)
 		irc_userhost(strmess, *user, server);
 		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;
-	else {
-		msgError("421", *user, ERRORN421);
-	}
-	/*if (strmess.compare(0, 6, "INVITE") == 0)
-	{
-		ircInvite(strmess, *user, server);
-	}*/
-
+	else
+		return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -309,17 +303,25 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
 	//channel->ft_checkMode(channel, user);
-	//if (channel->modeI)
-	//{
-	//	if (checkRightsUserInChannel(channel, &user, INVITED) == false))
-	//		msgError("473", user, ERRORJ473);
-	//}
+	if (checkMode(channel, "modeI") == true)
+	{
+		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
+			msgError("473", user, ERRORJ473);
+	}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
 		msgError("475", user, ERRORJ475);
 	if (errorCmd == true)
 		throw joinException();
+}
+
+bool checkMode(Channel *channel, std::string mode)
+{
+	std::map<std::string, bool>::iterator it = channel->modeTab.find(mode);
+	if (it != channel->modeTab.end() && it->second == true)
+		return true;
+	return false;
 }
 
 // prevoir a implementer les erreurs manquantes
@@ -330,6 +332,8 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	if (channel)
 	{
 		protocolForJoinChannel(channel, user, key);
+		std::cout << channel->users[0]->nickname << " first client dans /JOIN" << std::endl;
+		std::cout << channel->users[1]->nickname << " second client dans /JOIN" << std::endl;
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
@@ -337,6 +341,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
+		std::cout << channel->users[0]->nickname << " first client dans /JOIN" << std::endl;
 		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
@@ -386,6 +391,71 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	}
 }
 
+/*void send324(Channel &chan, User user, std::string code)
+{
+	bool t = false;
+	bool o = false;
+	bool l = false;
+	bool k = false;
+	bool i = false;
+	std::string str;
+	std::stringstream rpl_mess;
+	if (chan.modeTab["modeT"] == true);
+		str += "T";
+	if (chan.modeTab["modeO"] == true);
+		str += "O";
+	if (chan.modeTab["modeL"] == true);
+		str += "L";
+	if (chan.modeTab["modeK"] == true);
+		str += "K";
+	if (chan.modeTab["modeI"] == true);
+		str += "I";
+	rpl_mess << IPHOST << code << " #" << chan.name << " ";
+	send(user._fdUser, rpl_mess.str().c_str(), rpl_mess.str().size(), 0);
+}*/
+
+/*void send329(User &user, Channel &chan, std::string timestamp, std::string code)
+{
+
+}*/
+
+/*void ft_launchMode(std::string &strmess, User &user, Server &server)
+{
+	Channel *chan = NULL;
+	std::string str = strtok((char *)strmess.c_str() + 5, "\r\n");
+	if (str.size() == 0)
+		msgError("403", user, ERRORM403);
+	else if (str[0] != '#' || str[0] != '&')
+		msgError("403", user, ERRORM403);
+	if (errorCmd == true)
+		throw modeException();
+	str.erase(0, 1);
+	if (str.find(" ") != std::string::npos)
+		chan = findChannelByName(server.channels, str.substr(0, str.find(" ")));
+	if (!chan)
+	{
+	//	send(ERRORM403); // "<client> <channel> :No such channel"
+		throw modeException();
+	}
+	if (checkRightsUserInChannel(chan, &user, OPERATOR) == false)
+	{
+		std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + chan->name + " :You're not channel operator\r\n";
+		send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
+		throw;
+	}
+	else
+	{
+		str.erase(0, (str.find(" ") + 1));
+		if (str.empty() == true)
+		{
+			send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
+			//send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
+		}
+		else
+			chan->ft_insertChanMode(strmess, user, server, *chan);
+	}
+}*/
+
 const char* joinException::what() const throw()
 {
 	return "[Error] during JOIN command";
@@ -399,4 +469,9 @@ const char* keyException::what() const throw()
 const char* joinAcceptedException::what() const throw()
 {
 	return "[RPL] during JOIN command , user is accepted on channel";
+}
+
+const char* modeException::what() const throw()
+{
+	return "[Error] during MODE command";
 }
