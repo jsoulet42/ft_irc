@@ -1,5 +1,5 @@
 
-#include "./includes/ft_irc.hpp"
+#include "includes/ft_irc.hpp"
 
 void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
 {
@@ -58,7 +58,7 @@ int Channel::addUser(User *user, std::string &password)
 		else
 			return -1;
 	}
-	else
+	else if (findUserInChannel(this, user) == false)
 	{
 		//std::cout << "dans addUser : " << user->nickname << std::endl;
 		this->users.push_back(user);
@@ -67,9 +67,11 @@ int Channel::addUser(User *user, std::string &password)
 		this->nbUsers++;
 		return 0;
 	}
+	else
+		return -1;
 }
 
-bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
+/*bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
 {
 	std::map<std::string, bool>::iterator it = channel->modeTab.find(mode);
 	if (it != channel->modeTab.end())
@@ -78,9 +80,9 @@ bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
 			return true;
 	}
 	return false;
-}
+}*/
 
-void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan)
+/*void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan)
 {
 	char symbol;
 	if (!strmess.empty() && (strmess[0] == '+' || strmess[0] == '-'))
@@ -109,7 +111,7 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server,
 				symbol = strmess[i];
 		}
 	}
-}
+}*/
 
 // si j'ai un enchainement de mode il ne peut pas y avoir d'argument dans la commande sinon erreur et throw,
 //et si dans l'enchainement exemple +itko il y un mode qui normalement necessite un argument on l'ignore et active quand meme les autre mode
@@ -217,7 +219,7 @@ void Channel::setModeL(char symbol, std::string &strmess)
 	std::cout << "mode +l correctly added" << std::endl;
 }
 
-void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
+/*void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
 {
 	std::map<std::string, bool>::iterator it_m = this->modeTab.find("modeO");
 	std::string nameParse;
@@ -239,14 +241,14 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 				std::cout << "User is not an operator" << std::endl;
 		}
 		else if (symbol == '+')
-			if (checkRightsUserInChannel(&chan, &user) != OPERATOR)
+			if (checkRightsUserInChannel(&chan, &user, OPERATOR) == false)
 				this->operators.insert(std::pair<User*, bool>(tempUser, true));
 	}
 	else
 	{
-		/*renvoiyer a l'utiisateur la liste des operators*/
+		renvoiyer a l'utiisateur la liste des operators
 	}
-}
+}*/
 
 void Channel::setModeT(char c)
 {
