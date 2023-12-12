@@ -93,9 +93,9 @@ void	printMessageSendToClient(std::string fonction, User &user, std::string mess
 void	irc_topic(std::string &message, User &user, Server &server);
 bool	findUserInChannel(Channel *channel, User *user);
 
-void printUsersOfAChannel(Channel *chan);
-void printOperatorsOfAChannel(Channel *chan);
-void printInvitedUsersOfAChannel(Channel *chan);
+void 	printUsersOfAChannel(Channel *chan);
+void 	printOperatorsOfAChannel(Channel *chan);
+void 	printInvitedUsersOfAChannel(Channel *chan);
 bool	findUserInChannel(Channel *channel, User *user);
 
 ////////////////////////////////////////////////////////////////////////////////
