@@ -95,13 +95,14 @@ int main(int argc, char const* argv[])
 				std::string strmess(buffer);
 				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
 				{
-					continue;
+
 				}
 				else
 				{
 					try
 					{
 						interpretCommand(*server, strmess, server->fdP[i].fd);
+						strmess.clear();
 					}
 					catch(const std::exception& e)
 					{

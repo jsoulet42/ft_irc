@@ -112,7 +112,7 @@ void Server::protocolNewUser(int newFd)
 	this->fdP[this->fdNb].fd = newFd;
 	this->fdP[this->fdNb].events = POLLIN;
 
-	std::string message = newuser->nickname + ":" + IPHOST + " 001  Welcome to the Internet Relay Network\n" + newuser->nickname + "!" + newuser->username +"@127.0.0.1\r\n";
+	std::string message = newuser->nickname + IPHOST + " 001  Welcome to the Internet Relay Network\n" + newuser->nickname + "!" + newuser->username +"@127.0.0.1\r\n";
 	send(newFd, message.c_str(), message.length(), 0);
 	std::cout << YELLOW << ON_BLACK << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << RESET << std::endl;
 }
@@ -246,7 +246,7 @@ std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
 		if (i == -1)
 			i = (*it)->name.find("\n");
 		(*it)->name = (*it)->name.substr(0, i);
-		
+
 		if ((*it)->name.compare(0, (*it)->name.length(), name) == 0)
 			return it;
 		++it;

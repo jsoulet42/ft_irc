@@ -64,6 +64,12 @@ void irc_part(std::string strmess, User &user, Server server)
 	}
 	else
 		channel.push_back(chan);
+	for (std::vector<std::string>::iterator it = channel.begin(); it != channel.end(); it++)
+	{
+		Channel *chan = findChannelByName(server.channels, *it);
+		for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
+			std::cout << "liste des users dans le vector :" << (*it2)->nickname << std::endl;
+	}
 	sendPartToAllUsersInChannel(channel, &user, reason, server);
 	throw irc_part_rpl();
 }
@@ -73,6 +79,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, s
 	std::stringstream rpl_part;
 	std::stringstream err_part;
 
+	(void)reason;
 	for (std::vector<std::string>::iterator it = channel.begin(); it != channel.end(); it++)
 	{
 		Channel *chan = findChannelByName(server.channels, *it);
@@ -92,10 +99,10 @@ void sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, s
 		}
 		for (std::vector<User *>::iterator cuser = chan->users.begin(); cuser < chan->users.end(); cuser++)
 		{
-			if ((*cuser)->_fdUser != user->_fdUser)
+			if ((*cuser)->_fdUser != user->_fdUser || (*cuser)->_fdUser == user->_fdUser)
 			{
 				std::cout << (*cuser)->_fdUser << user->_fdUser << std::endl;
-				rpl_part << ":" << user->nickname << " PART #" << chan->name << " :" << reason << "\r\n";
+				rpl_part << ":" << user->nickname << " PART #" << chan->name << " :" << user->nickname << " " << reason << "\r\n";
 				send((*cuser)->_fdUser, rpl_part.str().c_str(), rpl_part.str().length(), 0);
 				rpl_part.str("");
 				if (checkRightsUserInChannel(chan, *cuser, OPERATOR) == true)
@@ -112,11 +119,13 @@ void sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, s
 		}
 		chan->users.erase(it2);
 		chan->nbUsers--;
-		std::cout << chan->users[0]->nickname << " first client dans /PART" << std::endl;
-		std::cout << chan->users[1]->nickname << " second client dans /PART" << std::endl;
-		std::cout << chan->users[2]->nickname << " doublon client dans /PART" << std::endl;
-		exit(0);
+		for (std::vector<std::string>::iterator it = channel.begin(); it != channel.end(); it++)
+		{
+			for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
+				std::cout << "liste des users dans le vector a la fin :" << (*it2)->nickname << std::endl;
+		}
 	}
+	exit (0);
 }
 
 void inheritanceOperator(Channel *chan, User *user)
@@ -129,7 +138,17 @@ void inheritanceOperator(Channel *chan, User *user)
 	for (; it->second == false && it != chan->operators.end(); it++)
 		;
 	if (it == chan->operators.end())
+	{
+		std::stringstream rpl_oper;
 		chan->operators.begin()->second = true;
+		std::vector<User *>::iterator it2 = chan->users.begin();
+		rpl_oper << "@" << it->first->nickname << "\r\n" << std::endl;
+		for (; it2 != chan->users.end(); it2++)
+		{
+			send((*it2)->_fdUser, rpl_oper.str().c_str(), rpl_oper.str().length(), 0);
+			rpl_oper.str("");
+		}
+	}
 	else
 		return;
 }
