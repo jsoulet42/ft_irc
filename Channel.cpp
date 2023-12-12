@@ -1,5 +1,5 @@
 
-#include "./includes/ft_irc.hpp"
+#include "includes/ft_irc.hpp"
 
 void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
 {
@@ -15,8 +15,11 @@ Channel::Channel(User *user, std::string &name)
 	this->nbUsers = 1;
 	this->name = name;
 	this->invitedUsers.push_back(user);
-	this->modeI = true; // !!!!!!!!!!!!!!!a supprimer!!!!!!!!!!!!!!!
+	this->initModeMap();
+	this->password = "";
+	this->modeLMaxUser = DEFAULTMAXUSER;
 }
+
 Channel::Channel(Channel const &src)
 {
 	*this = src;
@@ -55,7 +58,7 @@ int Channel::addUser(User *user, std::string &password)
 		else
 			return -1;
 	}
-	else
+	else if (findUserInChannel(this, user) == false)
 	{
 		//std::cout << "dans addUser : " << user->nickname << std::endl;
 		this->users.push_back(user);
@@ -64,59 +67,199 @@ int Channel::addUser(User *user, std::string &password)
 		this->nbUsers++;
 		return 0;
 	}
+	else
+		return -1;
 }
 
-/* return 1 si une erreur a eter trouver dans un checkMode()*/
-void Channel::ft_checkMode(Channel *channel, User &user)
+/*bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
 {
-	int i = 0;
-	channel->ft_fillPtrCheckMode();
-	std::map<std::string, bool>::iterator it = channel->modeTab.begin();
-	while (it != channel->modeTab.end())
+	std::map<std::string, bool>::iterator it = channel->modeTab.find(mode);
+	if (it != channel->modeTab.end())
 	{
 		if (it->second == true)
-			(channel->*ftPtr[i])(user);
-		++it;
-		++i;
+			return true;
+	}
+	return false;
+}*/
+
+/*void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan)
+{
+	char symbol;
+	if (!strmess.empty() && (strmess[0] == '+' || strmess[0] == '-'))
+		symbol = strmess[0];
+	else
+	{
+		msgError("403", user, ERRORM403);
+		throw;
+	}
+	strmess.erase(0, 1);
+	if (!strmess.empty())
+	{
+		for ( size_t i = 0; i < strmess.find(" "); ++i)
+		{
+			if (strmess[i] == 't')
+				chan.setModeT(symbol);
+			else if (strmess[i] == 'i')
+				chan.setModeI(symbol);
+			else if (strmess[i] == 'l')
+				chan.setModeL(symbol, strmess);
+			else if (strmess[i] == 'k')
+				chan.setModeK(symbol, strmess);
+			else if (strmess[i] == 'o')
+				chan.setModeO(symbol, strmess, chan, user);
+			else if (strmess[i] == '+' || strmess[i] == '-')
+				symbol = strmess[i];
+		}
+	}
+}*/
+
+// si j'ai un enchainement de mode il ne peut pas y avoir d'argument dans la commande sinon erreur et throw,
+//et si dans l'enchainement exemple +itko il y un mode qui normalement necessite un argument on l'ignore et active quand meme les autre mode
+// sinon un seul mode avec son argument
+/*/MODE #channel +tolki argument
+
++tolki (t)
++tolki (o) nickname
++tolki (l) nbusermax
++tolki (k) password
++tolki (i)*/
+
+void Channel::initModeMap()
+{
+	std::map<std::string, bool> tab;
+	tab.insert(std::pair<std::string, bool>("modeT", false));
+	tab.insert(std::pair<std::string, bool>("modeO", false));
+	tab.insert(std::pair<std::string, bool>("modeL", false));
+	tab.insert(std::pair<std::string, bool>("modeK", false));
+	tab.insert(std::pair<std::string, bool>("modeI", false));
+	this->modeTab = tab;
+}
+
+void Channel::setModeI(char c)
+{
+	std::map<std::string, bool>::iterator it = this->modeTab.find("modeI");
+	if (it != modeTab.end())
+	{
+		if (c == '+')
+			it->second = true;
+		else
+			it->second = false;
 	}
 }
 
-void Channel::checkModeI(User &user)
+void Channel::setModeK(char symbol, std::string &strmess)
 {
-	if (this->users.size() >= this->modeLMaxUser)
-		msgError("471", user, ERRORJ471);
+	std::map<std::string, bool>::iterator it = this->modeTab.find("modeK");
+	std::string temp;
+
+	if (symbol == '-')
+	{
+		it->second = false;
+		this->password = "";
+	}
+	else
+	{
+		if (strmess.find(" ") != std::string::npos)
+			strmess.erase(0, (strmess.find(" ") + 1));
+		if (!strmess.empty())
+		{
+			temp = strmess.substr(0, strmess.find(" "));
+			this->password = temp;
+			it->second = true;
+		}
+		else
+		{
+		//	send(error 525); // "<client> <target chan> :Key is not well-formed"
+			std::cout << "Wrong param mode" << std::endl;
+			return;
+		}
+	}
 }
 
-void Channel::checkModeK(User &user)
+void Channel::setModeL(char symbol, std::string &strmess)
 {
-	(void)user;
+	int resultat;
+	std::map<std::string, bool>::iterator it = this->modeTab.find("modeL");
+	if (symbol == '-')
+	{
+		this->modeLMaxUser = DEFAULTMAXUSER;;
+		if (it != modeTab.end())
+			it->second = false;
+		std::cout << "mode -l correctly removed" << std::endl;
+		return;
+	}
+	else if (strmess.find(" ") != std::string::npos)
+	{
+		strmess.erase(0, (strmess.find(" ") + 1)); // et quil ya un int apres, on recup le int et le met dans modLMaxUser
+		for (size_t i = 0; i < strmess.find(" "); i++)
+		{
+			if (!strmess.empty())
+			{
+				if (!std::isdigit(strmess[i]))
+				{
+				//	send(erreur inconnu);
+					throw;
+				}
+			}
+		}
+	}
+	std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
+	try {
+        resultat = std::atoi(temp.c_str());
+    }
+	catch (const std::invalid_argument& e) {
+        std::cerr << "Erreur d'argument invalide : " << e.what() << std::endl;
+		return;
+    } catch (const std::out_of_range& e) {
+        std::cerr << "Dépassement de capacité : " << e.what() << std::endl;
+		return;
+    }
+	it->second = true;
+	this->modeLMaxUser = resultat;
+	std::cout << "mode +l correctly added" << std::endl;
 }
 
-void Channel::checkModeL(User &user)
+/*void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
 {
-	(void)user;
+	std::map<std::string, bool>::iterator it_m = this->modeTab.find("modeO");
+	std::string nameParse;
+	if (strmess.find(" ") != std::string::npos)
+	{
+		strmess.erase(0, (strmess.find(" ") + 1));
+		if (!strmess.empty())
+			nameParse = strmess.substr(0, strmess.find(" "));
+		User *tempUser = findUserByName(chan.users, nameParse);
+		if (symbol == '-')
+		{
+			if (tempUser)
+			{
+				std::map<User*, bool>::iterator it = this->operators.find(tempUser);
+				if (it != this->operators.end())
+					operators.erase(tempUser);
+			}
+			else
+				std::cout << "User is not an operator" << std::endl;
+		}
+		else if (symbol == '+')
+			if (checkRightsUserInChannel(&chan, &user, OPERATOR) == false)
+				this->operators.insert(std::pair<User*, bool>(tempUser, true));
+	}
+	else
+	{
+		renvoiyer a l'utiisateur la liste des operators
+	}
+}*/
 
-}
-
-void Channel::checkModeO(User &user)
+void Channel::setModeT(char c)
 {
-	(void)user;
-
-}
-
-void Channel::checkModeT(User &user)
-{
-	(void)user;
-
-}
-
-void Channel::ft_fillPtrCheckMode()
-{
-	this->ftPtr[0] = &Channel::checkModeI;
-	this->ftPtr[1] = &Channel::checkModeK;
-	this->ftPtr[2] = &Channel::checkModeL;
-	this->ftPtr[3] = &Channel::checkModeO;
-	this->ftPtr[4] = &Channel::checkModeT;
+	std::map<std::string, bool>::iterator it = this->modeTab.find("modeT");
+	if (it != modeTab.end())
+	{
+		if (c == '+')
+			it->second = true;
+		else
+			it->second = false;
+	}
 }
 
 //------------------------------Ostream overload------------------------------//

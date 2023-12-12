@@ -62,8 +62,9 @@ class	User;
 class	Server;
 class	Channel;
 
-void	checkOperator(User *user);
 int		checkRightsUserInChannel(Channel *channel, User *user, int grade);
+void	irc_part(std::string strmess, User &user, Server server);
+void	inheritanceOperator(Channel *chan, User *user);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	parseCmd(std::string &cmd, User &user, Server &Server);
@@ -83,10 +84,10 @@ void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
+void	sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, std::string reason, Server server);
 void	ircInvite(std::string &msg, User &user, Server &server);
 
 
-void irc_part(std::string &message, User &user, Server &server);
 //bool findUser(User &user, std::vector<User *> &userList);
 void	irc_userhost(std::string &message, User &user, Server &server);
 void	printMessageSendToClient(std::string fonction, User &user, std::string message);
@@ -104,11 +105,10 @@ bool	findUserInChannel(Channel *channel, User *user);
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 std::vector<std::string>	splitString(const std::string &input, char delimiter);
-std::string					extractSubstring(std::string const &msg, int n);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
-template <typename K, typename T>
-typename std::map<K, T>::const_iterator userInMap(const std::map<K, T> &inputMap, const User *userPtr);
+void						remouveUser(User &user, std::vector<User *> &userList);
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //
@@ -194,6 +194,11 @@ class notEnoughParamException : public std::exception
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define DEFAULTMAXUSER 100
+#define ERRORM403 ":No such channel"
+bool checkMode(Channel *channel, std::string mode);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                msgError.cpp                                //
@@ -202,6 +207,7 @@ class notEnoughParamException : public std::exception
 
 void msgError461(User const &user);
 void msgError403(User const &user, std::string const &channel);
+void msgError441(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError442(User const &user, std::string const &channel);
 void msgError443(User const &user, std::string const &userInvited, Channel const &channel);
 void msgError482(User const &user, std::string const &channel);

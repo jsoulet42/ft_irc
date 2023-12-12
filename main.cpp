@@ -95,6 +95,7 @@ int main(int argc, char const* argv[])
 				std::string strmess(buffer);
 				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
 				{
+					continue;
 				}
 				else
 				{
