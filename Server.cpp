@@ -17,11 +17,11 @@ Server::~Server()
 	{
 		if (this->fdP[i].fd != this->_serverSocket && this->fdP[i].fd != -1)
 		{
-			//shutdown(this->fdP[i].fd, SHUT_RDWR);
+			shutdown(this->fdP[i].fd, SHUT_RDWR);
 			close(this->fdP[i].fd);
 		}
 	}
-	//shutdown(this->_serverSocket, SHUT_RDWR);
+	shutdown(this->_serverSocket, SHUT_RDWR);
 	close(this->_serverSocket);
 }
 
