@@ -44,8 +44,8 @@ class Channel
 //-------------------------------Other function-------------------------------//
 
 		int addUser(User *user, std::string &cmd);
-		void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
-		bool ft_checkMode(Channel *channel, User &user, std::string mode); // exemple de string : "modeI", "modeL" etc...
+		void ft_insertChanMode(std::string strmess, User &user, Channel &chan);
+		bool ft_checkMode(Channel *channel, std::string mode); // exemple de string : "modeI", "modeL" etc...
 		void initModeMap();
 		void checkModeI(User &user);
 		void checkModeK(User &user);
@@ -57,6 +57,7 @@ class Channel
 		void setModeL(char symbol, std::string &strmess);
 		void setModeT(char c);
 		void setModeI(char c);
+		bool ft_checkPassword(std::string &cmd);
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"
