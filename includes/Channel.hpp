@@ -41,9 +41,13 @@ class Channel
 		bool	isModeT();
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
+
+
+
 //-------------------------------Other function-------------------------------//
 
 		int addUser(User *user, std::string &cmd);
+		void deleteUserInChannel(User *user);
 		void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
 		bool ft_checkMode(Channel *channel, User &user, std::string mode); // exemple de string : "modeI", "modeL" etc...
 		void initModeMap();
