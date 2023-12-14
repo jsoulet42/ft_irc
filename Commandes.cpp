@@ -116,6 +116,14 @@ void	msgError(std::string const &code, User &user, std::string const &msg)
 	errorCmd = true;
 }
 
+void	msgError(std::string const &code, std::string &channel, User &user, std::string const &msg)
+{
+	std::stringstream ss;
+	ss << IPHOST << code << " " << channel << msg;
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	errorCmd = true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                              interpretCmd                                  //
@@ -241,7 +249,7 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	else if (channel.size() < 2)
 		msgError("461", user, ERRORJ461);
 	else if (channel.size() > 10)
-		msgError("476", user, ERRORJ476);
+		msgError("476", channel, user, ERRORJ476);
 	if (errorCmd == true)
 			throw joinException();
 	channel.erase(0, 1);
