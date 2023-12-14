@@ -53,7 +53,7 @@ class Channel
 		void initModeMap();
 		void checkModeI(User &user);
 		void checkModeK(User &user);
-		void checkModeL(User &user, std::string strmess);
+		bool checkModeL();
 		void checkModeO(User &user);
 		void checkModeT(User &user);
 		void setModeO(char symbol, std::string &strmess, Channel &chan, User &user);

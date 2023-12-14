@@ -46,7 +46,7 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
-	if (!this->password.empty())
+	if (this->password != "")
 	{
 		if (this->password.compare(password) == 0)
 		{
@@ -58,7 +58,7 @@ int Channel::addUser(User *user, std::string &password)
 		else
 			return -1;
 	}
-	else if (findUserInChannel(this, user) == false)
+	else if (findUserInChannel(this, user) == false && this->password == "")
 	{
 		this->users.push_back(user);
 		this->nbUsers++;
@@ -180,17 +180,21 @@ void Channel::setModeK(char symbol, std::string &strmess)
 	{
 		if (strmess.find(" ") != std::string::npos)
 			strmess.erase(0, (strmess.find(" ") + 1));
+		std::cout << strmess << "     ----- test strmess" << std::endl;
 		if (!strmess.empty())
 		{
-			temp = strmess.substr(0, strmess.find(" "));
+			temp = strmess.substr(0, strmess.size());
 			// strmess.erase(0, (strmess.find(" ") + 1));
-			for (size_t i = 0; i < (strmess.size() && strmess[i] != ' '); i++)
+			for (size_t i = 0; i < strmess.size(); i++)
 			{
-				if (strmess[i] == '#' || strmess[i] == ',')
-		//	send(error 525); // "<client> <target chan> :Key is not well-formed"
-				std::cout << "Key is not well formed" << std::endl;
-				return;
+				if (strmess[i] == '#' || strmess[i] == ',' || strmess[i] == ' ')
+				{
+				//	send(error 525); // "<client> <target chan> :Key is not well-formed"
+					std::cout << "Key is not well formed" << std::endl;
+					return;
+				}
 			}
+			std::cout << temp << std::endl;
 			this->password = temp;
 			it->second = true;
 		}
@@ -221,26 +225,24 @@ void Channel::setModeL(char symbol, std::string &strmess)
 	else if (strmess.find(" ") != std::string::npos)
 	{
 		strmess.erase(0, (strmess.find(" ") + 1));
-		for (size_t i = 0; i < strmess.find(" "); i++)
+		std::cout << "je suis dans +l    le nbr = " << strmess << std::endl;
+		for (size_t i = 0; i < strmess.size(); i++)
 		{
 			if (!strmess.empty())
 			{
-				std::cout << "je suis lLALALALALAL" << std::endl;
-				for (size_t i; i < (strmess.size() && strmess[i] != ' '); i++)
+				if (!std::isdigit(strmess[i]))
 				{
-					if (!std::isdigit(strmess[i]))
-					{
-					//	send(erreur inconnu);
-						//throw;
-						std::cout << "not a number, mode +l cancelled" << std::endl;
-					}
+				//	send(erreur inconnu);
+					//throw;
+					std::cout << "not a number, mode +l cancelled" << std::endl;
+					return;
 				}
 			}
 		}
 	}
-	std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
+	//std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
 	try {
-        resultat = std::atoi(temp.c_str());
+        resultat = std::atoi(strmess.c_str());
     }
 	catch (const std::invalid_argument& e) {
         std::cerr << "Erreur d'argument invalide : " << e.what() << std::endl;
@@ -251,7 +253,7 @@ void Channel::setModeL(char symbol, std::string &strmess)
     }
 	it->second = true;
 	this->modeLMaxUser = resultat;
-	std::cout << "mode +l correctly added" << std::endl;
+	std::cout << "mode +l correctly added" << resultat << this->modeLMaxUser << std::endl;
 }
 
 void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
@@ -306,6 +308,20 @@ void Channel::setModeT(char c)
 			std::cout << " Mode -t successfully removed" << std::endl;
 		}
 	}
+}
+
+bool Channel::checkModeL()
+{
+	long unsigned int count = 1;
+	std::vector<User*>::iterator it = this->users.begin();
+	for (; it != this->users.end(); it++)
+	{
+		count++;
+	}
+	std::cout << "le nombre de user est = " << count << std::endl;
+	if (count < this->modeLMaxUser)
+		return true;
+	return false;
 }
 
 //------------------------------Ostream overload------------------------------//
