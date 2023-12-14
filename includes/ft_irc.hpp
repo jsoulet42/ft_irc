@@ -33,6 +33,16 @@
 #define ERRORU421 " 421 USER :Unknown command\r\n"
 #define ERRORU461 " 461 USER :Not enough parameters\r\n"
 
+// class modeException : public std::exception
+// {
+// 	public:
+// 		virtual const char *what() const throw();
+// };
+
+// const char* modeException::what() const throw()
+// {
+// 	return "[Error] during MODE command";
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -206,6 +216,7 @@ void irc_quit(std::string &message, User &user, Server &server);
 #define DEFAULTMAXUSER 100
 #define ERRORM403 ":No such channel"
 bool checkMode(Channel *channel, std::string mode);
+void ft_launchMode(std::string &strmess, User &user, Server &server);
 
 
 ////////////////////////////////////////////////////////////////////////////////

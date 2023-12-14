@@ -1,5 +1,6 @@
 
 # include "./includes/ft_irc.hpp"
+void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
 
 bool errorCmd = false;
 
@@ -253,7 +254,7 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 			msgError("475", user, ERRORJ475);
 	}
 	if (channel.compare(0, 1, "#") != 0)
-			msgError("403", user, ERRORJ403);
+		msgError("403", user, ERRORJ403);
 	else if (channel.size() < 2)
 		msgError("461", user, ERRORJ461);
 	else if (channel.size() > 10)
@@ -327,7 +328,16 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 	if (checkMode(channel, "modeI") == true)
 	{
 		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
+		{
 			msgError("473", user, ERRORJ473);
+			throw joinException();
+		}
+	}
+	if (channel->checkModeL() == false)
+	{
+		// send();
+		throw joinException();
+		return;
 	}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
@@ -376,7 +386,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	if (createOrJoin == 0)
 	{
 		channel->topic = "No topic is set";
-
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
@@ -409,6 +418,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 	}
+	std::cout << "koicoubeuh" << std::endl;
 }
 
 /*void send324(Channel &chan, User user, std::string code)
@@ -439,14 +449,16 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 
 }*/
 
-/*void ft_launchMode(std::string &strmess, User &user, Server &server)
+void ft_launchMode(std::string &strmess, User &user, Server &server)
 {
 	Channel *chan = NULL;
 	std::string str = strtok((char *)strmess.c_str() + 5, "\r\n");
+	errorCmd = false;
 	if (str.size() == 0)
 		msgError("403", user, ERRORM403);
-	else if (str[0] != '#' || str[0] != '&')
-		msgError("403", user, ERRORM403);
+	std::cout << str[0] << std::endl;
+	if (str[0] != '#' && str[0] != '&')
+  	  msgError("403", user, ERRORM403);
 	if (errorCmd == true)
 		throw modeException();
 	str.erase(0, 1);
@@ -461,20 +473,20 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	{
 		std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + chan->name + " :You're not channel operator\r\n";
 		send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
-		throw;
+		throw modeException();
 	}
 	else
 	{
 		str.erase(0, (str.find(" ") + 1));
 		if (str.empty() == true)
 		{
-			send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
+		//	send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
 			//send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
 		}
 		else
-			chan->ft_insertChanMode(strmess, user, server, *chan);
+			chan->ft_insertChanMode(str, user, *chan);
 	}
-}*/
+}
 
 const char* joinException::what() const throw()
 {

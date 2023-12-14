@@ -48,12 +48,12 @@ class Channel
 
 		int addUser(User *user, std::string &cmd);
 		void deleteUserInChannel(User *user);
-		void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
-		bool ft_checkMode(Channel *channel, User &user, std::string mode); // exemple de string : "modeI", "modeL" etc...
+		void ft_insertChanMode(std::string strmess, User &user, Channel &chan);
+		bool ft_checkMode(Channel *channel, std::string mode); // exemple de string : "modeI", "modeL" etc...
 		void initModeMap();
 		void checkModeI(User &user);
 		void checkModeK(User &user);
-		void checkModeL(User &user, std::string strmess);
+		bool checkModeL();
 		void checkModeO(User &user);
 		void checkModeT(User &user);
 		void setModeO(char symbol, std::string &strmess, Channel &chan, User &user);
