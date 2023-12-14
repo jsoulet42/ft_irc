@@ -46,7 +46,7 @@ int main(int argc, char const* argv[])
 	{
 		std::cout << BLUE << ON_BLACK << "Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(&(server->fdP[0]), fdsId, -1);
-		std::cout << "[" << rc << "]" << std::endl;
+		//std::cout << "[" << rc << "]" << std::endl;
 		server->fdNb = fdsId;
 		for (int i = 0; i < server->fdNb; i++)
 		{

@@ -137,37 +137,23 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	errorCmd = false;
 
 	if (strmess.compare(0, 5, "PART ") == 0)
-	{
 		ircPart(strmess, *user, server);
-	}
 	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-	{
 		ircPrivmsg(strmess, *user, server);
-		return;
-	}
-	/*else if (strmess.compare(0, 4, "QUIT") == 0)
-		std::cout << "ici il y aura une fonction QUIT" << std::endl;
-	else if (strmess.compare(0, 5, "NICK ") == 0)
-		std::cout << "ici il y aura une fonction NICK" << std::endl;
+	else if (strmess.compare(0, 4, "QUIT") == 0)
+		irc_quit(strmess, *user, server);
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
 		irc_topic(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction TOPIC" << std::endl;
 	else if (strmess.compare(0, 5, "KICK ") == 0)
-		std::cout << "ici il y aura une fonction KICK" << std::endl;
+		irc_kick(strmess, *user, server);
 	else if (strmess.compare(0, 6, "INVITE") == 0)
-	{
 		ircInvite(strmess, *user, server);
-	}
-	else if (strmess.compare(0, 5, "WHOIS") == 0)
-		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
 	else if (strmess.compare(0, 3, "WHO") == 0)
 		irc_who(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction WHO" << std::endl;
 	else if (strmess.compare(0, 9, "USERHOST ") == 0)
 		irc_userhost(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;*/
 	else
 		return;
 }

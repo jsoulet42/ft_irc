@@ -1,11 +1,6 @@
 
 #include "includes/ft_irc.hpp"
 
-void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
-{
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
-}
-
 void msgError(std::string const &code, User &user, std::string const &msg);
 
 //-------------------------------Copelien form--------------------------------//
@@ -292,7 +287,7 @@ void	Channel::channelSendLoop(std::string message, int & sFd)
 		if (sFd != (*it)->_fdUser)
 		{
 			send((*it)->_fdUser, message.c_str(), message.length(), 0);
-			printMessageSendToClientChannel("Channel send loop - user", (*(*it)), message);
+			printMessageSendToClient("Channel send loop - user", (*(*it)), message);
 		}
 		it++;
 	}
@@ -302,7 +297,7 @@ void	Channel::channelSendLoop(std::string message, int & sFd)
 	//	if (sFd != (*it)->_fdUser)
 	//	{
 	//		send((*it)->_fdUser, message.c_str(), message.length(), 0);
-	//		printMessageSendToClientChannel("Channel send loop - operator", (*(*it)), message);
+	//		printMessageSendToClient("Channel send loop - operator", (*(*it)), message);
 	//	}
 	//	it++;
 	//}

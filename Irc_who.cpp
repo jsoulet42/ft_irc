@@ -1,10 +1,5 @@
 # include "./includes/ft_irc.hpp"
 
-void printMessageSendToClientWho(std::string fonction, User &user, std::string message)
-{
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
-}
-
 void	irc_who(std::string &message, User &user, Server &server)
 {
 	//std::cout << message << user.CAP_OK << server.current_size << std::endl;
@@ -52,7 +47,7 @@ void	irc_who(std::string &message, User &user, Server &server)
 		//WHO mal formate
 		std::string err_unknow_command = message.substr(0, message.size() - 1) + " :Unknow command\r\n";
 		send(user._fdUser, err_unknow_command.c_str(), err_unknow_command.length(), 0);
-		printMessageSendToClientWho("IRC_WHO - Unfomarted command or empty", user, err_unknow_command);
+		printMessageSendToClient("IRC_WHO - Unfomarted command or empty", user, err_unknow_command);
 	}
 	else
 	{
@@ -62,7 +57,7 @@ void	irc_who(std::string &message, User &user, Server &server)
 		{
 			std::string err_no_such_service = "408 WHO with wilcard :no such service\r\n";
 			send(user._fdUser, err_no_such_service.c_str(), err_no_such_service.length(), 0);
-			printMessageSendToClientWho("IRC_WHO - No wild card service", user, err_no_such_service);
+			printMessageSendToClient("IRC_WHO - No wild card service", user, err_no_such_service);
 			return;
 		}
 		pos = message.find(" o\n");
@@ -92,7 +87,7 @@ void	irc_who(std::string &message, User &user, Server &server)
 						findOnce = 1;
 						rpl_who = "352 " + (*it2)->name + " " + (*it)->username + " ircserv 127.0.0.1 " + (*it)->nickname + "\r\n";
 						send(user._fdUser, rpl_who.c_str(), rpl_who.length(), 0);
-						printMessageSendToClientWho("IRC_WHO - find", user, rpl_who);
+						printMessageSendToClient("IRC_WHO - find", user, rpl_who);
 					}
 					it++;
 				}
@@ -102,13 +97,13 @@ void	irc_who(std::string &message, User &user, Server &server)
 			{
 				rpl_who = "315 " + user.nickname + " " + message + " :End of WHO list\r\n";
 				send(user._fdUser, rpl_who.c_str(), rpl_who.length(), 0);
-				printMessageSendToClientWho("IRC_WHO - end of who", user, rpl_who);
+				printMessageSendToClient("IRC_WHO - end of who", user, rpl_who);
 			}
 			else
 			{
 				std::string err_was_no_such_nick = "406 " + message + " :There was no such nickname\r\n";
 				send(user._fdUser, err_was_no_such_nick.c_str(), err_was_no_such_nick.length(), 0);
-				printMessageSendToClientWho("IRC_WHO - end of who - attention renvoi 406 si aucun channel ouverts", user, err_was_no_such_nick);
+				printMessageSendToClient("IRC_WHO - end of who - attention renvoi 406 si aucun channel ouverts", user, err_was_no_such_nick);
 			}
 			return;
 		}

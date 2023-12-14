@@ -56,7 +56,12 @@ int countSpaces(const std::string &str, const char &delimiter)
 
 void printMessageSendToClient(std::string fonction, User &user, std::string message)
 {
-	std::cout << "J'ai envoye au client le message : |" << message << "|\nde |" << user.nickname << "| \npour la fonction |" << fonction << "|" << std::endl;
+	std::cout << BLUE << ON_BLACK << "J'ai envoye au client le message :" << RESET << std::endl;
+	std::cout << YELLOW << ON_BLACK << "|" << message << "|" << RESET << std::endl;
+	std::cout << BLUE << ON_BLACK << "de :" << RESET << std::endl;
+	std::cout << YELLOW << ON_BLACK << "|" << user.nickname << "| " << RESET << std::endl;
+	std::cout << BLUE << ON_BLACK << "pour la fonction :" << RESET << std::endl;
+	std::cout << YELLOW << ON_BLACK << "|" << fonction << "|" << std::endl;
 }
 
 void printUsersOfAChannel(Channel *chan)
