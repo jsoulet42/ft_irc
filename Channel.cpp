@@ -68,7 +68,7 @@ int Channel::addUser(User *user, std::string &password)
 		return -1;
 }
 
-/*bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)
+bool Channel::ft_checkMode(Channel *channel, std::string mode)
 {
 	std::map<std::string, bool>::iterator it = channel->modeTab.find(mode);
 	if (it != channel->modeTab.end())
@@ -77,49 +77,65 @@ int Channel::addUser(User *user, std::string &password)
 			return true;
 	}
 	return false;
-}*/
+}
 
-/*void Channel::ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan)
+void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 {
 	char symbol;
+	std::string tempFor;
 	if (!strmess.empty() && (strmess[0] == '+' || strmess[0] == '-'))
 		symbol = strmess[0];
 	else
 	{
 		msgError("403", user, ERRORM403);
-		throw;
+		std::cout << "ERRORM403" << std::endl;
+		return;
 	}
 	strmess.erase(0, 1);
 	if (!strmess.empty())
 	{
-		for ( size_t i = 0; i < strmess.find(" "); ++i)
+		std::cout << "je rentre ds la for    -> " << strmess[0] << std::endl;
+		tempFor = strmess;
+		for (size_t i = 0; i < tempFor.size(); i++)
 		{
-			if (strmess[i] == 't')
+			if (tempFor[i] == ' ')
+				break;
+			else if (tempFor[i] == 't')
+			{
+				std::cout << "je rentre dans t  ----------  " << strmess[i] << std::endl;
 				chan.setModeT(symbol);
-			else if (strmess[i] == 'i')
+			}
+			else if (tempFor[i] == 'b')
+				return;
+			else if (tempFor[i] == 'i')
+			{
+				std::cout << "je suis ds i  ----------------  " << strmess[i] << std::endl;
 				chan.setModeI(symbol);
-			else if (strmess[i] == 'l')
+			}
+			else if (tempFor[i] == 'l')
+			{
+				std::cout << "je rentre dans l ---------------------  " << strmess[i] << std::endl;
 				chan.setModeL(symbol, strmess);
-			else if (strmess[i] == 'k')
+			}
+			else if (tempFor[i] == 'k')
+			{
+				std::cout << "je rentre dans k -----------------  " << strmess[i] << std::endl;
 				chan.setModeK(symbol, strmess);
-			else if (strmess[i] == 'o')
+			}
+			else if (tempFor[i] == 'o')
+			{
 				chan.setModeO(symbol, strmess, chan, user);
-			else if (strmess[i] == '+' || strmess[i] == '-')
-				symbol = strmess[i];
+				std::cout << "je rentre dans o ----------------  " << strmess[i] << std::endl;
+			}
+			else if (tempFor[i] == '+' || tempFor[i] == '-')
+			{
+				std::cout << "je rentre dans - ou + ----------------------  " << strmess[i] << std::endl;
+				symbol = tempFor[i];
+			}
 		}
 	}
-}*/
-
-// si j'ai un enchainement de mode il ne peut pas y avoir d'argument dans la commande sinon erreur et throw,
-//et si dans l'enchainement exemple +itko il y un mode qui normalement necessite un argument on l'ignore et active quand meme les autre mode
-// sinon un seul mode avec son argument
-/*/MODE #channel +tolki argument
-
-+tolki (t)
-+tolki (o) nickname
-+tolki (l) nbusermax
-+tolki (k) password
-+tolki (i)*/
+	std::cout << "je sort du for" << std::endl;
+}
 
 void Channel::initModeMap()
 {
@@ -138,9 +154,15 @@ void Channel::setModeI(char c)
 	if (it != modeTab.end())
 	{
 		if (c == '+')
+		{
 			it->second = true;
+			std::cout << "mode +i added" << std::endl;
+		}
 		else
+		{
 			it->second = false;
+			std::cout << "mode -i removed" << std::endl;
+		}
 	}
 }
 
@@ -158,9 +180,21 @@ void Channel::setModeK(char symbol, std::string &strmess)
 	{
 		if (strmess.find(" ") != std::string::npos)
 			strmess.erase(0, (strmess.find(" ") + 1));
+		std::cout << strmess << "     ----- test strmess" << std::endl;
 		if (!strmess.empty())
 		{
-			temp = strmess.substr(0, strmess.find(" "));
+			temp = strmess.substr(0, strmess.size());
+			// strmess.erase(0, (strmess.find(" ") + 1));
+			for (size_t i = 0; i < strmess.size(); i++)
+			{
+				if (strmess[i] == '#' || strmess[i] == ',' || strmess[i] == ' ')
+				{
+				//	send(error 525); // "<client> <target chan> :Key is not well-formed"
+					std::cout << "Key is not well formed" << std::endl;
+					return;
+				}
+			}
+			std::cout << temp << std::endl;
 			this->password = temp;
 			it->second = true;
 		}
@@ -171,12 +205,15 @@ void Channel::setModeK(char symbol, std::string &strmess)
 			return;
 		}
 	}
+	std::cout << "Mode +k added and password '" << temp << "' is active" << std::endl;
 }
 
 void Channel::setModeL(char symbol, std::string &strmess)
 {
 	int resultat;
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeL");
+	if (strmess[0] != 'l')
+		return;
 	if (symbol == '-')
 	{
 		this->modeLMaxUser = DEFAULTMAXUSER;;
@@ -187,22 +224,25 @@ void Channel::setModeL(char symbol, std::string &strmess)
 	}
 	else if (strmess.find(" ") != std::string::npos)
 	{
-		strmess.erase(0, (strmess.find(" ") + 1)); // et quil ya un int apres, on recup le int et le met dans modLMaxUser
-		for (size_t i = 0; i < strmess.find(" "); i++)
+		strmess.erase(0, (strmess.find(" ") + 1));
+		std::cout << "je suis dans +l    le nbr = " << strmess << std::endl;
+		for (size_t i = 0; i < strmess.size(); i++)
 		{
 			if (!strmess.empty())
 			{
 				if (!std::isdigit(strmess[i]))
 				{
 				//	send(erreur inconnu);
-					throw;
+					//throw;
+					std::cout << "not a number, mode +l cancelled" << std::endl;
+					return;
 				}
 			}
 		}
 	}
-	std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
+	//std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
 	try {
-        resultat = std::atoi(temp.c_str());
+        resultat = std::atoi(strmess.c_str());
     }
 	catch (const std::invalid_argument& e) {
         std::cerr << "Erreur d'argument invalide : " << e.what() << std::endl;
@@ -213,12 +253,11 @@ void Channel::setModeL(char symbol, std::string &strmess)
     }
 	it->second = true;
 	this->modeLMaxUser = resultat;
-	std::cout << "mode +l correctly added" << std::endl;
+	std::cout << "mode +l correctly added" << resultat << this->modeLMaxUser << std::endl;
 }
 
-/*void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
+void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
 {
-	std::map<std::string, bool>::iterator it_m = this->modeTab.find("modeO");
 	std::string nameParse;
 	if (strmess.find(" ") != std::string::npos)
 	{
@@ -232,20 +271,26 @@ void Channel::setModeL(char symbol, std::string &strmess)
 			{
 				std::map<User*, bool>::iterator it = this->operators.find(tempUser);
 				if (it != this->operators.end())
+				{
 					operators.erase(tempUser);
+					std::cout << "Operator " << tempUser << " removed" << std::endl;
+				}
 			}
 			else
 				std::cout << "User is not an operator" << std::endl;
 		}
 		else if (symbol == '+')
 			if (checkRightsUserInChannel(&chan, &user, OPERATOR) == false)
+			{
 				this->operators.insert(std::pair<User*, bool>(tempUser, true));
+				std::cout << "User "<< tempUser << " is now an operator" << std::endl;
+			}
 	}
 	else
 	{
-		renvoiyer a l'utiisateur la liste des operators
+	//	renvoiyer a l'utiisateur la liste des operators
 	}
-}*/
+}
 
 void Channel::setModeT(char c)
 {
@@ -253,10 +298,30 @@ void Channel::setModeT(char c)
 	if (it != modeTab.end())
 	{
 		if (c == '+')
+		{
 			it->second = true;
+			std::cout << " Mode +t successfully added" << std::endl;
+		}
 		else
+		{
 			it->second = false;
+			std::cout << " Mode -t successfully removed" << std::endl;
+		}
 	}
+}
+
+bool Channel::checkModeL()
+{
+	long unsigned int count = 1;
+	std::vector<User*>::iterator it = this->users.begin();
+	for (; it != this->users.end(); it++)
+	{
+		count++;
+	}
+	std::cout << "le nombre de user est = " << count << std::endl;
+	if (count < this->modeLMaxUser)
+		return true;
+	return false;
 }
 
 //------------------------------Ostream overload------------------------------//
