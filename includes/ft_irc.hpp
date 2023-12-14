@@ -49,7 +49,7 @@
 #define ERRORJ471 " JOIN :Cannot join channel (+l)\r\n"
 #define ERRORJ473 " JOIN :Cannot join channel (+i)\r\n"
 #define ERRORJ475 " JOIN :Cannot join channel (+k)\r\n"
-#define ERRORJ476 " JOIN :Bad Channel Mask\r\n"
+#define ERRORJ476 " :Bad Channel Mask\r\n"
 #define INVITED 2
 #define OPERATOR 1
 extern bool isRunning;
