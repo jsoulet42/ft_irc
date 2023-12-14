@@ -101,15 +101,15 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 						}
 					}
 					//// envoi a tous les invitedUsers (sauf la personne qui envoie le message)
-					for (std::vector<User *>::iterator it4 = chan->invitedUsers.begin(); it4 != chan->invitedUsers.end(); it4++)
-					{
-						//std::cout << "23" << std::endl;
-						if ((*it4)->_fdUser != user._fdUser && checkRightsUserInChannel(chan, &user, INVITED) == false)
-						{
-							send((*it4)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec invited", (*(*it4)), rpl_privmsg);
-						}
-					}
+					//for (std::vector<User *>::iterator it4 = chan->invitedUsers.begin(); it4 != chan->invitedUsers.end(); it4++)
+					//{
+					//	//std::cout << "23" << std::endl;
+					//	if ((*it4)->_fdUser != user._fdUser && checkRightsUserInChannel(chan, &user, INVITED) == false)
+					//	{
+					//		send((*it4)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
+					//		printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec invited", (*(*it4)), rpl_privmsg);
+					//	}
+					//}
 					throw Irc_privmsg_rpl();
 				}
 				// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
