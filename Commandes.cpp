@@ -135,10 +135,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-	{
 		ircPrivmsg(strmess, *user, server);
-		return;
-	}
 	/*else if (strmess.compare(0, 4, "QUIT") == 0)
 		std::cout << "ici il y aura une fonction QUIT" << std::endl;
 	else if (strmess.compare(0, 5, "NICK ") == 0)
@@ -187,7 +184,7 @@ void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 	std::string channel;
 	std::string key;
 
-	if (cmd.find(',') == std::string::npos)
+	if (cmd.find(',') == std::string::npos && cmd.find(' ') == std::string:: npos)
 	{
 		channel = cmd.substr(0, cmd.find('\r'));
 		normNameChannel(channel, user, server);
@@ -195,7 +192,17 @@ void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 		throw joinAcceptedException();
 
 	}
-	if (cmd.find(' ') == std::string::npos)
+	else if (cmd.find(',') == std::string::npos && cmd.find(' ') != std::string:: npos)
+	{
+		channel = cmd.substr(0, cmd.find(' '));
+		cmd.erase(0, cmd.find(' ') + 1);
+		key = cmd.substr(0, cmd.find('\r'));
+		normKey(key, user, server);
+		normNameChannel(channel, user, server);
+		joinOrCreatChannel(channel, user, server, key);
+		throw joinAcceptedException();
+	}
+	else if (cmd.find(' ') == std::string::npos && cmd.find(',') != std::string:: npos)
 	{
 		while (cmd.find(',') != std::string::npos)
 		{
@@ -207,6 +214,7 @@ void parseCmdWithNoKey(std::string &cmd, User &user, Server &server)
 		channel = cmd.substr(0, cmd.find('\r'));
 		normNameChannel(channel, user, server);
 		joinOrCreatChannel(channel, user, server, key);
+		throw joinAcceptedException();
 	}
 }
 
@@ -230,12 +238,12 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	(void)server;
 	if (channel.size() > 10 || channel.size() < 1)
 		msgError("475", user, ERRORJ475);
-	for (size_t i = 1; i < channel.size(); ++i)
+	/*for (size_t i = 1; i < channel.size(); ++i)
 	{
 		char c = channel[i];
-		if (c <= 32 || c == 127 || c == 9 || c == 10 || c == 13 || c == 35 || c == 44 || c == 58)
+		if (c <= 32 || c == 127 || c == 9 || c == 10 || c == 13 || c == 35)
 			msgError("475", user, ERRORJ475);
-	}
+	}*/
 	if (channel.compare(0, 1, "#") != 0)
 			msgError("403", user, ERRORJ403);
 	else if (channel.size() < 2)
@@ -243,7 +251,10 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	else if (channel.size() > 10)
 		msgError("476", user, ERRORJ476);
 	if (errorCmd == true)
-			throw joinException();
+	{
+		std::cout << "ici" << std::endl;
+		throw joinException();
+	}
 	channel.erase(0, 1);
 }
 
@@ -305,11 +316,11 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
-	if (checkMode(channel, "modeI") == true)
+	/*if (checkMode(channel, "modeI") == true)
 	{
 		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
 			msgError("473", user, ERRORJ473);
-	}
+	}*/
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
 	else if (channel->addUser(&user, key) == -1)
@@ -334,12 +345,14 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	if (channel)
 	{
 		std::cout << YELLOW << ON_BLACK << user.nickname << " join channel " << channel->name << RESET << std::endl;
+		std::cout << "key : " << key << std::endl;
 		protocolForJoinChannel(channel, user, key);
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
 	{
-		std::cout << YELLOW << ON_BLACK << user.nickname << " create channel " << cmd << RESET << std::endl;
+		std::cout << YELLOW << ON_BLACK << user.nickname << " create channel " << "|" << cmd << "|" << RESET << std::endl;
+		std::cout << "key : " << key << std::endl;
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
