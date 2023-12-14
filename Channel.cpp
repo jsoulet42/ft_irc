@@ -24,9 +24,11 @@ Channel::Channel(Channel const &src)
 {
 	*this = src;
 }
+
 Channel::~Channel()
 {
 }
+
 Channel &	Channel::operator=(Channel const &rSym)
 {
 	if (this != &rSym)
@@ -50,6 +52,7 @@ int Channel::addUser(User *user, std::string &password)
 	{
 		if (this->password.compare(password) == 0)
 		{
+			std::cout << "password ok" << std::endl;
 			this->users.push_back(user);
 			this->operators.insert(std::pair<User *, bool>(user, false));
 			this->nbUsers++;
@@ -60,12 +63,28 @@ int Channel::addUser(User *user, std::string &password)
 	}
 	else if (findUserInChannel(this, user) == false && this->password == "")
 	{
+		std::cout << "this channel no need pass" << std::endl;
 		this->users.push_back(user);
 		this->nbUsers++;
 		return 0;
 	}
 	else
 		return -1;
+}
+
+void Channel::deleteUserInOperator(User *user)
+{
+	std::map<User *, bool>::iterator it = this->operators.begin();
+
+	while (it != this->operators.end())
+	{
+		if (it->first == user)
+		{
+			this->operators.erase(it);
+			return;
+		}
+		it++;
+	}
 }
 
 /*bool Channel::ft_checkMode(Channel *channel, User &user, std::string mode)

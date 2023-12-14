@@ -61,6 +61,7 @@ class Channel
 		void setModeL(char symbol, std::string &strmess);
 		void setModeT(char c);
 		void setModeI(char c);
+		void deleteUserInOperator(User *user);
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"

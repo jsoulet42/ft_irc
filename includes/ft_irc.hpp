@@ -106,6 +106,7 @@ std::vector<std::string>	splitString(const std::string &input, char delimiter);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
 void						remouveUser(User &user, std::vector<User *> &userList);
+void						deleteChannelIfEmpty(Channel *chan, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -173,6 +174,7 @@ void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User *user, 
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+void irc_quit(std::string &message, User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
