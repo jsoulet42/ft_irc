@@ -60,10 +60,7 @@ int Channel::addUser(User *user, std::string &password)
 	}
 	else if (findUserInChannel(this, user) == false)
 	{
-		//std::cout << "dans addUser : " << user->nickname << std::endl;
 		this->users.push_back(user);
-		//printUsersOfAChannel(this);
-
 		this->nbUsers++;
 		return 0;
 	}
@@ -311,11 +308,6 @@ void Channel::setModeT(char c)
 	}
 }
 
-bool ft_checkPassword(std::string &cmd)
-{
-	// verif si cmd contient bien un password le pasrser et regarder si cest le meme que this password;
-}
-
 //------------------------------Ostream overload------------------------------//
 std::ostream &	operator<<(std::ostream & o, Channel const &rSym)
 {
@@ -406,4 +398,20 @@ bool	Channel::isModeT()
 	//	return true;
 	std::cout << "ici il faut une fonction qui verifie que le channel est en mode T" << std::endl;
 	return false;
+}
+
+void Channel::deleteUserInChannel(User *user)
+{
+	std::vector<User *>::iterator		it = this->users.begin();
+
+	while (it != this->users.end())
+	{
+		if (user == *it)
+		{
+			this->users.erase(it);
+			this->nbUsers--;
+			return;
+		}
+		it++;
+	}
 }

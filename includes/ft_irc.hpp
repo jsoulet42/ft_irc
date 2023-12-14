@@ -1,4 +1,5 @@
 
+#include <sys/ioctl.h>
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -73,8 +74,6 @@ class	Server;
 class	Channel;
 
 int		checkRightsUserInChannel(Channel *channel, User *user, int grade);
-void	irc_part(std::string strmess, User &user, Server server);
-void	inheritanceOperator(Channel *chan, User *user);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	parseCmd(std::string &cmd, User &user, Server &Server);
@@ -94,7 +93,6 @@ void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
-void	sendPartToAllUsersInChannel(std::vector<std::string> channel, User *user, std::string reason, Server server);
 void	ircInvite(std::string &msg, User &user, Server &server);
 
 
@@ -104,9 +102,9 @@ void	printMessageSendToClient(std::string fonction, User &user, std::string mess
 void	irc_topic(std::string &message, User &user, Server &server);
 bool	findUserInChannel(Channel *channel, User *user);
 
-void printUsersOfAChannel(Channel *chan);
-void printOperatorsOfAChannel(Channel *chan);
-void printInvitedUsersOfAChannel(Channel *chan);
+void	printUsersOfAChannel(Channel *chan);
+void	printOperatorsOfAChannel(Channel *chan);
+void	printInvitedUsersOfAChannel(Channel *chan);
 bool	findUserInChannel(Channel *channel, User *user);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,6 +159,15 @@ class notEnoughParamException : public std::exception
 //                                  PART                                      //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+
+void	errorP461(User &user);
+void	errorP442(std::vector<std::string>::iterator &it, User *user);
+void	errorP403(std::vector<std::string>::iterator &it, User *user);
+void	inheritanceOperator(Channel *chan, User *user);
+void	ircPart(std::string &strmess, User &user, Server &server);
+void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User *user, std::string &reason, Server &server);
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////

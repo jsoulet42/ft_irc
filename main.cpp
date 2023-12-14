@@ -46,6 +46,7 @@ int main(int argc, char const* argv[])
 	{
 		std::cout << BLUE << ON_BLACK << "Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(&(server->fdP[0]), fdsId, -1);
+		std::cout << "[" << rc << "]" << std::endl;
 		server->fdNb = fdsId;
 		for (int i = 0; i < server->fdNb; i++)
 		{
@@ -80,28 +81,34 @@ int main(int argc, char const* argv[])
 			else
 			{
 				rc = recv(server->fdP[i].fd, buffer, sizeof(buffer), 0);
+				if (rc == -1)
+				{
+
+				}
 				if (rc == 0)	// Lorsque le retour de recv cela signifie que le client a fermé la connexion
 				{
-					/*close(server->fdP[i].fd);
+					close(server->fdP[i].fd);
 					server->deleteUser(server->fdP[i].fd);
 					//server->checkChannel(); a faire et comprendre
 					server->fdP[i].fd = -1;
 					std::cout << "User succesfully deleted" << std::endl;
 					std::cout << std::endl;
-					continue;*/
+					continue;
 					// ctrl-c de netcat, utilisateur quit
 				}
 				buffer[rc] = '\0';
 				std::string strmess(buffer);
 				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
 				{
-					continue;
+
 				}
 				else
 				{
 					try
 					{
 						interpretCommand(*server, strmess, server->fdP[i].fd);
+						strmess.clear();
+						bzero(buffer, BUFFSIZE + 1);
 					}
 					catch(const std::exception& e)
 					{

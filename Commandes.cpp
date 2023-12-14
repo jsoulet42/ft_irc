@@ -61,6 +61,8 @@ User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
 	return NULL;
 }
 
+
+
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd)
 {
 	std::vector<Channel *>::iterator it = channels.begin();
@@ -126,20 +128,24 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	std::cout << "strmess : " << strmess << std::endl;
 	User *user = findUserById(server.users, id);
 	errorCmd = false;
-	if(strmess.compare(0, 5, "JOIN ") == 0)
+
+	if (strmess.compare(0, 5, "PART ") == 0)
+	{
+		ircPart(strmess, *user, server);
+	}
+	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
 	{
 		ircPrivmsg(strmess, *user, server);
 		return;
 	}
-	else if (strmess.compare(0, 5, "PART ") == 0)
-		//irc_part(strmess, *user, server);
-		return;
 	else if (strmess.compare(0, 5, "MODE ") == 0)
 		ft_launchMode(strmess, *user, server);
 	else if (strmess.compare(0, 4, "QUIT") == 0)
-		std::cout << "ici il y aura une fonction QUIT" << std::endl;
+	{
+
+	}
 	else if (strmess.compare(0, 5, "NICK ") == 0)
 		std::cout << "ici il y aura une fonction NICK" << std::endl;
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
@@ -158,7 +164,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		//std::cout << "ici il y aura une fonction WHO" << std::endl;
 	else if (strmess.compare(0, 9, "USERHOST ") == 0)
 		irc_userhost(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;
+		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;*/
 	else
 		return;
 }
@@ -173,7 +179,6 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 void ircJoin(std::string &msg, User &user, Server &Server)
 {
 	std::string cmd = strtok((char *)msg.c_str() + 5, "\n");
-	std::cout << "cmd = " << cmd << std::endl;
 
 	if (cmd.size() == 0)
 		msgError("461", user, ERRORJ461);
@@ -228,6 +233,14 @@ void normKey(std::string &key, User &user, Server &server)
 void normNameChannel(std::string &channel, User &user, Server &server)
 {
 	(void)server;
+	if (channel.size() > 10 || channel.size() < 1)
+		msgError("475", user, ERRORJ475);
+	// for (size_t i = 1; i < channel.size(); ++i)
+	// {
+	// 	char c = channel[i];
+	// 	if (c <= 32 || c == 127 || c == 9 || c == 10 || c == 13 || c == 35 || c == 44 || c == 58)
+	// 		msgError("475", user, ERRORJ475);
+	// }
 	if (channel.compare(0, 1, "#") != 0)
 		msgError("403", user, ERRORJ403);
 	else if (channel.size() < 2)
@@ -264,7 +277,6 @@ void parseCmd(std::string &cmd, User &user, Server &server)
 	channels.push_back(buffer);
 	if (key.find(',') == std::string::npos)
 	{
-		std::cout << "key = " << key << std::endl;
 		buffer = key.substr(0, key.find('\r'));
 		normKey(buffer, user, server);
 		keys.push_back(buffer);
@@ -291,22 +303,15 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 	std::string keyEmpty = "";
 
 	for (i = 0; i < keys.size() && i < channels.size(); ++i)
-	{
-		std::cout << "channel f1 = " << channels[i] << " " << keys[i] << std::endl;
 		joinOrCreatChannel(channels[i], user, server, keys[i]);
-	}
-	std::cout << "i = " << i << std::endl;
 	for (; i < channels.size(); ++i)
-	{
-		std::cout << "channel f2 = " << channels[i] << " " << keyEmpty << std::endl;
 		joinOrCreatChannel(channels[i], user, server, keyEmpty);
-	}
 }
 
-void protocolForJoinChannel(Channel *channel, User &user, std::string &key, std::string &cmd)
+void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
 	int i = 0;
-	(void) cmd;
+	std::cout << " JESUIS ICI" << std::endl;
 	for(std::vector<User*>::iterator it = channel->users.begin(); it < channel->users.end(); it++)
 	{
 		std::cout << " numero " << i << " = " << (*it)->nickname << std::endl;
@@ -321,10 +326,11 @@ void protocolForJoinChannel(Channel *channel, User &user, std::string &key, std:
 	}
 	if (checkMode(channel, "modeK") == true)
 	{
-		if  (channel->ft_checkPassword(cmd))
+		if  (channel->ft_checkPassword(key))
 		{
+			std::cout << " key = " << key << std::endl;
 		//	send();
-			throw joinException(); // A REMPLACER PAR UN THROW ET UN SEND WORNG PASSWORD
+		//	throw joinException(); // A REMPLACER PAR UN THROW ET UN SEND WORNG PASSWORD
 		}
 	}
 	else if (channel->addUser(&user, key) == -1)
@@ -345,19 +351,20 @@ bool checkMode(Channel *channel, std::string mode)
 void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::string &key)
 {
 	Channel *channel = findChannelByName(server.channels, cmd);
+
 	if (channel)
 	{
-		protocolForJoinChannel(channel, user, key, cmd);
-		std::cout << channel->users[0]->nickname << " first client dans /JOIN" << std::endl;
-		std::cout << channel->users[1]->nickname << " second client dans /JOIN" << std::endl;
+		std::cout << " cmd a moi = " << cmd << std::endl;
+		std::cout << YELLOW << ON_BLACK << user.nickname << " join channel " << channel->name << RESET << std::endl;
+		protocolForJoinChannel(channel, user, key);
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
 	{
+		std::cout << YELLOW << ON_BLACK << user.nickname << " create channel " << cmd << RESET << std::endl;
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
-		std::cout << channel->users[0]->nickname << " first client dans /JOIN" << std::endl;
 		channel->operators[&user] = true;
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
@@ -371,8 +378,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	if (createOrJoin == 0)
 	{
 		channel->topic = "No topic is set";
-		/*for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
-			std::cout << "nick : " << (*it)->nickname << std::endl;*/
 		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
