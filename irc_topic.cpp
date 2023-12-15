@@ -123,7 +123,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 			{
 				std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found - user found" << RESET << std::endl;
 				//verif du mode T (topic ne peut etre changer que par un operateur)
-				if ((*it)->isModeT())
+				if (checkMode(*it, "modeT") == true)
 				{
 					if (checkRightsUserInChannel(*it, &user, OPERATOR) == false)
 					{

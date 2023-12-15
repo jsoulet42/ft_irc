@@ -124,8 +124,8 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 			}
 			else if (tempFor[i] == 'o')
 			{
-				chan.setModeO(symbol, strmess, chan, user);
 				std::cout << "je rentre dans o ----------------  " << strmess[i] << std::endl;
+				chan.setModeO(symbol, strmess, chan, user);
 			}
 			else if (tempFor[i] == '+' || tempFor[i] == '-')
 			{
@@ -262,29 +262,47 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	if (strmess.find(" ") != std::string::npos)
 	{
 		strmess.erase(0, (strmess.find(" ") + 1));
-		if (!strmess.empty())
-			nameParse = strmess.substr(0, strmess.find(" "));
-		User *tempUser = findUserByName(chan.users, nameParse);
-		if (symbol == '-')
+		if (strmess.empty())
 		{
-			if (tempUser)
+			// send;
+			// throw;
+			return;
+		}
+		nameParse = strmess.substr(0, strmess.find(" "));
+		User *tempUser = findUserByName(chan.users, nameParse);
+		// std::map<User*, bool>::iterator it = this->operators.find(tempUser);
+		std::map<User*, bool>::iterator it = this->operators.begin();
+		std::vector<User*>::iterator it2 = this->users.begin();
+		while (it != this->operators.end())
+		{
+			std::cout << it->first->nickname << std::endl;
+			++it;
+		}
+		while (it2 != this->users.end())
+		{
+			std::cout << (*it2)->nickname << std::endl;
+			++it2;
+		}
+		// if (this->operators.find(tempUser) != this->operators.end())
+		std::cout << nameParse << "     et  " << tempUser->nickname << std::endl;
+		if (symbol == '-' && tempUser)
+		{
+			if (it != this->operators.end())
 			{
-				std::map<User*, bool>::iterator it = this->operators.find(tempUser);
-				if (it != this->operators.end())
-				{
-					operators.erase(tempUser);
-					std::cout << "Operator " << tempUser << " removed" << std::endl;
-				}
+				it->second = false;
+				std::cout << "Operator " << tempUser << " removed" << std::endl;
 			}
 			else
 				std::cout << "User is not an operator" << std::endl;
 		}
-		else if (symbol == '+')
+		else if (symbol == '+' && tempUser)
+		{
 			if (checkRightsUserInChannel(&chan, &user, OPERATOR) == false)
 			{
-				this->operators.insert(std::pair<User*, bool>(tempUser, true));
+				it->second = true;
 				std::cout << "User "<< tempUser << " is now an operator" << std::endl;
 			}
+		}
 	}
 	else
 	{
@@ -386,33 +404,6 @@ bool	Channel::isInChannel(User *user)
 			return true;
 		it++;
 	}
-	return false;
-}
-
-/*bool	Channel::isOpInChannel(User *user)
-{
-	if (!user)
-		return false;
-
-	//std::vector<User *>::iterator		it = this->operators.begin();
-
-	//while (it != operators.end())
-	//{
-	//	if (user == *it)
-	//	{
-	//		//std::cout << std::endl << std::endl << std::endl << "User finded" << std::endl;
-	//		return true;
-	//	}
-	//	it++;
-	//}
-	return false;
-}*/
-
-bool	Channel::isModeT()
-{
-	//if (this->mode.find('t') != std::string::npos)
-	//	return true;
-	std::cout << "ici il faut une fonction qui verifie que le channel est en mode T" << std::endl;
 	return false;
 }
 
