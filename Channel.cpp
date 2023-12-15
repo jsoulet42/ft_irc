@@ -1,11 +1,6 @@
 
 #include "includes/ft_irc.hpp"
 
-void printMessageSendToClientChannel(std::string fonction, User &user, std::string message)
-{
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
-}
-
 void msgError(std::string const &code, User &user, std::string const &msg);
 
 //-------------------------------Copelien form--------------------------------//
@@ -24,9 +19,11 @@ Channel::Channel(Channel const &src)
 {
 	*this = src;
 }
+
 Channel::~Channel()
 {
 }
+
 Channel &	Channel::operator=(Channel const &rSym)
 {
 	if (this != &rSym)
@@ -50,6 +47,7 @@ int Channel::addUser(User *user, std::string &password)
 	{
 		if (this->password.compare(password) == 0)
 		{
+			std::cout << GREEN << ON_BLACK << "password ok" <<  RESET << std::endl;
 			this->users.push_back(user);
 			this->operators.insert(std::pair<User *, bool>(user, false));
 			this->nbUsers++;
@@ -60,12 +58,29 @@ int Channel::addUser(User *user, std::string &password)
 	}
 	else if (findUserInChannel(this, user) == false && this->password == "")
 	{
+		std::cout << GREEN << ON_BLACK << "this channel no need pass" << RESET << std::endl;
+		this->operators.insert(std::pair<User *, bool>(user, false));
 		this->users.push_back(user);
 		this->nbUsers++;
 		return 0;
 	}
 	else
 		return -1;
+}
+
+void Channel::deleteUserInOperator(User *user)
+{
+	std::map<User *, bool>::iterator it = this->operators.begin();
+
+	while (it != this->operators.end())
+	{
+		if (it->first == user)
+		{
+			this->operators.erase(it);
+			return;
+		}
+		it++;
+	}
 }
 
 bool Channel::ft_checkMode(Channel *channel, std::string mode)
@@ -241,16 +256,19 @@ void Channel::setModeL(char symbol, std::string &strmess)
 		}
 	}
 	//std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
-	try {
-        resultat = std::atoi(strmess.c_str());
-    }
-	catch (const std::invalid_argument& e) {
-        std::cerr << "Erreur d'argument invalide : " << e.what() << std::endl;
+	try
+	{
+		resultat = std::atoi(strmess.c_str());
+	}
+	catch (const std::invalid_argument& e)
+	{
+		std::cerr << "Erreur d'argument invalide : " << e.what() << std::endl;
 		return;
-    } catch (const std::out_of_range& e) {
-        std::cerr << "Dépassement de capacité : " << e.what() << std::endl;
+	} catch (const std::out_of_range& e)
+	{
+		std::cerr << "Dépassement de capacité : " << e.what() << std::endl;
 		return;
-    }
+	}
 	it->second = true;
 	this->modeLMaxUser = resultat;
 	std::cout << "mode +l correctly added" << resultat << this->modeLMaxUser << std::endl;
@@ -357,7 +375,7 @@ void	Channel::channelSendLoop(std::string message, int & sFd)
 		if (sFd != (*it)->_fdUser)
 		{
 			send((*it)->_fdUser, message.c_str(), message.length(), 0);
-			printMessageSendToClientChannel("Channel send loop - user", (*(*it)), message);
+			printMessageSendToClient("Channel send loop - user", (*(*it)), message);
 		}
 		it++;
 	}
@@ -367,7 +385,7 @@ void	Channel::channelSendLoop(std::string message, int & sFd)
 	//	if (sFd != (*it)->_fdUser)
 	//	{
 	//		send((*it)->_fdUser, message.c_str(), message.length(), 0);
-	//		printMessageSendToClientChannel("Channel send loop - operator", (*(*it)), message);
+	//		printMessageSendToClient("Channel send loop - operator", (*(*it)), message);
 	//	}
 	//	it++;
 	//}
@@ -386,33 +404,6 @@ bool	Channel::isInChannel(User *user)
 			return true;
 		it++;
 	}
-	return false;
-}
-
-/*bool	Channel::isOpInChannel(User *user)
-{
-	if (!user)
-		return false;
-
-	//std::vector<User *>::iterator		it = this->operators.begin();
-
-	//while (it != operators.end())
-	//{
-	//	if (user == *it)
-	//	{
-	//		//std::cout << std::endl << std::endl << std::endl << "User finded" << std::endl;
-	//		return true;
-	//	}
-	//	it++;
-	//}
-	return false;
-}*/
-
-bool	Channel::isModeT()
-{
-	//if (this->mode.find('t') != std::string::npos)
-	//	return true;
-	std::cout << "ici il faut une fonction qui verifie que le channel est en mode T" << std::endl;
 	return false;
 }
 

@@ -1,6 +1,5 @@
 
 # include "./includes/ft_irc.hpp"
-void ft_insertChanMode(std::string strmess, User &user, Server &server, Channel &chan);
 
 bool errorCmd = false;
 
@@ -84,7 +83,6 @@ bool	findUserInChannel(Channel *channel, User *user)
 	return false;
 }
 
-
 ///@brief return the grade of the user in the channel
 ///@param 3 is OPERATOR or INVITED
 int	checkRightsUserInChannel(Channel *channel, User *user, int grade)
@@ -133,41 +131,29 @@ void	msgError(std::string const &code, std::string &channel, User &user, std::st
 
 void interpretCommand(Server &server, std::string strmess, int const &id)
 {
-	std::cout << "strmess : " << strmess << std::endl;
 	User *user = findUserById(server.users, id);
 	errorCmd = false;
 
 	if (strmess.compare(0, 5, "PART ") == 0)
-	{
 		ircPart(strmess, *user, server);
-	}
 	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
 		ircPrivmsg(strmess, *user, server);
-	else if (strmess.compare(0, 5, "KICK ") == 0)
-		std::cout << "ici il y aura une fonction KICK" << std::endl;
-	else if(strmess.compare(0, 5, "MODE ") == 0)
+	else if (strmess.compare(0, 5, "QUIT ") == 0)
+		irc_quit(strmess, *user, server);
+	else if (strmess.compare(0, 5, "MODE ") == 0)
 		ft_launchMode(strmess, *user, server);
-	/*else if (strmess.compare(0, 4, "QUIT") == 0)
-		std::cout << "ici il y aura une fonction QUIT" << std::endl;
-	else if (strmess.compare(0, 5, "NICK ") == 0)
-		std::cout << "ici il y aura une fonction NICK" << std::endl;
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
 		irc_topic(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction TOPIC" << std::endl;
+	else if (strmess.compare(0, 5, "KICK ") == 0)
+		std::cout << "ici il y aura une fonction KICK" << std::endl;
 	else if (strmess.compare(0, 6, "INVITE") == 0)
-	{
 		ircInvite(strmess, *user, server);
-	}
-	else if (strmess.compare(0, 5, "WHOIS") == 0)
-		std::cout << "ici il y aura une fonction WHOIS" << std::endl;
 	else if (strmess.compare(0, 3, "WHO") == 0)
 		irc_who(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction WHO" << std::endl;
 	else if (strmess.compare(0, 9, "USERHOST ") == 0)
 		irc_userhost(strmess, *user, server);
-		//std::cout << "ici il y aura une fonction USERHOST" << std::endl;*/
 	else
 		return;
 }
@@ -237,7 +223,7 @@ void normKey(std::string &key, User &user, Server &server)
 	for (size_t i = 0; i < key.size(); ++i)
 	{
 		char c = key[i];
-		if (c < 32 || c == 127 || c == 9 || c == 10 || c == 13)
+		if (c <= 32 || c == 127 || c == 35)
 			msgError("475", user, ERRORJ475);
 	}
 	if (errorCmd == true)
@@ -249,12 +235,12 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	(void)server;
 	if (channel.size() > 10 || channel.size() < 1)
 		msgError("475", user, ERRORJ475);
-	/*for (size_t i = 1; i < channel.size(); ++i)
+	for (size_t i = 1; i < channel.size(); i++)
 	{
 		char c = channel[i];
-		if (c <= 32 || c == 127 || c == 9 || c == 10 || c == 13 || c == 35)
+		if (c <= 97 && c >= 122)
 			msgError("475", user, ERRORJ475);
-	}*/
+	}
 	if (channel.compare(0, 1, "#") != 0)
 		msgError("403", user, ERRORJ403);
 	else if (channel.size() < 2)
@@ -327,21 +313,18 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 
 void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
 {
-	std::cout << "je rentre ici " << std::endl;
 	if (checkMode(channel, "modeI") == true)
 	{
 		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
 		{
 			msgError("473", user, ERRORJ473);
 			throw joinException();
-			//return;
 		}
 	}
 	if (channel->checkModeL() == false)
 	{
 		// send();
 		throw joinException();
-		return;
 	}
 	if (findUserInChannel(channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
@@ -359,23 +342,21 @@ bool checkMode(Channel *channel, std::string mode)
 	return false;
 }
 
-// prevoir a implementer les erreurs manquantes
 void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::string &key)
 {
 	Channel *channel = findChannelByName(server.channels, cmd);
 
 	if (channel)
 	{
-		std::cout << " cmd a moi = " << cmd << std::endl;
-		std::cout << "key : " << key << std::endl;
+		std::cout << GREEN << ON_BLACK << " try to join channel existing " << RESET << std::endl;
 		protocolForJoinChannel(channel, user, key);
-		std::cout << YELLOW << ON_BLACK << user.nickname << " join channel " << channel->name << RESET << std::endl;
+		std::cout << GREEN << ON_BLACK << user.nickname << " join channel " << "[" << channel->name << "]" << RESET << std::endl;
 		messageToAllUsersInChannel(channel, user, 0);
 	}
 	else
 	{
-		std::cout << YELLOW << ON_BLACK << user.nickname << " create channel " << "|" << cmd << "|" << RESET << std::endl;
-		std::cout << "key : " << key << std::endl;
+		std::cout << GREEN << ON_BLACK << "this channel doesn't exist" << RESET << std::endl;
+		std::cout << GREEN << ON_BLACK << user.nickname << " create channel " << "[" << cmd << "]" << RESET << std::endl;
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
@@ -424,7 +405,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 	}
-	std::cout << "koicoubeuh" << std::endl;
 }
 
 /*void send324(Channel &chan, User user, std::string code)

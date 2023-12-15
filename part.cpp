@@ -85,6 +85,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User *user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
+		void deleteChannelIfEmpty(Channel *chan, Server &server);
 	}
 }
 
@@ -93,7 +94,10 @@ void inheritanceOperator(Channel *chan, User *user)
 	chan->operators.erase(user);
 	std::map<User *, bool>::iterator it = chan->operators.begin();
 	if (it == chan->operators.end())
+	{
+		std::cout << "hello man !" << std::endl;
 		return;
+	}
 	for (; it->second == false && it != chan->operators.end(); it++)
 		;
 	if (it == chan->operators.end())
@@ -112,7 +116,21 @@ void inheritanceOperator(Channel *chan, User *user)
 		return;
 }
 
-
+void deleteChannelIfEmpty(Channel *chan, Server &server)
+{
+	if (chan->users.size() == 0)
+	{
+		std::vector<Channel *>::iterator it = server.channels.begin();
+		for (; it != server.channels.end(); it++)
+		{
+			if ((*it)->name == chan->name)
+			{
+				delete *it;
+				break;
+			}
+		}
+	}
+}
 
 void errorP461(User &user)
 {
