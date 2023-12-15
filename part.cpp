@@ -121,7 +121,6 @@ void errorP461(User &user)
 	err_part << IPHOST << " 461 " << user.nickname << " PART :Not enough parameters\r\n";
 	send(user._fdUser, err_part.str().c_str(), err_part.str().length(), 0);
 	printMessageSendToClient("IRC_PART - err_part", user, err_part.str());
-	err_part.str("");
 	throw Irc_part_error();
 }
 
@@ -132,7 +131,6 @@ void errorP442(std::vector<std::string>::iterator &it, User *user)
 	std::cout << RED << ON_BLACK << ":You're not on that channel " << *it <<  RESET << std::endl;
 	err_part << IPHOST << "442 " << user->nickname << " #" << *it << " :You're not on that channel\r\n";
 	send(user->_fdUser, err_part.str().c_str(), err_part.str().length(), 0);
-	err_part.str("");
 }
 
 void errorP403(std::vector<std::string>::iterator &it, User *user)
@@ -142,7 +140,6 @@ void errorP403(std::vector<std::string>::iterator &it, User *user)
 	std::cout << RED << ON_BLACK <<  ":No such channel " << *it << RESET << std::endl;
 	err_part << IPHOST << "403 " << user->nickname << " #" << *it << " :No such channel\r\n";
 	send(user->_fdUser, err_part.str().c_str(), err_part.str().length(), 0);
-	err_part.str("");
 }
 
 
