@@ -109,47 +109,27 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 	strmess.erase(0, 1);
 	if (!strmess.empty())
 	{
-		std::cout << "je rentre ds la for    -> " << strmess[0] << std::endl;
 		tempFor = strmess;
 		for (size_t i = 0; i < tempFor.size(); i++)
 		{
 			if (tempFor[i] == ' ')
 				break;
 			else if (tempFor[i] == 't')
-			{
-				std::cout << "je rentre dans t  ----------  " << strmess[i] << std::endl;
 				chan.setModeT(symbol);
-			}
 			else if (tempFor[i] == 'b')
 				return;
 			else if (tempFor[i] == 'i')
-			{
-				std::cout << "je suis ds i  ----------------  " << strmess[i] << std::endl;
 				chan.setModeI(symbol);
-			}
 			else if (tempFor[i] == 'l')
-			{
-				std::cout << "je rentre dans l ---------------------  " << strmess[i] << std::endl;
 				chan.setModeL(symbol, strmess);
-			}
 			else if (tempFor[i] == 'k')
-			{
-				std::cout << "je rentre dans k -----------------  " << strmess[i] << std::endl;
 				chan.setModeK(symbol, strmess);
-			}
 			else if (tempFor[i] == 'o')
-			{
-				std::cout << "je rentre dans o ----------------  " << strmess[i] << std::endl;
 				chan.setModeO(symbol, strmess, chan, user);
-			}
 			else if (tempFor[i] == '+' || tempFor[i] == '-')
-			{
-				std::cout << "je rentre dans - ou + ----------------------  " << strmess[i] << std::endl;
 				symbol = tempFor[i];
-			}
 		}
 	}
-	std::cout << "je sort du for" << std::endl;
 }
 
 void Channel::initModeMap()
@@ -195,11 +175,9 @@ void Channel::setModeK(char symbol, std::string &strmess)
 	{
 		if (strmess.find(" ") != std::string::npos)
 			strmess.erase(0, (strmess.find(" ") + 1));
-		std::cout << strmess << "     ----- test strmess" << std::endl;
 		if (!strmess.empty())
 		{
 			temp = strmess.substr(0, strmess.size());
-			// strmess.erase(0, (strmess.find(" ") + 1));
 			for (size_t i = 0; i < strmess.size(); i++)
 			{
 				if (strmess[i] == '#' || strmess[i] == ',' || strmess[i] == ' ')

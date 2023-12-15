@@ -439,7 +439,6 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	errorCmd = false;
 	if (str.size() == 0)
 		msgError("403", user, ERRORM403);
-	std::cout << str[0] << std::endl;
 	if (str[0] != '#' && str[0] != '&')
   	  msgError("403", user, ERRORM403);
 	if (errorCmd == true)
