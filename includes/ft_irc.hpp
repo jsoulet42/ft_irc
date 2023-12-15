@@ -53,12 +53,12 @@
 //exemple de message d'erreur <"":" + IPHOST + " " + code + " " user->nickname + " " + "JOIN " + " :Not enough parameters\r\n">
 //std::string err_need_more_param = ":127.0.0.1 461 " + user->nickname + " JOIN :Not enough parameters\r\n";
 
-#define ERRORJ403 " JOIN :No such channel\r\n"
-#define ERRORJ405 " JOIN :You have joined too many channels\r\n"
-#define ERRORJ461 " JOIN :Not enough parameters\r\n"
-#define ERRORJ471 " JOIN :Cannot join channel (+l)\r\n"
-#define ERRORJ473 " JOIN :Cannot join channel (+i)\r\n"
-#define ERRORJ475 " JOIN :Cannot join channel (+k)\r\n"
+#define ERRORJ403 " :No such channel\r\n"
+#define ERRORJ405 " :You have joined too many channels\r\n"
+#define ERRORJ461 " :Not enough parameters\r\n"
+#define ERRORJ471 " :Cannot join channel (+l)\r\n"
+#define ERRORJ473 " :Cannot join channel (+i)\r\n"
+#define ERRORJ475 " :Cannot join channel (+k)\r\n"
 #define ERRORJ476 " :Bad Channel Mask\r\n"
 #define INVITED 2
 #define OPERATOR 1
@@ -81,12 +81,8 @@ void	ircPrivmsg(std::string &msg, User &user, Server &Server);
 void	irc_who(std::string &message, User &user, Server &server);
 void	parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
 void	normNameChannel(std::string &channel, User &user, Server &server);
-void	interpretCommand(Server &server, std::string strmess, int const &id);
-void	msgError(std::string const &code, User &user, std::string const &msg);
-void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
 User	*findUserByName(std::vector<User *> &users, std::string const &cmd);
 void	interpretCommand(Server &server, std::string strmess, int const &id);
-void	msgError(std::string const &code, User &user, std::string const &msg);
 void	msgError(std::string const &code, User &user, std::string const &msg);
 void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
 void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
@@ -100,8 +96,6 @@ void	ircInvite(std::string &msg, User &user, Server &server);
 void	irc_userhost(std::string &message, User &user, Server &server);
 void	printMessageSendToClient(std::string fonction, User &user, std::string message);
 void	irc_topic(std::string &message, User &user, Server &server);
-bool	findUserInChannel(Channel *channel, User *user);
-
 void	printUsersOfAChannel(Channel *chan);
 void	printOperatorsOfAChannel(Channel *chan);
 void	printInvitedUsersOfAChannel(Channel *chan);
@@ -116,6 +110,7 @@ std::vector<std::string>	splitString(const std::string &input, char delimiter);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
 void						remouveUser(User &user, std::vector<User *> &userList);
+void						deleteChannelIfEmpty(Channel *chan, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -175,6 +170,7 @@ void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User *user, 
 //                                  KICK                                      //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+void ircKick(std::string &msg, User &user, Server &server);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,6 +179,7 @@ void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User *user, 
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+void irc_quit(std::string &message, User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

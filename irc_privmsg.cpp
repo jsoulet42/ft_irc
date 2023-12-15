@@ -6,11 +6,6 @@
 #define ERROR461 " JOIN :Not enough parameters\r\n"
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 
-void printMessageSendToClientPrivMsg(std::string fonction, User &user, std::string message)
-{
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
-}
-
 class Irc_privmsg_error : public std::exception
 {
 	public:
@@ -33,17 +28,11 @@ const char* Irc_privmsg_rpl::what() const throw()
 	return "RPL during IRC_PRIVMSG command";
 }
 
-//Commande: PRIVMSG
-//Paramètres: <destinataire>{,<destinataire>} <texte à envoyer >
-
 void ircPrivmsg(std::string &msg, User &user, Server &Server)
 {
-	// exemple : ":Angel PRIVMSG Wiz :Salut, est-ce que tu reçois ce message ? ;"
 	ssize_t i = 0;
 	std::cout << "message recu dans IRC_PRIVMSG |" << msg << "|" << std::endl;
-	//std::cout << "|PRIVMSG #test :message de test\r\n|" << std::endl;
 	msg = msg.substr(8); // Remove the command "PRIVMSG "
-	//std::cout << "message sans PRIVMSG_ |" << msg << "|" << std::endl;
 	if (msg[0] == '\0')
 	{
 		// message vide
@@ -51,8 +40,6 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 		throw Irc_privmsg_error();
 	}
 	i = msg.find("\r\n");
-	//if (i == -1)
-	//	std::cout << "elle est la ton erreur" << std::endl;
 	i = msg.find(" :");
 	if (i == -1) // n'a pas trouve d'espace et donc de message a envoyer
 	{
@@ -100,16 +87,7 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec operator", (*(it3->first)), rpl_privmsg);
 						}
 					}
-					//// envoi a tous les invitedUsers (sauf la personne qui envoie le message)
-					//for (std::vector<User *>::iterator it4 = chan->invitedUsers.begin(); it4 != chan->invitedUsers.end(); it4++)
-					//{
-					//	//std::cout << "23" << std::endl;
-					//	if ((*it4)->_fdUser != user._fdUser && checkRightsUserInChannel(chan, &user, INVITED) == false)
-					//	{
-					//		send((*it4)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					//		printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec invited", (*(*it4)), rpl_privmsg);
-					//	}
-					//}
+					// envoi a tous les users invites (sauf la personne qui envoie le message)
 					throw Irc_privmsg_rpl();
 				}
 				// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
@@ -137,7 +115,7 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
 					std::cout << "rpl_privmsg " << rpl_privmsg << std::endl;
 					send((*it)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					printMessageSendToClientPrivMsg("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
+					printMessageSendToClient("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
 					return;
 				}
 			}

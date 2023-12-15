@@ -19,9 +19,18 @@ std::vector<std::string> splitString(const std::string &input, char delimiter)
 	replaceChars(output, ',', ' ');
 	std::stringstream ss(output);
 	std::string token;
+	std::string token2;
 
 	while (std::getline(ss, token, delimiter))
 	{
+		if (token[0] == ':')
+		{
+			while (std::getline(ss, token2, delimiter))
+			{
+				token += " ";
+				token += token2;
+			}
+		}
 		token = strtok((char *)token.c_str(), "\r\n");
 		std::cout << "token : " << token << "|" << std::endl;
 		tokens.push_back(token);

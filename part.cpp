@@ -85,6 +85,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User *user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
+		void deleteChannelIfEmpty(Channel *chan, Server &server);
 	}
 }
 
@@ -101,7 +102,8 @@ void inheritanceOperator(Channel *chan, User *user)
 		std::stringstream rpl_oper;
 		chan->operators.begin()->second = true;
 		std::vector<User *>::iterator it2 = chan->users.begin();
-		rpl_oper << "@" << it->first->nickname << "\r\n" << std::endl;
+		rpl_oper << "@" << chan->operators.begin()->first->nickname << "\r\n";
+		std::cout << GREEN << ON_BLACK << "rpl_inheritanceOperator : " << rpl_oper.str() << " Become a canal operator " << "#" << chan->name << RESET << std::endl;
 		for (; it2 != chan->users.end(); it2++)
 		{
 			send((*it2)->_fdUser, rpl_oper.str().c_str(), rpl_oper.str().length(), 0);
@@ -112,7 +114,21 @@ void inheritanceOperator(Channel *chan, User *user)
 		return;
 }
 
-
+void deleteChannelIfEmpty(Channel *chan, Server &server)
+{
+	if (chan->users.size() == 0)
+	{
+		std::vector<Channel *>::iterator it = server.channels.begin();
+		for (; it != server.channels.end(); it++)
+		{
+			if ((*it)->name == chan->name)
+			{
+				delete *it;
+				break;
+			}
+		}
+	}
+}
 
 void errorP461(User &user)
 {
