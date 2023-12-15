@@ -6,7 +6,7 @@
 /*   By: mdiamant <mdiamant@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:45:41 by mdiamant          #+#    #+#             */
-/*   Updated: 2023/12/14 16:57:52 by mdiamant         ###   ########.fr       */
+/*   Updated: 2023/12/15 10:49:20 by mdiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,6 @@ void ircKick(std::string &msg, User &user, Server &server)
 {
 	Channel *channel;
 	std::vector<std::string> msgSplit = splitString(msg, ' ');
-	// for(std::vector<std::string>::iterator it = msgSplit.begin(); it != msgSplit.end(); ++it)	// DEBUG
-	// 	std::cout << "|" << *it;
-	std::cout << std::endl;
 	if (msgSplit.size() < 3)
 	{
 		msgError461(user);
@@ -42,7 +39,6 @@ void ircKick(std::string &msg, User &user, Server &server)
 		msgSplit.push_back(":" + user.nickname);
 	for(std::vector<std::string>::iterator it = msgSplit.begin() + 2; it != msgSplit.end() - 1; ++it)	// envoie les messages de kick a tous les users du channel
 	{
-		std::cout << "tentative de kick du user : " << *it << std::endl;
 		try
 		{
 			User *userKicked = findUserByName(channel->users, *it);
@@ -53,7 +49,6 @@ void ircKick(std::string &msg, User &user, Server &server)
 				msgAllUserInChannel(user, channel, userKicked->nickname, msgSplit[msgSplit.size() - 1]);
 				std::string msgPart;
 				msgPart = "PART #" + channel->name + " " + msgSplit[msgSplit.size() - 1] + "\r\n";
-				std::cout << "msgPart : " << msgPart << std::endl;
 				ircPart(msgPart, *userKicked, server);
 			}
 		}
@@ -73,7 +68,6 @@ void msgAllUserInChannel(User const &user, Channel *channel, std::string const &
 		ss << ":" << user.nickname << " KICK #" << channel->name << " " << nameKicked << " " << reason + "\r\n";
 		//ss << IPHOST << "KICK #" << channel->name << " " << nameKicked << reason << "\r\n";
 		send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
-		std::cout << "j'ai envoye au client : " << ss.str() << std::endl;
 	}
 }
 
