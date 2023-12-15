@@ -79,7 +79,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User *user, st
 				send((*cuser)->_fdUser, rpl_part.str().c_str(), rpl_part.str().length(), 0);
 				rpl_part.str("");
 				if (checkRightsUserInChannel(chan, *cuser, OPERATOR) == true)
-					inheritanceOperator(chan, *cuser);
+					inheritanceOperator(chan, user);
 				else
 					chan->operators.erase(*cuser);
 			}
