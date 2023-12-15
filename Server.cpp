@@ -115,10 +115,13 @@ void Server::validateBuffer(std::string &buffer, int newFd, User *newuser)
 
 void Server::passProtocol(std::string buffer, User *newUser)
 {
+	char *token;
 	std::string pass;
-	pass = strtok(&buffer[0] + 6, "\r\n");
-	// berk encore une fonction c
+	token = strtok(&buffer[0] + 5, "\r\n");
+	pass = token;
 
+	if (pass[0] == ':')
+		pass.erase(0, 1);
 	if (buffer.compare(0, 4, "PASS") != 0)
 		sendError(newUser->_fdUser, ERRORP421);
 	else if (pass.size() == 0)

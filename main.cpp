@@ -45,7 +45,6 @@ int main(int argc, char const* argv[])
 	{
 		std::cout << BLUE << ON_BLACK << "Waiting incoming connection ( poll() )..." << RESET << std::endl;
 		rc = poll(&(server->fdP[0]), fdsId, -1);
-		std::cout << "[" << rc << "]" << std::endl;
 		server->fdNb = fdsId;
 		for (int i = 0; i < server->fdNb; i++)
 		{
@@ -61,6 +60,7 @@ int main(int argc, char const* argv[])
 					{
 						try
 						{
+							//ici j'ajoute a poll fd le nouveau fd
 							std::cout << YELLOW << ON_BLACK << "New user connected with id " << newFd << "." << RESET << std::endl;
 							server->protocolNewUser(newFd);
 							fdsId++;
@@ -112,6 +112,10 @@ int main(int argc, char const* argv[])
 				{
 					try
 					{
+						// on verifie si l'utilisateur est enregistré dans le vector users
+						// si il existe pas on lance server->protocolNewUser(newFd); en enlevantla while 1 .
+						// pensez a crée le user que une foit le protocole validé
+						//sinon interpret commande
 						interpretCommand(*server, strmess, server->fdP[i].fd);
 						strmess.clear();
 						bzero(buffer, BUFFSIZE + 1);
