@@ -51,10 +51,10 @@ void ircPart(std::string &strmess, User &user, Server &server)
 	}
 	else
 		chann.push_back(chan);
-	sendPartToAllUsersInChannel(chann, &user, reason, server);
+	sendPartToAllUsersInChannel(chann, user, reason, server);
 }
 
-void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User *user, std::string &reason, Server &server)
+void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, std::string &reason, Server &server)
 {
 	std::stringstream rpl_part;
 
@@ -66,16 +66,16 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User *user, st
 			errorP403(it, user);
 			continue;
 		}
-		if (findUserInChannel(chan, user) == false)
+		if (findUserInChannel(chan, &user) == false)
 		{
-			errorP442(it, user);
+			errorP442(chan, user);
 			continue;
 		}
 		for (std::vector<User *>::iterator cuser = chan->users.begin(); cuser < chan->users.end(); cuser++)
 		{
-			if ((*cuser)->_fdUser != user->_fdUser || (*cuser)->_fdUser == user->_fdUser)
+			if ((*cuser)->_fdUser != user._fdUser || (*cuser)->_fdUser == user._fdUser)
 			{
-				rpl_part << ":" << user->nickname << " PART #" << chan->name << " :" << user->nickname << " " << reason << "\r\n";
+				rpl_part << ":" << user.nickname << " PART #" << chan->name << " :" << user.nickname << " " << reason << "\r\n";
 				send((*cuser)->_fdUser, rpl_part.str().c_str(), rpl_part.str().length(), 0);
 				rpl_part.str("");
 				if (checkRightsUserInChannel(chan, *cuser, OPERATOR) == true)
@@ -89,9 +89,9 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User *user, st
 	}
 }
 
-void inheritanceOperator(Channel *chan, User *user)
+void inheritanceOperator(Channel *chan, User &user)
 {
-	chan->operators.erase(user);
+	chan->operators.erase(&user);
 	std::map<User *, bool>::iterator it = chan->operators.begin();
 	if (it == chan->operators.end())
 		return;
@@ -140,22 +140,22 @@ void errorP461(User &user)
 	throw Irc_part_error();
 }
 
-void errorP442(std::vector<std::string>::iterator &it, User *user)
+void errorP442(Channel *chan, User &user)
 {
 	std::stringstream err_part;
 
-	std::cout << RED << ON_BLACK << ":You're not on that channel " << *it <<  RESET << std::endl;
-	err_part << IPHOST << "442 " << user->nickname << " #" << *it << " :You're not on that channel\r\n";
-	send(user->_fdUser, err_part.str().c_str(), err_part.str().length(), 0);
+	std::cout << RED << ON_BLACK << ":You're not on that channel " << chan->name <<  RESET << std::endl;
+	err_part << IPHOST << "442 " << user.nickname << " #" << chan->name << " :You're not on that channel\r\n";
+	send(user._fdUser, err_part.str().c_str(), err_part.str().length(), 0);
 }
 
-void errorP403(std::vector<std::string>::iterator &it, User *user)
+void errorP403(std::vector<std::string>::iterator &it, User &user)
 {
 	std::stringstream err_part;
 
 	std::cout << RED << ON_BLACK <<  ":No such channel " << *it << RESET << std::endl;
-	err_part << IPHOST << "403 " << user->nickname << " #" << *it << " :No such channel\r\n";
-	send(user->_fdUser, err_part.str().c_str(), err_part.str().length(), 0);
+	err_part << IPHOST << "403 " << user.nickname << " #" << *it << " :No such channel\r\n";
+	send(user._fdUser, err_part.str().c_str(), err_part.str().length(), 0);
 }
 
 

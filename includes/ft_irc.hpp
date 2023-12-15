@@ -15,6 +15,8 @@
 #include <csignal>
 #include "Color.hpp"
 #include <map>
+#include <ctime>
+#include <sstream>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -156,11 +158,11 @@ class notEnoughParamException : public std::exception
 ////////////////////////////////////////////////////////////////////////////////
 
 void	errorP461(User &user);
-void	errorP442(std::vector<std::string>::iterator &it, User *user);
-void	errorP403(std::vector<std::string>::iterator &it, User *user);
-void	inheritanceOperator(Channel *chan, User *user);
+void	errorP442(Channel *chan, User &user);
+void	errorP403(std::vector<std::string>::iterator &it, User &user);
+void	inheritanceOperator(Channel *chan, User &user);
 void	ircPart(std::string &strmess, User &user, Server &server);
-void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User *user, std::string &reason, Server &server);
+void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User &user, std::string &reason, Server &server);
 
 
 
