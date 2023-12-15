@@ -13,15 +13,12 @@ Server::Server(const int port, const std::string& password) : _port(port), _pass
 
 Server::~Server()
 {
+	std::cout << GREEN << ON_BLACK << "Server is shutting down..." << RESET << std::endl;
 	for (size_t i = 0; i < this->fdP.size(); ++i)
 	{
 		if (this->fdP[i].fd != this->_serverSocket && this->fdP[i].fd != -1)
-		{
-			shutdown(this->fdP[i].fd, SHUT_RDWR);
 			close(this->fdP[i].fd);
-		}
 	}
-	shutdown(this->_serverSocket, SHUT_RDWR);
 	close(this->_serverSocket);
 }
 
@@ -84,29 +81,16 @@ void Server::protocolNewUser(int newFd)
 	newuser->_forNcProtocol = 1;
 	ssize_t byteRead;
 
-	byteRead = read(newFd, str, BUFFSIZE);
-	str[byteRead] = '\0';
-	std::string buffer(str);
-	if (newuser->_forNcProtocol == 1)
-		this->CapProtocol(buffer, newuser);
-
-	byteRead = read(newFd, str, BUFFSIZE);
-	str[byteRead] = '\0';
-	buffer = str;
-	if (newuser->_forNcProtocol == 2)
-		this->passProtocol(buffer, newuser);
-
-	byteRead = read(newFd, str, BUFFSIZE);
-	str[byteRead] = '\0';
-	buffer = str;
-	if (newuser->_forNcProtocol == 3)
-		this->NickProtocol(newFd, buffer, newuser);
-
-	byteRead = read(newFd, str, BUFFSIZE);
-	str[byteRead] = '\0';
-	buffer = str;
-	if (newuser->_forNcProtocol == 4)
-		this->UserProtocol(buffer, newuser);
+	while (1)
+	{
+		byteRead = read(newFd, str, BUFFSIZE);
+		str[byteRead] = '\0';
+		std::string buffer(str);
+		std::cout << YELLOW << ON_BLACK << "buffer : " << buffer.size() << " " << buffer << RESET << std::endl;
+		validateBuffer(buffer, newFd, newuser);
+		if (newuser->_forNcProtocol == 5 ||	byteRead == 0)
+			break;
+	}
 
 	fdP.push_back(pollfd());
 	this->fdP[this->fdNb].fd = newFd;
@@ -115,6 +99,18 @@ void Server::protocolNewUser(int newFd)
 	std::string message = newuser->nickname + IPHOST + " 001  Welcome to the Internet Relay Network\n" + newuser->nickname + "!" + newuser->username +"@127.0.0.1\r\n";
 	send(newFd, message.c_str(), message.length(), 0);
 	std::cout << YELLOW << ON_BLACK << "New user " << newuser->nickname << " succesfully registered with id " << newFd << "." << RESET << std::endl;
+}
+
+void Server::validateBuffer(std::string &buffer, int newFd, User *newuser)
+{
+	if (newuser->_forNcProtocol == 1)
+		this->CapProtocol(buffer, newuser);
+	else if (newuser->_forNcProtocol == 2)
+		this->passProtocol(buffer, newuser);
+	else if (newuser->_forNcProtocol == 3)
+		this->NickProtocol(newFd, buffer, newuser);
+	else if (newuser->_forNcProtocol == 4)
+		this->UserProtocol(buffer, newuser);
 }
 
 void Server::passProtocol(std::string buffer, User *newUser)
@@ -131,7 +127,8 @@ void Server::passProtocol(std::string buffer, User *newUser)
 		sendError(newUser->_fdUser, ERRORP464);
 	if (ERROR == true)
 	{
-		throw PassException();
+		deleteUser(newUser->_fdUser);
+		throw NickException();
 	}
 	std::cout << YELLOW << ON_BLACK << "buffer [pass] ok : " << pass.size() << " " << pass << RESET << std::endl;
 	newUser->_forNcProtocol++;
@@ -161,10 +158,13 @@ void Server::NickProtocol(int newFd, std::string buffer, User *newUser)
 	else if (this->checkNick(newFd, nick) == 433)
 		sendError(newUser->_fdUser, ERRORN433);
 	if (ERROR == true)
+	{
+		deleteUser(newFd);
 		throw NickException();
+	}
 	std::cout << YELLOW << ON_BLACK << "buffer [nick] ok : " << nick.size() << " " << nick << RESET << std::endl;
-	newUser->_forNcProtocol++;
 	newUser->nickname = nick;
+	newUser->_forNcProtocol++;
 }
 
 int		Server::checkNick(int & fd, std::string nickname)
@@ -203,10 +203,14 @@ void Server::UserProtocol(std::string buffer, User *newUser)
 	uname.erase(0, 5);
 	std::string	realname = uname;
 	if (ERROR == true)
-		throw UserException();
+	{
+		deleteUser(newUser->_fdUser);
+		throw NickException();
+	}
 	std::cout << YELLOW << ON_BLACK << "buffer [user] ok : " << uname.size() << " " << uname << RESET << std::endl;
 	newUser->username = username;
 	newUser->realname = uname;
+	newUser->_forNcProtocol++;
 }
 
 void Server::sendError(int fd, std::string error)
@@ -252,6 +256,25 @@ std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
 		++it;
 	}
 	return this->channels.end();
+}
+
+void Server::deleteAll()
+{
+	std::vector<User *>::iterator	user = this->users.begin();
+
+	while (user != this->users.end())
+	{
+		delete *user;
+		user++;
+	}
+	std::vector<Channel *>::iterator	channel = this->channels.begin();
+
+	while (channel != this->channels.end())
+	{
+		delete *channel;
+		channel++;
+	}
+	delete this;
 }
 
 void Server::deleteUser(int fd)

@@ -41,7 +41,9 @@ class Server
 		void sendError(int fd, std::string error);
 		void resizeBuffer(std::string &buffer);
 		void deleteUser(int fd);
+		void validateBuffer(std::string &buffer, int newFd, User *newuser);
 		std::vector<Channel *>::iterator	getChannelByName(std::string name);
+		void deleteAll();
 
 		class PassException : public std::exception
 		{

@@ -35,9 +35,8 @@ class Channel
 		std::map<User *, bool>		operators;
 		std::vector<User *>		invitedUsers;
 
-	    void	channelSendLoop(std::string message, int & sFd);
+		void	channelSendLoop(std::string message, int & sFd);
 		bool	isInChannel(User *user);
-
 //-----------------------------Operators overload-----------------------------//
 //------------------------------Getter & Setter-------------------------------//
 
@@ -60,6 +59,7 @@ class Channel
 		void setModeL(char symbol, std::string &strmess);
 		void setModeT(char c);
 		void setModeI(char c);
+		void deleteUserInOperator(User *user);
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"
