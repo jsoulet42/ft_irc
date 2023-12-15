@@ -336,7 +336,6 @@ bool Channel::checkModeL()
 	{
 		count++;
 	}
-	std::cout << "le nombre de user est = " << count << std::endl;
 	if (count < this->modeLMaxUser)
 		return true;
 	return false;
