@@ -165,6 +165,7 @@ void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User *user, 
 //                                  KICK                                      //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
+void ircKick(std::string &msg, User &user, Server &server);
 
 
 ////////////////////////////////////////////////////////////////////////////////
