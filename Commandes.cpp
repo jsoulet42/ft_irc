@@ -147,7 +147,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
 		irc_topic(strmess, *user, server);
 	else if (strmess.compare(0, 5, "KICK ") == 0)
-		std::cout << "ici il y aura une fonction KICK" << std::endl;
+		ircKick(strmess, *user, server);
 	else if (strmess.compare(0, 6, "INVITE") == 0)
 		ircInvite(strmess, *user, server);
 	else if (strmess.compare(0, 3, "WHO") == 0)
@@ -358,6 +358,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel->password = key;
 		channel->addUser(&user, key);
 		channel->operators[&user] = true;
+		channel->getDateTime();
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
 	}
@@ -370,37 +371,52 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	if (createOrJoin == 0)
 	{
 		channel->topic = "No topic is set";
-		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
+		ss << ":" << user.nickname << "!~" << user.nickname[0] << "@" << user.nickname <<  " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "331 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
+		ss << IPHOST << "332 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "353 #" << channel->name << " :";
-		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
-			ss << (*it)->nickname << " ";
-		ss << "\r\n";
-		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+		ss << IPHOST << "333 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		std::map<User *, bool>::iterator it = channel->operators.begin();
+		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :";
+		for (; it != channel->operators.end(); it++)
 		{
-			if ((*it)->_fdUser != user._fdUser)
-				send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+			if (it->second == true)
+				ss << "@" << it->first->nickname << " ";
+			else
+				ss << it->first->nickname << " ";
 		}
+		ss << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "366 #" << channel->name << " :End of /NAMES list.\r\n";
-		for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); ++it)
+		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		for (std::vector<User *>::iterator it2 = channel->users.begin(); it2 != channel->users.end(); it2++)
 		{
-			if ((*it)->_fdUser != user._fdUser)
-				send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+			if ((*it2)->_fdUser != user._fdUser)
+			{
+				ss << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " JOIN :#" << channel->name << "\r\n";
+				send((*it2)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+				ss.str("");
+			}
 		}
 	}
 	else if (createOrJoin)
 	{
-		ss << ":" << user.nickname << " JOIN #" << channel->name << "\r\n";
+		ss << ":" << user.nickname << "!~" << user.nickname[0] << "@" << user.nickname << " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "332 " << user.nickname << " " << channel->name << " :" << channel->topic << "\r\n";
+		ss << IPHOST << "MODE #" << channel->name << " +nt" << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
+		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
 	}
 }
 

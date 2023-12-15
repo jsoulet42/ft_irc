@@ -27,6 +27,7 @@ class Channel
 		int						nbUsers;
 		std::string				name;
 		std::string				topic;
+		std::string				creationDate;
 		// std::string				lastTopicUpdateWhen;
 		// std::string				lastTopicUpdateWho;
 		// std::string				mode;
@@ -45,7 +46,7 @@ class Channel
 //-------------------------------Other function-------------------------------//
 
 		int addUser(User *user, std::string &cmd);
-		void deleteUserInChannel(User *user);
+		void deleteUserInChannel(User &user);
 		void ft_insertChanMode(std::string strmess, User &user, Channel &chan);
 		bool ft_checkMode(Channel *channel, std::string mode); // exemple de string : "modeI", "modeL" etc...
 		void initModeMap();
@@ -60,6 +61,8 @@ class Channel
 		void setModeT(char c);
 		void setModeI(char c);
 		void deleteUserInOperator(User *user);
+		User *getOperator();
+		void getDateTime();
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"

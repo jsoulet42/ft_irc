@@ -15,7 +15,7 @@ void irc_quit(std::string &message, User &user, Server &server)
 		{
 			(*it)->channelSendLoop(rpl_quit, user._fdUser);
 			(*it)->nbUsers--;
-			(*it)->deleteUserInChannel(&user);
+			(*it)->deleteUserInChannel(user);
 			(*it)->deleteUserInOperator(&user);
 		}
 	}

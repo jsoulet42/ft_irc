@@ -394,13 +394,13 @@ bool	Channel::isInChannel(User *user)
 	return false;
 }
 
-void Channel::deleteUserInChannel(User *user)
+void Channel::deleteUserInChannel(User &user)
 {
 	std::vector<User *>::iterator		it = this->users.begin();
 
 	while (it != this->users.end())
 	{
-		if (user == *it)
+		if (&user == *it)
 		{
 			this->users.erase(it);
 			this->nbUsers--;
@@ -408,4 +408,27 @@ void Channel::deleteUserInChannel(User *user)
 		}
 		it++;
 	}
+}
+
+User *Channel::getOperator()
+{
+	std::map<User *, bool>::iterator	it = this->operators.begin();
+
+	while (it != this->operators.end())
+	{
+		if (it->second == true)
+			return it->first;
+		it++;
+	}
+	return NULL;
+}
+
+void Channel::getDateTime()
+{
+	std::time_t rawtime;
+	std::time(&rawtime);
+
+	std::ostringstream oss;
+	oss << rawtime;
+	this->creationDate = oss.str();
 }
