@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Invite.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mdiamant <mdiamant@student.42perpignan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/15 10:49:28 by mdiamant          #+#    #+#             */
+/*   Updated: 2023/12/15 10:58:02 by mdiamant         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                                   INVITE                                   //
@@ -31,12 +43,12 @@ void ircInvite(std::string &msg, User &user, Server &server)
 	User *userInvited = findUserByName(server.users, msgVec[1]);
 	if (userInvited == NULL)													// on verifie que l'utilisateur existe
 		msgError401(user, msgVec[1]);
-	if(!checkMode(channel, "modeI"))										// si le channel est public
+	if(!checkMode(channel, "modeI"))											// si le channel est public
 	{
 		std::cerr << GREEN << ON_BLACK << "le channel n'est pas prive" << RESET << std::endl;
 		return ;
 	}
- 	if (checkRightsUserInChannel(channel, &user, OPERATOR) == false)						//on verifie que l'utilisateur est bien operateur du channel
+ 	if (checkRightsUserInChannel(channel, &user, OPERATOR) == false)			//on verifie que l'utilisateur est bien operateur du channel
 			msgError482(user, msgVec[2]);
 	if (findElement(*userInvited, channel->invitedUsers) == true)				// on verifie que l'utilisateur n'est pas deja invité
 		msgError443(user, msgVec[1], *channel);
