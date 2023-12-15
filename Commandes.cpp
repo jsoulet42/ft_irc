@@ -148,10 +148,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		return;
 	}
 	else if (strmess.compare(0, 5, "KICK ") == 0)
-	{
-		ircKick(strmess, *user, server);
 		std::cout << "ici il y aura une fonction KICK" << std::endl;
-	}
 	/*else if (strmess.compare(0, 4, "QUIT") == 0)
 		std::cout << "ici il y aura une fonction QUIT" << std::endl;
 	else if (strmess.compare(0, 5, "NICK ") == 0)
