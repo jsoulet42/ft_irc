@@ -94,10 +94,7 @@ void inheritanceOperator(Channel *chan, User *user)
 	chan->operators.erase(user);
 	std::map<User *, bool>::iterator it = chan->operators.begin();
 	if (it == chan->operators.end())
-	{
-		std::cout << "hello man !" << std::endl;
 		return;
-	}
 	for (; it->second == false && it != chan->operators.end(); it++)
 		;
 	if (it == chan->operators.end())
@@ -105,7 +102,8 @@ void inheritanceOperator(Channel *chan, User *user)
 		std::stringstream rpl_oper;
 		chan->operators.begin()->second = true;
 		std::vector<User *>::iterator it2 = chan->users.begin();
-		rpl_oper << "@" << it->first->nickname << "\r\n" << std::endl;
+		rpl_oper << "@" << chan->operators.begin()->first->nickname << "\r\n";
+		std::cout << GREEN << ON_BLACK << "rpl_inheritanceOperator : " << rpl_oper.str() << " Become a canal operator " << "#" << chan->name << RESET << std::endl;
 		for (; it2 != chan->users.end(); it2++)
 		{
 			send((*it2)->_fdUser, rpl_oper.str().c_str(), rpl_oper.str().length(), 0);

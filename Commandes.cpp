@@ -248,10 +248,7 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	else if (channel.size() > 10)
 		msgError("476", channel, user, ERRORJ476);
 	if (errorCmd == true)
-	{
-		std::cout << "ici" << std::endl;
 		throw joinException();
-	}
 	channel.erase(0, 1);
 }
 
