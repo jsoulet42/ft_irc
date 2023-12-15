@@ -6,11 +6,6 @@
 #define ERROR461 " JOIN :Not enough parameters\r\n"
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 
-void printMessageSendToClientPrivMsg(std::string fonction, User &user, std::string message)
-{
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
-}
-
 class Irc_privmsg_error : public std::exception
 {
 	public:
@@ -120,7 +115,7 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
 					std::cout << "rpl_privmsg " << rpl_privmsg << std::endl;
 					send((*it)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					printMessageSendToClientPrivMsg("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
+					printMessageSendToClient("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
 					return;
 				}
 			}

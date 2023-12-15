@@ -94,7 +94,10 @@ void inheritanceOperator(Channel *chan, User *user)
 	chan->operators.erase(user);
 	std::map<User *, bool>::iterator it = chan->operators.begin();
 	if (it == chan->operators.end())
+	{
+		std::cout << "hello man !" << std::endl;
 		return;
+	}
 	for (; it->second == false && it != chan->operators.end(); it++)
 		;
 	if (it == chan->operators.end())

@@ -1,7 +1,6 @@
 # include "./includes/ft_irc.hpp"
 
-
-void    irc_kick(std::string &message, User &user, Server &server)
+void	irc_kick(std::string &message, User &user, Server &server)
 {
 	//std::cout << YELLOW <<  ON_BLACK << "KICK : " << message << user.nickname << server.fdNb << RESET << std::endl;
 	std::istringstream iss(message);

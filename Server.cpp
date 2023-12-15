@@ -81,10 +81,8 @@ void Server::protocolNewUser(int newFd)
 	newuser->_forNcProtocol = 1;
 	ssize_t byteRead;
 
-
 	while (1)
 	{
-
 		byteRead = read(newFd, str, BUFFSIZE);
 		str[byteRead] = '\0';
 		std::string buffer(str);

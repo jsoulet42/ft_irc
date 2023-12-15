@@ -1,10 +1,5 @@
 #include "includes/ft_irc.hpp"
 
-void printMessageSendToClientTopic(std::string fonction, User &user, std::string message)
-{
-	std::cout << "J'ai envoye au client le message : |" << message << "| de |" << user.nickname << "| pour la fonction |" << fonction << "|" << std::endl;
-}
-
 void irc_topic(std::string &message, User &user, Server &server)
 {
 
@@ -21,7 +16,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 	{
 		std::string err_need_more_param = ":127.0.0.1 461 " + user.nickname + " TOPIC :Not enough parameters\r\n";
 		send(user._fdUser, err_need_more_param.c_str(), err_need_more_param.length(), 0);
-		printMessageSendToClientTopic("IRC_TOPIC - err_need_more_param", user, err_need_more_param);
+		printMessageSendToClient("IRC_TOPIC - err_need_more_param", user, err_need_more_param);
 		return;
 	} // <- au cas ou le client n'envoie pas le channel (jamais vu)
 
@@ -52,7 +47,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 			std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - ASK - channel dosn't exist" << RESET << std::endl;
 			std::string err_not_valid_name = ":127.0.0.1 403 " + user.nickname + " #" + channel + " :No such channel\r\n";
 			send(user._fdUser, err_not_valid_name.c_str(), err_not_valid_name.length(), 0);
-			printMessageSendToClientTopic("IRC_TOPIC - err_not_valid_name - 1", user, err_not_valid_name);
+			printMessageSendToClient("IRC_TOPIC - err_not_valid_name - 1", user, err_not_valid_name);
 			return;
 		}
 		else
@@ -62,7 +57,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 				std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - ASK - channel found but user not in it" << RESET << std::endl;
 				std::string err_not_valid_name = ":127.0.0.1 442 " + user.nickname + " #" + channel + " :You're not on that channel\r\n";
 				send(user._fdUser, err_not_valid_name.c_str(), err_not_valid_name.length(), 0);
-				printMessageSendToClientTopic("IRC_TOPIC - err_not_valid_name - 2", user, err_not_valid_name);
+				printMessageSendToClient("IRC_TOPIC - err_not_valid_name - 2", user, err_not_valid_name);
 				return;
 			}
 			else
@@ -72,7 +67,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 					std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - ASK - channel found - user found - no topic" << RESET << std::endl;
 					std::string err_no_topic = ":127.0.0.1 331 " + user.nickname + " #" + channel + " :No topic is set\r\n";
 					send(user._fdUser, err_no_topic.c_str(), err_no_topic.length(), 0);
-					printMessageSendToClientTopic("IRC_TOPIC - err_no_topic", user, err_no_topic);
+					printMessageSendToClient("IRC_TOPIC - err_no_topic", user, err_no_topic);
 					return;
 				}
 				else
@@ -80,7 +75,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 					std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - ASK - channel found - user found - topic found" << RESET << std::endl;
 					std::string rpl_topic = ":127.0.0.1 332 " + user.nickname + " #" + channel + " :" + (*it)->topic + "\r\n";
 					send(user._fdUser, rpl_topic.c_str(), rpl_topic.length(), 0);
-					printMessageSendToClientTopic("IRC_TOPIC - rpl_topic", user, rpl_topic);
+					printMessageSendToClient("IRC_TOPIC - rpl_topic", user, rpl_topic);
 					return;
 				}
 			}
@@ -104,7 +99,7 @@ void irc_topic(std::string &message, User &user, Server &server)
 			std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel dosn't exist" << RESET << std::endl;
 			std::string err_not_valid_name = ":127.0.0.1 403 " + user.nickname + " #" + channel + " :No such channel\r\n";
 			send(user._fdUser, err_not_valid_name.c_str(), err_not_valid_name.length(), 0);
-			printMessageSendToClientTopic("IRC_TOPIC - err_not_valid_name - 3", user, err_not_valid_name);
+			printMessageSendToClient("IRC_TOPIC - err_not_valid_name - 3", user, err_not_valid_name);
 			return;
 		}
 		else
@@ -116,21 +111,21 @@ void irc_topic(std::string &message, User &user, Server &server)
 				std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found but user not in it" << RESET << std::endl;
 				std::string err_not_valid_name = ":127.0.0.1 442 " + user.nickname + " #" + channel + " :You're not on that channel\r\n";
 				send(user._fdUser, err_not_valid_name.c_str(), err_not_valid_name.length(), 0);
-				printMessageSendToClientTopic("IRC_TOPIC - err_not_valid_name - 4", user, err_not_valid_name);
+				printMessageSendToClient("IRC_TOPIC - err_not_valid_name - 4", user, err_not_valid_name);
 				return;
 			}
 			else
 			{
 				std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found - user found" << RESET << std::endl;
 				//verif du mode T (topic ne peut etre changer que par un operateur)
-				if ((*it)->isModeT())
+				if (checkMode(*it, "modeT") == true)
 				{
 					if (checkRightsUserInChannel(*it, &user, OPERATOR) == false)
 					{
 						std::cout << RED <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found - user found but ModeT is on and user not an operator" << RESET << std::endl;
 						std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + channel + " :You're not channel operator\r\n";
 						send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
-						printMessageSendToClientTopic("IRC_TOPIC - err_not_op - 4", user, err_not_op);
+						printMessageSendToClient("IRC_TOPIC - err_not_op - 4", user, err_not_op);
 						return;
 					}
 					// else == modifier le topic

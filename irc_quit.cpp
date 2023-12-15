@@ -17,8 +17,6 @@ void irc_quit(std::string &message, User &user, Server &server)
 			(*it)->nbUsers--;
 			(*it)->deleteUserInChannel(&user);
 			(*it)->deleteUserInOperator(&user);
-			deleteChannelIfEmpty(*it, server);
-			// TODO : gestion si la personne est le dernier user d'un channel
 		}
 	}
 	for (std::vector<struct pollfd>::iterator it2 = server.fdP.begin(); it2 != server.fdP.end(); ++it2)
