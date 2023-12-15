@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Kick.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mdiamant <mdiamant@student.42perpignan.    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/14 15:45:41 by mdiamant          #+#    #+#             */
+/*   Updated: 2023/12/14 16:57:52 by mdiamant         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 # include "includes/ft_irc.hpp"
 # include "includes/Server.hpp"
 # include "includes/User.hpp"
@@ -5,15 +17,15 @@
 
 
 // KICK <channel> <nick> [<reason>]
-void msgAllUserInChannel(Channel *channel, std::string const &nameKicked, std::string const &reason);
+void msgAllUserInChannel(User const &user, Channel *channel, std::string const &nameKicked, std::string const &reason);
 
 void ircKick(std::string &msg, User &user, Server &server)
 {
 	Channel *channel;
 	std::vector<std::string> msgSplit = splitString(msg, ' ');
-
-	for(std::vector<std::string>::iterator it = msgSplit.begin(); it != msgSplit.end(); ++it)	// DEBUG
-		std::cout << *it << std::endl;
+	// for(std::vector<std::string>::iterator it = msgSplit.begin(); it != msgSplit.end(); ++it)	// DEBUG
+	// 	std::cout << "|" << *it;
+	std::cout << std::endl;
 	if (msgSplit.size() < 3)
 	{
 		msgError461(user);
@@ -27,31 +39,41 @@ void ircKick(std::string &msg, User &user, Server &server)
 	if (checkRightsUserInChannel(channel, &user, OPERATOR) != OPERATOR)			// on verifie que l'utilisateur est bien operateur du channel
 		msgError482(user, msgSplit[1]);
 	if (findUserByName(channel->users, msgSplit[msgSplit.size() - 1]) != NULL)	//ajout du message de kick s'il n'y en a pas
-		msgSplit.push_back(":" + user.nickname + "\r\n");
+		msgSplit.push_back(":" + user.nickname);
 	for(std::vector<std::string>::iterator it = msgSplit.begin() + 2; it != msgSplit.end() - 1; ++it)	// envoie les messages de kick a tous les users du channel
 	{
-		User *userKicked = findUserByName(channel->users, *it);
-		if(userKicked == NULL)
-			msgError441(user, *it, *channel);
-		else
+		std::cout << "tentative de kick du user : " << *it << std::endl;
+		try
 		{
-			std::stringstream ss;
-			ss << IPHOST << userKicked->nickname << " " << channel->name << " " << msgSplit[msgSplit.size() - 1] << "\r\n";
-			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-			remouveUser(*userKicked, channel->users);
-			msgAllUserInChannel(channel, userKicked->nickname, msgSplit[msgSplit.size() - 1]);
+			User *userKicked = findUserByName(channel->users, *it);
+			if(userKicked == NULL)
+				msgError441(user, *it, *channel);
+			else
+			{
+				msgAllUserInChannel(user, channel, userKicked->nickname, msgSplit[msgSplit.size() - 1]);
+				std::string msgPart;
+				msgPart = "PART #" + channel->name + " " + msgSplit[msgSplit.size() - 1] + "\r\n";
+				std::cout << "msgPart : " << msgPart << std::endl;
+				ircPart(msgPart, *userKicked, server);
+			}
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
 		}
 	}
 }
 
 // :dan!d@localhost KICK #test alice :nah mate
-void msgAllUserInChannel(Channel *channel, std::string const &nameKicked, std::string const &reason)
+void msgAllUserInChannel(User const &user, Channel *channel, std::string const &nameKicked, std::string const &reason)
 {
 	for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); it++)
 	{
 		std::stringstream ss;
-		ss << IPHOST << nameKicked << " " << channel->name << reason;
+		ss << ":" << user.nickname << " KICK #" << channel->name << " " << nameKicked << " " << reason + "\r\n";
+		//ss << IPHOST << "KICK #" << channel->name << " " << nameKicked << reason << "\r\n";
 		send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+		std::cout << "j'ai envoye au client : " << ss.str() << std::endl;
 	}
 }
 
@@ -60,7 +82,6 @@ void msgAllUserInChannel(Channel *channel, std::string const &nameKicked, std::s
 // ERR_USERNOTINCHANNEL (441)
 // ERR_NOTONCHANNEL (442)
 // ERR_BADCHANMASK (476)
-// ERR_CHANOPRIVSNEEDED (482)
 // ERR_CHANOPRIVSNEEDED (482)
 // DOC 1------------------------------------------------------------------------
 // KICK message
