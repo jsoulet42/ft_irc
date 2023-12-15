@@ -6,7 +6,7 @@
 /*   By: mdiamant <mdiamant@student.42perpignan.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:45:41 by mdiamant          #+#    #+#             */
-/*   Updated: 2023/12/15 10:49:20 by mdiamant         ###   ########.fr       */
+/*   Updated: 2023/12/15 11:20:19 by mdiamant         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ void msgAllUserInChannel(User const &user, Channel *channel, std::string const &
 	{
 		std::stringstream ss;
 		ss << ":" << user.nickname << " KICK #" << channel->name << " " << nameKicked << " " << reason + "\r\n";
-		//ss << IPHOST << "KICK #" << channel->name << " " << nameKicked << reason << "\r\n";
 		send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
 }
