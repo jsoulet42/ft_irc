@@ -145,6 +145,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
 		ircPrivmsg(strmess, *user, server);
+	else if (strmess.compare(0, 5, "KICK ") == 0)
+		std::cout << "ici il y aura une fonction KICK" << std::endl;
 	else if(strmess.compare(0, 5, "MODE ") == 0)
 		ft_launchMode(strmess, *user, server);
 	/*else if (strmess.compare(0, 4, "QUIT") == 0)
@@ -154,8 +156,6 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if (strmess.compare(0, 5, "TOPIC") == 0)
 		irc_topic(strmess, *user, server);
 		//std::cout << "ici il y aura une fonction TOPIC" << std::endl;
-	else if (strmess.compare(0, 5, "KICK ") == 0)
-		std::cout << "ici il y aura une fonction KICK" << std::endl;
 	else if (strmess.compare(0, 6, "INVITE") == 0)
 	{
 		ircInvite(strmess, *user, server);
