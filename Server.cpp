@@ -256,8 +256,15 @@ std::vector<Channel *>::iterator	Server::getChannelByName(std::string name)
 
 void Server::deleteUser(int fd)
 {
-	std::vector<User *>::iterator	user = getUser(fd);
-	delete *user;
+	for (std::vector<User *>::iterator it = this->users.begin(); it != this->users.end(); it++)
+	{
+		if ((*it)->_fdUser == fd)
+		{
+			delete (*it);
+			this->users.erase(it);
+			break;
+		}
+	}
 }
 
 const char* Server::PassException::what() const throw()

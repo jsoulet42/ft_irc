@@ -70,7 +70,7 @@ int main(int argc, char const* argv[])
 						{
 							std::cerr << "[Error] during user creation : " << std::endl;
 							std::cerr <<  e.what() << std::endl;
-							server->deleteUser(newFd);
+							// server->deleteUser(newFd);
 							close(newFd);
 						}
 					}
