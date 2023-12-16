@@ -75,7 +75,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 		{
 			if ((*cuser)->_fdUser != user._fdUser || (*cuser)->_fdUser == user._fdUser)
 			{
-				rpl_part << ":" << user.nickname << " PART #" << chan->name << " :" << user.nickname << " " << reason << "\r\n";
+				rpl_part << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " PART #" << chan->name << " :" << reason << "\r\n";
 				send((*cuser)->_fdUser, rpl_part.str().c_str(), rpl_part.str().length(), 0);
 				rpl_part.str("");
 				if (checkRightsUserInChannel(chan, *cuser, OPERATOR) == true)

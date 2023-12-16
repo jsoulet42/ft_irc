@@ -13,7 +13,6 @@ class Server
 		struct sockaddr_in				_adress;
 		const int						_port;
 		std::string						_password;
-		//bool							Error;
 
 	public:
 

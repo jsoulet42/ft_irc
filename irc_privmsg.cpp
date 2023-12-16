@@ -31,7 +31,6 @@ const char* Irc_privmsg_rpl::what() const throw()
 void ircPrivmsg(std::string &msg, User &user, Server &Server)
 {
 	ssize_t i = 0;
-	std::cout << "message recu dans IRC_PRIVMSG |" << msg << "|" << std::endl;
 	msg = msg.substr(8); // Remove the command "PRIVMSG "
 	if (msg[0] == '\0')
 	{
@@ -69,22 +68,10 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 				{
 					for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
 					{
-						std::cout << "envoye : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
 						if ((*it2)->_fdUser != user._fdUser)
 						{
-							//std::cout << "envoye dans if : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
 							send((*it2)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
 							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec user", (*(*it2)), rpl_privmsg);
-						}
-					}
-					// envoi a tous les operators (sauf la personne qui envoie le message)
-					for (std::map<User *, bool>::iterator it3 = chan->operators.begin(); it3 != chan->operators.end(); it3++)
-					{
-						//std::cout << "22" << std::endl;
-						if (checkRightsUserInChannel(chan, &user, OPERATOR) == true && it3->first->_fdUser != user._fdUser)
-						{
-							send(it3->first->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec operator", (*(it3->first)), rpl_privmsg);
 						}
 					}
 					// envoi a tous les users invites (sauf la personne qui envoie le message)
@@ -97,7 +84,6 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 			}
 			else // il n'a pas trouve le channel
 			{
-				//std::cout << "3" << std::endl;
 				std::string err_no_such_channel = listOfUser + ERROR403;
 				send(user._fdUser, err_no_such_channel.c_str(), err_no_such_channel.length(), 0);
 				throw Irc_privmsg_error();
@@ -105,15 +91,12 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 		}
 		else // c'est un PRIVMSG a un seul user
 		{
-			std::cout << "4 : |" << listOfUser << "|" << std::endl;
 			for (std::vector<User *>::iterator it = Server.users.begin(); it != Server.users.end(); it++)
 			{
-				std::cout << "41 : |" << (*it)->nickname << "|" << std::endl;
 				if (listOfUser == (*it)->nickname)
 				{
 					//le user existe je lui envoie le msg norme
 					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
-					std::cout << "rpl_privmsg " << rpl_privmsg << std::endl;
 					send((*it)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
 					printMessageSendToClient("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
 					return;
@@ -122,13 +105,13 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 			// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
 			std::string err_no_such_nick = "127.0.0.1 401 " + listOfUser + " :No such nickname\r\n";
 			send(user._fdUser, err_no_such_nick.c_str(), err_no_such_nick.length(), 0);
+			return;
 			//send_log(user._fdUser, err_no_such_nick, Server);
 			//throw Irc_privmsg_error();
 		}
 	}
 	else // c'est plusieurs users
 	{
-		std::cout << "5" << std::endl;
 		std::string reste;
 		std::string destinator;
 		while (i != -1)
@@ -142,7 +125,6 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 					//le destinator existe je lui envoie le msg
 					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
 					send(user._fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					//send_log((*it)->fd, rpl_privmsg, Server);
 					throw Irc_privmsg_rpl();
 				}
 			}
@@ -159,7 +141,6 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 				//le user existe je lui envoie le msg
 				rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
 				send(user._fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-				//send_log((*it)->fd, rpl_privmsg, Server);
 				throw Irc_privmsg_rpl();
 			}
 		}

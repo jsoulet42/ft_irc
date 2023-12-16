@@ -28,9 +28,6 @@ class Channel
 		std::string				name;
 		std::string				topic;
 		std::string				creationDate;
-		// std::string				lastTopicUpdateWhen;
-		// std::string				lastTopicUpdateWho;
-		// std::string				mode;
 		std::string				password;
 		std::vector<User *>		users;
 		std::map<User *, bool>		operators;
@@ -50,11 +47,7 @@ class Channel
 		void ft_insertChanMode(std::string strmess, User &user, Channel &chan);
 		bool ft_checkMode(Channel *channel, std::string mode); // exemple de string : "modeI", "modeL" etc...
 		void initModeMap();
-		void checkModeI(User &user);
-		void checkModeK(User &user);
 		bool checkModeL();
-		void checkModeO(User &user);
-		void checkModeT(User &user);
 		void setModeO(char symbol, std::string &strmess, Channel &chan, User &user);
 		void setModeK(char symbol, std::string &strmess);
 		void setModeL(char symbol, std::string &strmess);

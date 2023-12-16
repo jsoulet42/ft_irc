@@ -370,13 +370,15 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 
 	if (createOrJoin == 0)
 	{
-		channel->topic = "No topic is set";
 		ss << ":" << user.nickname << "!~" << user.nickname[0] << "@" << user.nickname <<  " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "332 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");
+		if (channel->topic.empty() == false)
+		{
+			ss << IPHOST << "332 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+			ss.str("");
+		}
 		ss << IPHOST << "333 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
@@ -455,7 +457,6 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	errorCmd = false;
 	if (str.size() == 0)
 		msgError("403", user, ERRORM403);
-	std::cout << str[0] << std::endl;
 	if (str[0] != '#' && str[0] != '&')
   	  msgError("403", user, ERRORM403);
 	if (errorCmd == true)
