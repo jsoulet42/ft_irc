@@ -282,8 +282,29 @@ void Server::deleteAll()
 
 void Server::deleteUser(int fd)
 {
-	std::vector<User *>::iterator	user = getUser(fd);
-	delete *user;
+	for (std::vector<User *>::iterator it = this->users.begin(); it != this->users.end(); it++)
+	{
+		if ((*it)->_fdUser == fd)
+		{
+			delete (*it);
+			this->users.erase(it);
+			break;
+		}
+	}
+}
+
+std::string	Server::reBuildCmd(int & fd, std::string str)
+{
+	int		rc;
+	char	buffer[BUFFSIZE + 1];
+
+	while (this->haveN(str) == false)
+	{
+		rc = recv(fd, buffer, sizeof(buffer), 0);
+		buffer[rc] = '\0';
+		str += buffer;
+	}
+	return str;
 }
 
 const char* Server::PassException::what() const throw()

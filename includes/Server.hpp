@@ -43,6 +43,7 @@ class Server
 		void validateBuffer(std::string &buffer, int newFd, User *newuser);
 		std::vector<Channel *>::iterator	getChannelByName(std::string name);
 		void deleteAll();
+		std::string	reBuildCmd(int & fd, std::string str);
 
 		class PassException : public std::exception
 		{

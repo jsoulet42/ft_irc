@@ -85,7 +85,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
-		void deleteChannelIfEmpty(Channel *chan, Server &server);
+		deleteChannelIfEmpty(server);
 	}
 }
 
@@ -114,18 +114,18 @@ void inheritanceOperator(Channel *chan, User &user)
 		return;
 }
 
-void deleteChannelIfEmpty(Channel *chan, Server &server)
+void deleteChannelIfEmpty(Server &server)
 {
-	if (chan->users.size() == 0)
+	std::vector<Channel *>::iterator it = server.channels.begin();
+	for (; it != server.channels.end(); it++)
 	{
-		std::vector<Channel *>::iterator it = server.channels.begin();
-		for (; it != server.channels.end(); it++)
+		std::vector<User *>::iterator it2 = (*it)->users.begin();
+		if (it2 == (*it)->users.end())
 		{
-			if ((*it)->name == chan->name)
-			{
-				delete *it;
-				break;
-			}
+			std::cout << GREEN << ON_BLACK << "deleteChannelIfEmpty : " << (*it)->name << RESET << std::endl;
+			delete (*it);
+			server.channels.erase(it);
+			return;
 		}
 	}
 }

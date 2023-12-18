@@ -139,8 +139,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-		ircPrivmsg(strmess, *user, server);
-	else if (strmess.compare(0, 5, "QUIT ") == 0)
+		irc_Privmsg(strmess, *user, server);
+	else if (strmess.compare(0, 4, "QUIT") == 0)
 		irc_quit(strmess, *user, server);
 	else if (strmess.compare(0, 5, "MODE ") == 0)
 		ft_launchMode(strmess, *user, server);
