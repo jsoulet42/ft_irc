@@ -28,20 +28,34 @@ const char* Irc_privmsg_rpl::what() const throw()
 	return "RPL during IRC_PRIVMSG command";
 }
 
-void ircPrivmsg(std::string &msg, User &user, Server &Server)
+void	sendSomething(User* it, std::string str, std::string functionName, std::string partOfTheFunction)
+{
+	send(it->_fdUser, str.c_str(), str.length(), 0);
+	std::string str2 = functionName + " - " + partOfTheFunction;
+	printMessageSendToClient(str2, *it, str);
+}
+
+bool	findUserInServer(Server *server, User *user)
+{
+	for (std::vector<User *>::iterator it = server->users.begin(); it != server->users.end(); ++it)
+	{
+		if ((*it)->_fdUser == user->_fdUser)
+			return true;
+	}
+	return false;
+}
+
+void irc_Privmsg(std::string &msg, User &user, Server &Server)
 {
 	ssize_t i = 0;
-	std::cout << "message recu dans IRC_PRIVMSG |" << msg << "|" << std::endl;
 	msg = msg.substr(8); // Remove the command "PRIVMSG "
 	if (msg[0] == '\0')
 	{
-		// message vide
 		msgError("461", user, ERROR461);
 		throw Irc_privmsg_error();
 	}
-	i = msg.find("\r\n");
 	i = msg.find(" :");
-	if (i == -1) // n'a pas trouve d'espace et donc de message a envoyer
+	if (i == -1)
 	{
 		std::cout << RED << ON_BLACK << "Usage: /PRIVMSG destinataire(un ou plusieurs separes par une virgule sans espace) :message (ne pas oublier les :)" << RESET << std::endl;
 		throw Irc_privmsg_error();
@@ -54,81 +68,61 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 	{
 		if (listOfUser[0] == '#')
 		{
-			// le message est destine aux utilisateurs d'un channel
-			// je verifie que le channel existe
 			Channel *chan = findChannelByName(Server.channels, listOfUser.substr(1, listOfUser.size()));
 			if (chan)
 			{
-				// je modifie le message pour la norme
 				rpl_privmsg = ":" + user.nickname + " PRIVMSG #" + chan->name + " :" + messageToSend;
-				// envoi a tous les users (sauf la personne qui envoie le message)
-				printUsersOfAChannel(chan);
-				printOperatorsOfAChannel(chan);
-				printInvitedUsersOfAChannel(chan);
 				if (findUserInChannel(chan, &user) == true)
 				{
 					for (std::vector<User *>::iterator it2 = chan->users.begin(); it2 != chan->users.end(); it2++)
 					{
-						std::cout << "envoye : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
-						if ((*it2)->_fdUser != user._fdUser)
+						if (chan->users.size() == 1) // pour si la personne est seule sur le chan
 						{
-							//std::cout << "envoye dans if : |" << rpl_privmsg  << "| sur : |" << (*it2)->_fdUser << "|" << std::endl;
-							send((*it2)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec user", (*(*it2)), rpl_privmsg);
+							sendSomething(&user, "alone", "IRC_PRIVMSG", "irc_privmsg - you're alone in this channel");
+							break;
 						}
+						if ((*it2)->_fdUser != user._fdUser) //pour ne pas l'envoyer a l'expediteur
+							sendSomething((*it2), rpl_privmsg, "IRC_PRIVMSG", "irc_privmsg - privmsg sur un chan envoi a tous les users");
 					}
-					// envoi a tous les operators (sauf la personne qui envoie le message)
-					for (std::map<User *, bool>::iterator it3 = chan->operators.begin(); it3 != chan->operators.end(); it3++)
-					{
-						//std::cout << "22" << std::endl;
-						if (checkRightsUserInChannel(chan, &user, OPERATOR) == true && it3->first->_fdUser != user._fdUser)
-						{
-							send(it3->first->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-							printMessageSendToClient("IRC_PRIVMSG - message sur #chan avec operator", (*(it3->first)), rpl_privmsg);
-						}
-					}
-					// envoi a tous les users invites (sauf la personne qui envoie le message)
-					throw Irc_privmsg_rpl();
 				}
-				// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
-				std::string err_cannot_send_to_chan = "127.0.0.1 404 " + chan->name + " :Cannot send to channel\r\n";
-				send(user._fdUser, err_cannot_send_to_chan.c_str(), err_cannot_send_to_chan.length(), 0);
-				printMessageSendToClient("IRC_PRIVMSG - err le user n'est pas dans le chan avec lequel il souhaite communiquer", user, err_cannot_send_to_chan);
+				else
+				{
+					// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
+					std::string err_cannot_send_to_chan = "127.0.0.1 404 " + chan->name + " :Cannot send to channel\r\n";
+					sendSomething(&user, err_cannot_send_to_chan, "IRC_PRIVMSG", "err le user n'est pas dans le chan avec lequel il souhaite communiquer");
+				}
 			}
 			else // il n'a pas trouve le channel
 			{
-				//std::cout << "3" << std::endl;
+				std::cout << RED <<  ON_BLACK << "[COMMAND]PRIVMSG - message sur un # mais pas de chan trouve - channel dosn't exist" << RESET << std::endl;
 				std::string err_no_such_channel = listOfUser + ERROR403;
-				send(user._fdUser, err_no_such_channel.c_str(), err_no_such_channel.length(), 0);
-				throw Irc_privmsg_error();
+				sendSomething(&user, err_no_such_channel, "RC_PRIVMSG", "message sur un # mais pas de chan trouve - channel dosn't exist");
 			}
 		}
 		else // c'est un PRIVMSG a un seul user
 		{
-			std::cout << "4 : |" << listOfUser << "|" << std::endl;
-			for (std::vector<User *>::iterator it = Server.users.begin(); it != Server.users.end(); it++)
+			if (findUserInServer(&Server, &user) == true)
 			{
-				std::cout << "41 : |" << (*it)->nickname << "|" << std::endl;
-				if (listOfUser == (*it)->nickname)
+				for (std::vector<User *>::iterator it = Server.users.begin(); it != Server.users.end(); it++)
 				{
-					//le user existe je lui envoie le msg norme
-					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
-					std::cout << "rpl_privmsg " << rpl_privmsg << std::endl;
-					send((*it)->_fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					printMessageSendToClient("PRIVMSG - section mp vers un seul user", user, rpl_privmsg);
-					return;
+					if (listOfUser == (*it)->nickname)
+					{
+						//le user existe je lui envoie le msg norme
+						rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
+						sendSomething((*it), rpl_privmsg, "IRC_PRIVMSG", "irc_privmsg - section mp vers un seul user");
+					}
 				}
 			}
-			// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
-			std::string err_no_such_nick = "127.0.0.1 401 " + listOfUser + " :No such nickname\r\n";
-			send(user._fdUser, err_no_such_nick.c_str(), err_no_such_nick.length(), 0);
-			//send_log(user._fdUser, err_no_such_nick, Server);
-			//throw Irc_privmsg_error();
+			else
+			{
+				// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
+				std::string err_no_such_nick = "127.0.0.1 401 " + listOfUser + " :No such nickname\r\n";
+				sendSomething(&user, err_no_such_nick, "RC_PRIVMSG", "ERR msg n'est pas parvenu parce que le pseudo n'existe pas");
+			}
 		}
 	}
 	else // c'est plusieurs users
 	{
-		std::cout << "5" << std::endl;
 		std::string reste;
 		std::string destinator;
 		while (i != -1)
@@ -140,15 +134,15 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 				if (destinator == (*it)->nickname)
 				{
 					//le destinator existe je lui envoie le msg
-					rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
-					send(user._fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-					//send_log((*it)->fd, rpl_privmsg, Server);
-					throw Irc_privmsg_rpl();
+					rpl_privmsg = "PRIVMSG " + (*it)->nickname + " :" + messageToSend;
+					irc_Privmsg(rpl_privmsg, user, Server);
 				}
 			}
-			// je previens l'envoyeur que le msg n'est pas parvenu parce que le pseudo n'existe pas
-			std::string err_no_such_nick = "127.0.0.1 401 " + listOfUser + " :No such nickname\r\n";
-			send(user._fdUser, err_no_such_nick.c_str(), err_no_such_nick.length(), 0);
+			if (!listOfUser.find(','))
+			{
+				std::string err_no_such_nick = "127.0.0.1 401 " + listOfUser + " :No such nickname\r\n";
+				sendSomething(&user, err_no_such_nick, "RC_PRIVMSG", "ERR message multiple - msg au dernier user de la lliste - n'est pas parvenu parce que le pseudo n'existe pas");
+			}
 			listOfUser = reste;
 			i = listOfUser.find(',');
 		} // je refait le message pour le dernier user
@@ -157,11 +151,18 @@ void ircPrivmsg(std::string &msg, User &user, Server &Server)
 			if (listOfUser == (*it)->nickname)
 			{
 				//le user existe je lui envoie le msg
-				rpl_privmsg = ":" + user.nickname + " PRIVMSG " + (*it)->nickname + " :" + messageToSend;
-				send(user._fdUser, rpl_privmsg.c_str(), rpl_privmsg.length(), 0);
-				//send_log((*it)->fd, rpl_privmsg, Server);
-				throw Irc_privmsg_rpl();
+				rpl_privmsg = "PRIVMSG " + (*it)->nickname + " :" + messageToSend;
+				irc_Privmsg(rpl_privmsg, user, Server);
+			}
+			else
+			{
+				if (!listOfUser.find(','))
+				{
+					std::string err_no_such_nick = "127.0.0.1 401 " + listOfUser + " :No such nickname\r\n";
+					sendSomething(&user, err_no_such_nick, "RC_PRIVMSG", "ERR message multiple - msg au dernier user de la lliste - n'est pas parvenu parce que le pseudo n'existe pas");
+				}
 			}
 		}
 	}
+	return ;
 }

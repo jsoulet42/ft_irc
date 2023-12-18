@@ -36,11 +36,8 @@ void	irc_who(std::string &message, User &user, Server &server)
 	//	                                operator.
 
 	// Parsing the message
-	std::cout << "message recu dans IRC_WHO |" << message << "|" << std::endl;
-
 	ssize_t pos = message.find(' ');
 	std::string rpl_who;
-	std::cout << "test dans IRC_WHO |" << message << "|" << pos << "|" << std::endl;
 
 	if (pos == -1) //je ne trouve pas d'espace, WHO est vide ou mal formate
 	{
@@ -71,17 +68,14 @@ void	irc_who(std::string &message, User &user, Server &server)
 		else
 		{
 			//recherche standard d'un simple user
-
 			std::vector<Channel *>::iterator it2 = server.channels.begin();
 
 			message = message.substr(0, message.size() - 1);
 			while(it2 != server.channels.end())
 			{
-				std::cout << "je check le channel : " << (*it2)->name << std::endl;
 				std::vector<User *>::iterator it = (*it2)->users.begin();
 				while (it != (*it2)->users.end())
 				{
-					std::cout << "test 2 dans IRC_WHO |" << message << "|" << (*it)->nickname << "|" << std::endl;
 					if ((*it)->nickname == message)
 					{
 						findOnce = 1;

@@ -128,14 +128,15 @@ void irc_topic(std::string &message, User &user, Server &server)
 						printMessageSendToClient("IRC_TOPIC - err_not_op - 4", user, err_not_op);
 						return;
 					}
-					// else == modifier le topic
+					else
+					{
+						std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found - user found - TOPIC changing" << RESET << std::endl;
+						std::cout << "|" << message << "|" << std::endl;
+						(*it)->topic = message;
+						std::string rpl_topic = ":" + user.nickname + " TOPIC #" + channel + " :" + message + "\r\n";
+						(*it)->channelSendLoop(rpl_topic, user._fdUser);
+					}
 				}
-				//else == modifier le topic aussi donc je ne le fais qu'une fois
-				std::cout << YELLOW <<  ON_BLACK << "[COMMAND]TOPIC - CHANGE - channel found - user found - TOPIC changing" << RESET << std::endl;
-				std::cout << "|" << message << "|" << std::endl;
-				(*it)->topic = message;
-				std::string rpl_topic = ":" + user.nickname + " TOPIC #" + channel + " :" + message + "\r\n";
-				(*it)->channelSendLoop(rpl_topic, user._fdUser);
 			}
 		}
 	}

@@ -54,11 +54,10 @@ int main(int argc, char const* argv[])
 				while (newFd != -1)
 				{
 					newFd = accept(server->getServerSocket(), NULL, NULL);
-					if (newFd != -1)	// lorsque le retour de accept est différent de -1 cela signifie qu'un client demande une connexion
+					if (newFd != -1)    // lorsque le retour de accept est différent de -1 cela signifie qu'un client demande une connexion
 					{
 						try
 						{
-							//ici j'ajoute a poll fd le nouveau fd
 							std::cout << YELLOW << ON_BLACK << "New user connected with id " << newFd << "." << RESET << std::endl;
 							server->protocolNewUser(newFd);
 							fdsId++;
@@ -67,7 +66,6 @@ int main(int argc, char const* argv[])
 						{
 							std::cerr << "[Error] during user creation : " << std::endl;
 							std::cerr <<  e.what() << std::endl;
-							server->deleteUser(newFd);
 							close(newFd);
 						}
 					}
@@ -100,11 +98,8 @@ int main(int argc, char const* argv[])
 				std::string strmess(buffer);
 				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
 				{
-					close(server->fdP[i].fd);
-					server->fdP[i].fd = -1;
-					std::cout << "User succesfully deleted" << std::endl;
-					std::cout << std::endl;
-					continue;
+					strmess = server->reBuildCmd(server->fdP[i].fd, strmess);
+					interpretCommand(*server, strmess, server->fdP[i].fd);
 				}
 				else
 				{

@@ -79,7 +79,7 @@ int		checkRightsUserInChannel(Channel *channel, User *user, int grade);
 void	normKey(std::string &key, User &user, Server &server);
 void	ircJoin(std::string &msg, User &user, Server &Server);
 void	parseCmd(std::string &cmd, User &user, Server &Server);
-void	ircPrivmsg(std::string &msg, User &user, Server &Server);
+void	irc_Privmsg(std::string &msg, User &user, Server &Server);
 void	irc_who(std::string &message, User &user, Server &server);
 void	parseCmdWithNoKey(std::string &cmd, User &user, Server &server);
 void	normNameChannel(std::string &channel, User &user, Server &server);
@@ -112,7 +112,7 @@ std::vector<std::string>	splitString(const std::string &input, char delimiter);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
 void						remouveUser(User &user, std::vector<User *> &userList);
-void						deleteChannelIfEmpty(Channel *chan, Server &server);
+void						deleteChannelIfEmpty(Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -182,6 +182,7 @@ void ircKick(std::string &msg, User &user, Server &server);
 ////////////////////////////////////////////////////////////////////////////////
 
 void irc_quit(std::string &message, User &user, Server &server);
+void checkIFUserIsInChannelAndSendQuitMessage(User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
