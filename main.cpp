@@ -25,7 +25,6 @@ int main(int argc, char const* argv[])
 	int				rc = 1;
 	int				fdsId = 1;
 	int				newFd = 0;
-	pthread_mutex_t userMutex;
 	Server			*server;
 
 
@@ -40,7 +39,6 @@ int main(int argc, char const* argv[])
 		delete server;
 	}
 	signal(SIGINT, signalHandler);
-	userMutex = PTHREAD_MUTEX_INITIALIZER;
 	while (isRunning)
 	{
 		std::cout << BLUE << ON_BLACK << "Waiting incoming connection ( poll() )..." << RESET << std::endl;

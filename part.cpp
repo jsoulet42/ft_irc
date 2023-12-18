@@ -1,4 +1,3 @@
-
 #include "includes/ft_irc.hpp"
 
 class Irc_part_error : public std::exception
