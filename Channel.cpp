@@ -4,7 +4,7 @@
 void msgError(std::string const &code, User &user, std::string const &msg);
 void msgError(std::string const &code, std::string &channel, User &user, std::string const &msg);
 void msgErrorTest(std::string &channel, User &user, std::string const &msg);
-void msgError696(std::string const &code, User &user, std::string const &msg, Channel *chan);
+void msgError696(std::string const &code, User &user, std::string const &msg, Channel *chan, std::string modeLetter);
 
 
 //-------------------------------Copelien form--------------------------------//
@@ -106,7 +106,7 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 		symbol = strmess[0];
 	else
 	{
-		msgError696("686", user, ERRORM696, &chan);
+		msgError696("686", user, ERRORM696, &chan, "");
 		std::cout << "[Error] during MODE command" << std::endl;
 		return;
 	}
@@ -137,7 +137,7 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 		}
 	}
 	else
-		msgError696("686", user, ERRORM696, &chan);
+		msgError696("686", user, ERRORM696, &chan, "");
 }
 
 void Channel::initModeMap()
@@ -192,7 +192,7 @@ void Channel::setModeK(char symbol, std::string &strmess, User &user)
 		else
 		{
 			std::cout << "Wrong param mode" << std::endl;
-			msgError696("696", user, ERRORM696, this);
+			msgError696("696", user, ERRORM696, this, "");
 			return;
 		}
 		if (!strmess.empty())
@@ -214,7 +214,7 @@ void Channel::setModeK(char symbol, std::string &strmess, User &user)
 		else
 		{
 			std::cout << "Wrong param mode" << std::endl;
-			msgError696("696", user, ERRORM696, this);
+			msgError696("696", user, ERRORM696, this ,"");
 			return;
 		}
 	}
@@ -246,7 +246,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 			if (!strmess.empty() && !std::isdigit(strmess[i]))
 			{
 				std::cout << "not a number, mode +l cancelled" << std::endl;
-				msgError696("696", user, ERRORM696, this);
+				msgError696("696", user, ERRORM696, this, "");
 				return;
 			}
 		}
@@ -281,7 +281,7 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	strmess.erase(0, (strmess.find(" ") + 1));
 	if (strmess.size() <= 0 || err == 1)
 	{
-		msgError696("696", user, ERRORM696, this);
+		msgError696("696", user, ERRORM696, this, "");
 		return;
 	}
 	nameParse = strmess.substr(0, strmess.find(" "));

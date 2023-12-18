@@ -74,7 +74,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 		{
 			if ((*cuser)->_fdUser != user._fdUser || (*cuser)->_fdUser == user._fdUser)
 			{
-				rpl_part << ":" << user.nickname << " PART #" << chan->name << " :" << user.nickname << " " << reason << "\r\n";
+				rpl_part << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " PART #" << chan->name << " :" << reason << "\r\n";
 				send((*cuser)->_fdUser, rpl_part.str().c_str(), rpl_part.str().length(), 0);
 				rpl_part.str("");
 				if (checkRightsUserInChannel(chan, *cuser, OPERATOR) == true)
@@ -84,7 +84,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
-		void deleteChannelIfEmpty(Channel *chan, Server &server);
+		deleteChannelIfEmpty(server);
 	}
 }
 
@@ -113,18 +113,18 @@ void inheritanceOperator(Channel *chan, User &user)
 		return;
 }
 
-void deleteChannelIfEmpty(Channel *chan, Server &server)
+void deleteChannelIfEmpty(Server &server)
 {
-	if (chan->users.size() == 0)
+	std::vector<Channel *>::iterator it = server.channels.begin();
+	for (; it != server.channels.end(); it++)
 	{
-		std::vector<Channel *>::iterator it = server.channels.begin();
-		for (; it != server.channels.end(); it++)
+		std::vector<User *>::iterator it2 = (*it)->users.begin();
+		if (it2 == (*it)->users.end())
 		{
-			if ((*it)->name == chan->name)
-			{
-				delete *it;
-				break;
-			}
+			std::cout << GREEN << ON_BLACK << "deleteChannelIfEmpty : " << (*it)->name << RESET << std::endl;
+			delete (*it);
+			server.channels.erase(it);
+			return;
 		}
 	}
 }

@@ -13,7 +13,6 @@ class Server
 		struct sockaddr_in				_adress;
 		const int						_port;
 		std::string						_password;
-		//bool							Error;
 
 	public:
 
@@ -44,6 +43,7 @@ class Server
 		void validateBuffer(std::string &buffer, int newFd, User *newuser);
 		std::vector<Channel *>::iterator	getChannelByName(std::string name);
 		void deleteAll();
+		std::string	reBuildCmd(int & fd, std::string str);
 
 		class PassException : public std::exception
 		{

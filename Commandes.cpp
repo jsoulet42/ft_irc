@@ -60,8 +60,6 @@ User	*findUserByName(std::vector<User *> &users, std::string const &cmd)
 	return NULL;
 }
 
-
-
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd)
 {
 	std::vector<Channel *>::iterator it = channels.begin();
@@ -131,18 +129,14 @@ void	msgErrorTest(std::string &channel, User &user, std::string const &msg)
 	errorCmd = true;
 }
 
-void	msgError696(std::string const &code, User &user, std::string const &msg, Channel *chan)
+void	msgError696(std::string const &code, User &user, std::string const &msg, Channel *chan, std::string modeLetter)
 {
 	std::stringstream ss;
-	// ss << IPHOST << "MODE #" << this->name << " +k :" << temp << "\r\n";
-
+	(void)modeLetter;
 	if (chan == NULL)
-		ss << user.nickname << " " << code << " " << user.nickname << msg;
+		ss << IPHOST << code << " " << user.nickname << " " << user.nickname << msg;
 	else
-	{
-		// ss << user.nickname << " " << code << " " << chan->name << "/" << user.nickname << msg;
-		ss << IPHOST << code << " #" << user.nickname << " :\r\n";
-	}
+		ss << IPHOST << code << " " << user.nickname << " " << modeLetter << " :wrong MODE parameters\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -162,8 +156,8 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)
-		ircPrivmsg(strmess, *user, server);
-	else if (strmess.compare(0, 5, "QUIT ") == 0)
+		irc_Privmsg(strmess, *user, server);
+	else if (strmess.compare(0, 4, "QUIT") == 0)
 		irc_quit(strmess, *user, server);
 	else if (strmess.compare(0, 5, "MODE ") == 0)
 		ft_launchMode(strmess, *user, server);
@@ -393,7 +387,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 
 	if (createOrJoin == 0)
 	{
-		channel->topic = "No topic is set";
 		ss << ":" << user.nickname << "!~" << user.nickname[0] << "@" << user.nickname <<  " JOIN #" << channel->name << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
@@ -449,15 +442,14 @@ void send324(Channel &chan, User user, std::string code)
 	std::stringstream ss;
 	if (chan.modeTab.count("modeT") > 0 && chan.modeTab["modeT"] == true)
 		str += "t";
-	if (chan.modeTab.count("modeO") > 0 && chan.modeTab["modeT"] == true)
-		str += "o";
-	if (chan.modeTab.count("modeL") > 0 && chan.modeTab["modeT"] == true)
+	if (chan.modeTab.count("modeL") > 0 && chan.modeTab["modeL"] == true)
 		str += "l";
-	if (chan.modeTab.count("modeK") > 0 && chan.modeTab["modeT"] == true)
+	if (chan.modeTab.count("modeK") > 0 && chan.modeTab["modeK"] == true)
 		str += "k";
-	if (chan.modeTab.count("modeI") > 0 && chan.modeTab["modeT"] == true)
+	if (chan.modeTab.count("modeI") > 0 && chan.modeTab["modeI"] == true)
 		str += "i";
-	ss << IPHOST << code << " #" << chan.name << " " << str << "\n\r";
+	std::cout << " je suis la " << str << std::endl;
+	ss << IPHOST << code << " " << user.nickname << " #" << chan.name << " +" << str << "\n\r";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -485,7 +477,7 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 		if (str.find(" ") == std::string::npos)
 		{
 			chan = findChannelByName(server.channels, str.substr(0, str.size()));
-			msgError696("686", user, ERRORM696, chan);
+			msgError696("686", user, ERRORM696, chan, "k");
 		}
 		 msgError("403", str, user, ERRORM403);
 		throw modeException();
