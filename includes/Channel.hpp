@@ -49,13 +49,14 @@ class Channel
 		void initModeMap();
 		bool checkModeL();
 		void setModeO(char symbol, std::string &strmess, Channel &chan, User &user);
-		void setModeK(char symbol, std::string &strmess);
-		void setModeL(char symbol, std::string &strmess);
-		void setModeT(char c);
-		void setModeI(char c);
+		void setModeK(char symbol, std::string &strmess, User &user);
+		void setModeL(char symbol, std::string &strmess, User &user);
+		void setModeT(char c, User &user);
+		void setModeI(char c, User &user);
 		void deleteUserInOperator(User *user);
 		User *getOperator();
 		void getDateTime();
+		void ft_sendListOp(User &user);
 		std::string	reBuildCmd(int & fd, std::string str);
 
 		/// @brief

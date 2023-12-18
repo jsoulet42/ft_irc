@@ -17,6 +17,7 @@
 #include <map>
 #include <ctime>
 #include <sstream>
+#include <algorithm>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -212,7 +213,9 @@ void checkIFUserIsInChannelAndSendQuitMessage(User &user, Server &server);
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DEFAULTMAXUSER 100
-#define ERRORM403 ":No such channel"
+#define ERRORM403 " :No such channel\r\n"
+#define ERRORM525 " :Key is not well-formed\r\n"
+#define ERRORM696 " :Invalid mode parameters\r\n"
 bool checkMode(Channel *channel, std::string mode);
 void ft_launchMode(std::string &strmess, User &user, Server &server);
 
