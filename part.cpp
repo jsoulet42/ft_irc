@@ -109,6 +109,7 @@ void inheritanceOperator(Channel *chan, User &user)
 			send((*it2)->_fdUser, rpl_oper.str().c_str(), rpl_oper.str().length(), 0);
 			rpl_oper.str("");
 		}
+		std::cout << "MAD A FUCKA !" << std::endl;
 	}
 	else
 		return;

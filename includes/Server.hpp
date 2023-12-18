@@ -44,6 +44,8 @@ class Server
 		std::vector<Channel *>::iterator	getChannelByName(std::string name);
 		void deleteAll();
 		std::string	reBuildCmd(int & fd, std::string str);
+		void	deleteUserByNick(std::string nick);
+
 
 		class PassException : public std::exception
 		{

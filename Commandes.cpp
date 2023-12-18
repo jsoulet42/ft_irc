@@ -379,7 +379,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 			ss.str("");
 		}
-		ss << IPHOST << "333 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
+		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		std::map<User *, bool>::iterator it = channel->operators.begin();
@@ -413,6 +413,9 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		ss << IPHOST << "MODE #" << channel->name << " +nt" << "\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
+		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
