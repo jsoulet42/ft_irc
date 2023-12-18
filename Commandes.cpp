@@ -123,6 +123,29 @@ void	msgError(std::string const &code, std::string &channel, User &user, std::st
 	errorCmd = true;
 }
 
+void	msgErrorTest(std::string &channel, User &user, std::string const &msg)
+{
+	std::stringstream ss;
+	ss << user.nickname << " " << channel <<  msg;
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	errorCmd = true;
+}
+
+void	msgError696(std::string const &code, User &user, std::string const &msg, Channel *chan)
+{
+	std::stringstream ss;
+	// ss << IPHOST << "MODE #" << this->name << " +k :" << temp << "\r\n";
+
+	if (chan == NULL)
+		ss << user.nickname << " " << code << " " << user.nickname << msg;
+	else
+	{
+		// ss << user.nickname << " " << code << " " << chan->name << "/" << user.nickname << msg;
+		ss << IPHOST << code << " #" << user.nickname << " :\r\n";
+	}
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
 //                              interpretCmd                                  //
@@ -377,7 +400,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "332 " << user.nickname << " #" << channel->name << " :" << channel->topic << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "333 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
+		ss << IPHOST << "333 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << " " << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		std::map<User *, bool>::iterator it = channel->operators.begin();
@@ -420,28 +443,23 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 	}
 }
 
-/*void send324(Channel &chan, User user, std::string code)
+void send324(Channel &chan, User user, std::string code)
 {
-	bool t = false;
-	bool o = false;
-	bool l = false;
-	bool k = false;
-	bool i = false;
 	std::string str;
-	std::stringstream rpl_mess;
-	if (chan.modeTab["modeT"] == true);
-		str += "T";
-	if (chan.modeTab["modeO"] == true);
-		str += "O";
-	if (chan.modeTab["modeL"] == true);
-		str += "L";
-	if (chan.modeTab["modeK"] == true);
-		str += "K";
-	if (chan.modeTab["modeI"] == true);
-		str += "I";
-	rpl_mess << IPHOST << code << " #" << chan.name << " ";
-	send(user._fdUser, rpl_mess.str().c_str(), rpl_mess.str().size(), 0);
-}*/
+	std::stringstream ss;
+	if (chan.modeTab.count("modeT") > 0 && chan.modeTab["modeT"] == true)
+		str += "t";
+	if (chan.modeTab.count("modeO") > 0 && chan.modeTab["modeT"] == true)
+		str += "o";
+	if (chan.modeTab.count("modeL") > 0 && chan.modeTab["modeT"] == true)
+		str += "l";
+	if (chan.modeTab.count("modeK") > 0 && chan.modeTab["modeT"] == true)
+		str += "k";
+	if (chan.modeTab.count("modeI") > 0 && chan.modeTab["modeT"] == true)
+		str += "i";
+	ss << IPHOST << code << " #" << chan.name << " " << str << "\n\r";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+}
 
 /*void send329(User &user, Channel &chan, std::string timestamp, std::string code)
 {
@@ -452,7 +470,7 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 {
 	Channel *chan = NULL;
 	std::string str = strtok((char *)strmess.c_str() + 5, "\r\n");
-	errorCmd = false;
+	// errorCmd = false;
 	if (str.size() == 0)
 		msgError("403", user, ERRORM403);
 	if (str[0] != '#' && str[0] != '&')
@@ -460,11 +478,16 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	if (errorCmd == true)
 		throw modeException();
 	str.erase(0, 1);
-	if (str.find(" ") != std::string::npos)
-		chan = findChannelByName(server.channels, str.substr(0, str.find(" ")));
-	if (!chan)
+	// if (it = std::find(str.begin(), str.end(), " ") != std::string::npos) // str.find(" ") != std::string::npos
+	chan = findChannelByName(server.channels, str.substr(0, str.find(" ")));
+	if (chan == NULL)
 	{
-	//	send(ERRORM403); // "<client> <channel> :No such channel"
+		if (str.find(" ") == std::string::npos)
+		{
+			chan = findChannelByName(server.channels, str.substr(0, str.size()));
+			msgError696("686", user, ERRORM696, chan);
+		}
+		 msgError("403", str, user, ERRORM403);
 		throw modeException();
 	}
 	if (checkRightsUserInChannel(chan, &user, OPERATOR) == false)
@@ -475,14 +498,18 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	}
 	else
 	{
-		str.erase(0, (str.find(" ") + 1));
-		if (str.empty() == true)
+		str.erase(0, (str.find(" ")));
+		if (str.empty())
 		{
-		//	send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
-			//send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
+			send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
+			// send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
+			return;
 		}
 		else
+		{
+			str.erase(0, 1);
 			chan->ft_insertChanMode(str, user, *chan);
+		}
 	}
 }
 

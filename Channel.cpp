@@ -2,6 +2,10 @@
 #include "includes/ft_irc.hpp"
 
 void msgError(std::string const &code, User &user, std::string const &msg);
+void msgError(std::string const &code, std::string &channel, User &user, std::string const &msg);
+void msgErrorTest(std::string &channel, User &user, std::string const &msg);
+void msgError696(std::string const &code, User &user, std::string const &msg, Channel *chan);
+
 
 //-------------------------------Copelien form--------------------------------//
 Channel::Channel(User *user, std::string &name)
@@ -102,8 +106,8 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 		symbol = strmess[0];
 	else
 	{
-		msgError("403", user, ERRORM403);
-		std::cout << "ERRORM403" << std::endl;
+		msgError696("686", user, ERRORM696, &chan);
+		std::cout << "[Error] during MODE command" << std::endl;
 		return;
 	}
 	strmess.erase(0, 1);
@@ -115,21 +119,25 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 			if (tempFor[i] == ' ')
 				break;
 			else if (tempFor[i] == 't')
-				chan.setModeT(symbol);
+				chan.setModeT(symbol, user);
 			else if (tempFor[i] == 'b')
-				return;
+				std::cout << "[Error] during MODE command (+b)" << std::endl;
 			else if (tempFor[i] == 'i')
-				chan.setModeI(symbol);
+				chan.setModeI(symbol, user);
 			else if (tempFor[i] == 'l')
-				chan.setModeL(symbol, strmess);
+				chan.setModeL(symbol, strmess, user);
 			else if (tempFor[i] == 'k')
-				chan.setModeK(symbol, strmess);
+				chan.setModeK(symbol, strmess, user);
 			else if (tempFor[i] == 'o')
 				chan.setModeO(symbol, strmess, chan, user);
 			else if (tempFor[i] == '+' || tempFor[i] == '-')
 				symbol = tempFor[i];
+			else
+				std::cout << "Command is not supported." << std::endl;
 		}
 	}
+	else
+		msgError696("686", user, ERRORM696, &chan);
 }
 
 void Channel::initModeMap()
@@ -143,28 +151,34 @@ void Channel::initModeMap()
 	this->modeTab = tab;
 }
 
-void Channel::setModeI(char c)
+void Channel::setModeI(char c, User &user)
 {
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeI");
+	std::stringstream ss;
 	if (it != modeTab.end())
 	{
 		if (c == '+')
 		{
 			it->second = true;
 			std::cout << "mode +i added" << std::endl;
+			ss << user.nickname << " :You set the channel mode to 'invite only'.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 		else
 		{
 			it->second = false;
 			std::cout << "mode -i removed" << std::endl;
+			ss << user.nickname << " :You remove the 'invite only' mode from the channel.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
 }
 
-void Channel::setModeK(char symbol, std::string &strmess)
+void Channel::setModeK(char symbol, std::string &strmess, User &user)
 {
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeK");
 	std::string temp;
+	std::stringstream ss;
 
 	if (symbol == '-')
 	{
@@ -175,6 +189,12 @@ void Channel::setModeK(char symbol, std::string &strmess)
 	{
 		if (strmess.find(" ") != std::string::npos)
 			strmess.erase(0, (strmess.find(" ") + 1));
+		else
+		{
+			std::cout << "Wrong param mode" << std::endl;
+			msgError696("696", user, ERRORM696, this);
+			return;
+		}
 		if (!strmess.empty())
 		{
 			temp = strmess.substr(0, strmess.size());
@@ -182,7 +202,7 @@ void Channel::setModeK(char symbol, std::string &strmess)
 			{
 				if (strmess[i] == '#' || strmess[i] == ',' || strmess[i] == ' ')
 				{
-				//	send(error 525); // "<client> <target chan> :Key is not well-formed"
+					msgErrorTest(this->name, user, ERRORM525);
 					std::cout << "Key is not well formed" << std::endl;
 					return;
 				}
@@ -193,47 +213,44 @@ void Channel::setModeK(char symbol, std::string &strmess)
 		}
 		else
 		{
-		//	send(error 525); // "<client> <target chan> :Key is not well-formed"
 			std::cout << "Wrong param mode" << std::endl;
+			msgError696("696", user, ERRORM696, this);
 			return;
 		}
 	}
 	std::cout << "Mode +k added and password '" << temp << "' is active" << std::endl;
+	ss << IPHOST << "MODE #" << this->name << " +k :" << temp << "\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
-void Channel::setModeL(char symbol, std::string &strmess)
+void Channel::setModeL(char symbol, std::string &strmess, User &user)
 {
 	int resultat;
+	std::stringstream ss;
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeL");
-	if (strmess[0] != 'l')
-		return;
 	if (symbol == '-')
 	{
 		this->modeLMaxUser = DEFAULTMAXUSER;;
 		if (it != modeTab.end())
 			it->second = false;
 		std::cout << "mode -l correctly removed" << std::endl;
+		ss << user.nickname << " :You remove the channel limit.\r\n";
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		return;
 	}
 	else if (strmess.find(" ") != std::string::npos)
 	{
 		strmess.erase(0, (strmess.find(" ") + 1));
-		std::cout << "je suis dans +l    le nbr = " << strmess << std::endl;
 		for (size_t i = 0; i < strmess.size(); i++)
 		{
-			if (!strmess.empty())
+			if (!strmess.empty() && !std::isdigit(strmess[i]))
 			{
-				if (!std::isdigit(strmess[i]))
-				{
-				//	send(erreur inconnu);
-					//throw;
-					std::cout << "not a number, mode +l cancelled" << std::endl;
-					return;
-				}
+				std::cout << "not a number, mode +l cancelled" << std::endl;
+				msgError696("696", user, ERRORM696, this);
+				return;
 			}
 		}
 	}
-	//std::string temp = strtok((char *)strmess.c_str(), (char *)strmess.find(" "));
 	try
 	{
 		resultat = std::atoi(strmess.c_str());
@@ -249,69 +266,96 @@ void Channel::setModeL(char symbol, std::string &strmess)
 	}
 	it->second = true;
 	this->modeLMaxUser = resultat;
-	std::cout << "mode +l correctly added" << resultat << this->modeLMaxUser << std::endl;
+	std::cout << "mode +l correctly added with " << this->modeLMaxUser << std::endl;
+	ss << user.nickname << " :You set the channel limit to " << resultat << " nicks.\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
 void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &user)
 {
-	(void)user;
+	int err = 0;
+	std::stringstream ss;
 	std::string nameParse;
-	if (strmess.find(" ") != std::string::npos)
+	if (strmess.find(" ") == std::string::npos)
+		err = 1;
+	strmess.erase(0, (strmess.find(" ") + 1));
+	if (strmess.size() <= 0 || err == 1)
 	{
-		strmess.erase(0, (strmess.find(" ") + 1));
-		if (strmess.empty())
+		msgError696("696", user, ERRORM696, this);
+		return;
+	}
+	nameParse = strmess.substr(0, strmess.find(" "));
+	User *tempUser = findUserByName(chan.users, nameParse);
+	if (tempUser == NULL)
+	{
+		std::cout << "L'utilisateur n'existe pas" << std::endl;
+		msgError("401", user, ERRORI401);
+		errorCmd = false;
+		return;
+	}
+	std::map<User*, bool>::iterator it = this->operators.begin();
+	it = this->operators.find(tempUser);
+	if (symbol == '-')
+	{
+		if (it != this->operators.end())
 		{
-			// send;
-			// throw;
-			return;
-		}
-		nameParse = strmess.substr(0, strmess.find(" "));
-		User *tempUser = findUserByName(chan.users, nameParse);
-		std::map<User*, bool>::iterator it = this->operators.begin();
-		while (it != this->operators.end())
-		{
-			if (tempUser->nickname == it->first->nickname)
-				break;
-			++it;
-		}
-		std::cout << nameParse << "     et  " << tempUser->nickname << std::endl;
-		it = this->operators.find(tempUser);
-		if (symbol == '-')
-		{
-			if (it != this->operators.end())
-			{
-				it->second = false;
-				std::cout << "Operator " << tempUser << " removed" << std::endl;
-			}
-			else
-				std::cout << "User is not an operator" << std::endl;
-		}
-		else if (symbol == '+')
-		{
-				it->second = true;
-				std::cout << "User "<< nameParse << " is now an operator" << std::endl;
+			it->second = false;
+			ss << user.nickname << " #" << chan.name << " :You take channel operator privileges from '" << it->first->nickname << "'.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+			std::cout << "Operator " << tempUser->nickname << " removed" << std::endl;
+			ss.str("");
+			ss << tempUser->nickname << " #" << chan.name << " :" << user.nickname << " takes channel operator privileges from you.\n\r";
+			send((*it->first)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
-	else
+	else if (symbol == '+')
 	{
-	//	renvoiyer a l'utiisateur la liste des operators
+			it->second = true;
+			std::cout << "User "<< nameParse << " is now an operator" << std::endl;
+			ss << user.nickname << " #" << chan.name << " :You give channel operator privileges to '" << it->first->nickname << "'.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+			ss.str("");
+			ss << tempUser->nickname << " #" << chan.name << " :" << user.nickname << " gives channel operator privileges to you.\n\r";
+			send((*tempUser)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
 }
+/*
+void Channel::ft_sendListOp(User &user)
+{
+	std::stringstream ss;
+	std::map<User*, bool>::iterator it = this->operators.begin();
+	while (it != this->operators.end())
+	{
+		if (it->second == true)
+			ss << " @" << it->first->nickname;
+		++it;
+	}
+	ss
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	ss = "";
+	ss << user.nickname << " #" << this->name << " :End of /NAMES list\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+}*/
 
-void Channel::setModeT(char c)
+void Channel::setModeT(char c, User &user)
 {
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeT");
+	std::stringstream ss;
 	if (it != modeTab.end())
 	{
 		if (c == '+')
 		{
 			it->second = true;
 			std::cout << " Mode +t successfully added" << std::endl;
+			ss << user.nickname << " :You switch on 'topic protection'.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 		else
 		{
 			it->second = false;
 			std::cout << " Mode -t successfully removed" << std::endl;
+			ss << user.nickname << " :You switch off 'topic protection'.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
 }
