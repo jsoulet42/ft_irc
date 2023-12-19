@@ -121,7 +121,7 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 			else if (tempFor[i] == 't')
 				chan.setModeT(symbol, user);
 			else if (tempFor[i] == 'b')
-				std::cout << "[Error] during MODE command (+b)" << std::endl;
+				return;
 			else if (tempFor[i] == 'i')
 				chan.setModeI(symbol, user);
 			else if (tempFor[i] == 'l')
@@ -161,14 +161,14 @@ void Channel::setModeI(char c, User &user)
 		{
 			it->second = true;
 			std::cout << "mode +i added" << std::endl;
-			ss << user.nickname << " :You set the channel mode to 'invite only'.\r\n";
+			ss << IPHOST << "MODE #" << this->name << " +i :You set the channel mode to 'invite only'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 		else
 		{
 			it->second = false;
 			std::cout << "mode -i removed" << std::endl;
-			ss << user.nickname << " :You remove the 'invite only' mode from the channel.\r\n";
+			ss << IPHOST << "MODE #" << this->name << " -i :You remove the 'invite only' mode from the channel.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
@@ -184,6 +184,10 @@ void Channel::setModeK(char symbol, std::string &strmess, User &user)
 	{
 		it->second = false;
 		this->password = "";
+		ss << IPHOST << "MODE #" << this->name << " -k :" << temp << "\r\n";
+		std::cout << "Key removed" << std::endl;
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		return;
 	}
 	else
 	{
@@ -234,7 +238,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 		if (it != modeTab.end())
 			it->second = false;
 		std::cout << "mode -l correctly removed" << std::endl;
-		ss << user.nickname << " :You remove the channel limit.\r\n";
+		ss << IPHOST << "MODE #" << this->name << " -l :You remove the channel limit.\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		return;
 	}
@@ -267,7 +271,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	it->second = true;
 	this->modeLMaxUser = resultat;
 	std::cout << "mode +l correctly added with " << this->modeLMaxUser << std::endl;
-	ss << user.nickname << " :You set the channel limit to " << resultat << " nicks.\r\n";
+	ss << IPHOST << "MODE #" << this->name << " +l :You set the channel limit to " << resultat << " nicks.\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -312,30 +316,13 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	{
 			it->second = true;
 			std::cout << "User "<< nameParse << " is now an operator" << std::endl;
-			ss << user.nickname << " #" << chan.name << " :You give channel operator privileges to '" << it->first->nickname << "'.\r\n";
+			ss << IPHOST << "MODE #" << chan.name << " +o :You give channel operator privileges to '" << it->first->nickname << "'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 			ss.str("");
-			ss << tempUser->nickname << " #" << chan.name << " :" << user.nickname << " gives channel operator privileges to you.\n\r";
+			ss << IPHOST << "MODE #" << chan.name << " +o :" << user.nickname << " gives channel operator privileges to you.\n\r";
 			send((*tempUser)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
 }
-/*
-void Channel::ft_sendListOp(User &user)
-{
-	std::stringstream ss;
-	std::map<User*, bool>::iterator it = this->operators.begin();
-	while (it != this->operators.end())
-	{
-		if (it->second == true)
-			ss << " @" << it->first->nickname;
-		++it;
-	}
-	ss
-	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-	ss = "";
-	ss << user.nickname << " #" << this->name << " :End of /NAMES list\r\n";
-	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-}*/
 
 void Channel::setModeT(char c, User &user)
 {
@@ -347,14 +334,14 @@ void Channel::setModeT(char c, User &user)
 		{
 			it->second = true;
 			std::cout << " Mode +t successfully added" << std::endl;
-			ss << user.nickname << " :You switch on 'topic protection'.\r\n";
+			ss << IPHOST << "MODE #" << this->name << " +t :You switch on 'topic protection'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 		else
 		{
 			it->second = false;
 			std::cout << " Mode -t successfully removed" << std::endl;
-			ss << user.nickname << " :You switch off 'topic protection'.\r\n";
+			ss << IPHOST << "MODE #" << this->name << " -t :You switch off 'topic protection'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
