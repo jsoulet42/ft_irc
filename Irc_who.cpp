@@ -1,5 +1,5 @@
 # include "./includes/ft_irc.hpp"
-
+/*
 void	irc_who(std::string &message, User &user, Server &server)
 {
 	//std::cout << message << user.CAP_OK << server.current_size << std::endl;
@@ -52,7 +52,7 @@ void	irc_who(std::string &message, User &user, Server &server)
 		pos = message.find('*'); //je cherche si wildcard
 		if (pos >= 0)
 		{
-			std::string err_no_such_service = "408 WHO with wilcard :no such service\r\n";
+			std::string err_no_such_service = "408 WHO with wildcard :no such service\r\n";
 			send(user._fdUser, err_no_such_service.c_str(), err_no_such_service.length(), 0);
 			printMessageSendToClient("IRC_WHO - No wild card service", user, err_no_such_service);
 			return;
@@ -102,4 +102,11 @@ void	irc_who(std::string &message, User &user, Server &server)
 			return;
 		}
 	}
+}*/
+
+void	irc_who(std::string &message, User &user, Server &server)
+{
+	(void)user;
+	(void)server;
+	std::cout << message << std::endl;
 }

@@ -123,8 +123,10 @@ void	msgError(std::string const &code, std::string &channel, User &user, std::st
 
 void	msgErrorTest(std::string &channel, User &user, std::string const &msg)
 {
+			// ss << IPHOST << "MODE #" << this->name << " +i :You set the channel mode to 'invite only'.\r\n";
+
 	std::stringstream ss;
-	ss << user.nickname << " " << channel <<  msg;
+	ss << IPHOST << "MODE #" << channel << " k" <<  msg;
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	errorCmd = true;
 }
@@ -381,6 +383,25 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	}
 }
 
+void ft_majName(User &user, Channel &channel)
+{
+	std::stringstream ss;
+	std::map<User *, bool>::iterator it = channel.operators.begin();
+	ss << IPHOST << "353 " << user.nickname << " = #" << channel.name << " :";
+	for (; it != channel.operators.end(); it++)
+	{
+		if (it->second == true)
+			ss << "@" << it->first->nickname << " ";
+		else
+			ss << it->first->nickname << " ";
+	}
+	ss << "\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	ss.str("");
+	ss << IPHOST << "366 " << user.nickname << " #" << channel.name << " :End of /NAMES list.\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+}
+
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 {
 	std::stringstream ss;
@@ -399,20 +420,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		std::map<User *, bool>::iterator it = channel->operators.begin();
-		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :";
-		for (; it != channel->operators.end(); it++)
-		{
-			if (it->second == true)
-				ss << "@" << it->first->nickname << " ";
-			else
-				ss << it->first->nickname << " ";
-		}
-		ss << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		for (std::vector<User *>::iterator it2 = channel->users.begin(); it2 != channel->users.end(); it2++)
 		{
@@ -421,6 +428,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 				ss << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " JOIN :#" << channel->name << "\r\n";
 				send((*it2)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
 				ss.str("");
+				ft_majName(user, *channel);
 			}
 		}
 	}
@@ -435,10 +443,11 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
+		ft_majName(user, *channel);
+		// ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
+		// send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		// ss.str("");
+		// ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
 	}
 }
 
@@ -454,7 +463,6 @@ void send324(Channel &chan, User user, std::string code)
 		str += "k";
 	if (chan.modeTab.count("modeI") > 0 && chan.modeTab["modeI"] == true)
 		str += "i";
-	std::cout << " je suis la " << str << std::endl;
 	ss << IPHOST << code << " " << user.nickname << " #" << chan.name << " +" << str << "\n\r";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
@@ -488,26 +496,23 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 		 msgError("403", str, user, ERRORM403);
 		throw modeException();
 	}
-	if (checkRightsUserInChannel(chan, &user, OPERATOR) == false)
+	str.erase(0, (str.find(" ")));
+	if (str.empty())
 	{
-		std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + chan->name + " :You're not channel operator\r\n";
-		send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
-		throw modeException();
+		send324(*chan, user, "324");
+		// send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
+		return;
 	}
 	else
 	{
-		str.erase(0, (str.find(" ")));
-		if (str.empty())
+		if (checkRightsUserInChannel(chan, &user, OPERATOR) == false)
 		{
-			send324(*chan, user, "324"); //   "<client> <channel> <modestring> <mode arguments>..."
-			// send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
-			return;
+			std::string err_not_op = ":127.0.0.1 482 " + user.nickname + " #" + chan->name + " :You're not channel operator\r\n";
+			send(user._fdUser, err_not_op.c_str(), err_not_op.length(), 0);
+			throw modeException();
 		}
-		else
-		{
-			str.erase(0, 1);
-			chan->ft_insertChanMode(str, user, *chan);
-		}
+		str.erase(0, 1);
+		chan->ft_insertChanMode(str, user, *chan);
 	}
 }
 
