@@ -383,6 +383,25 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	}
 }
 
+void ft_majName(User &user, Channel &channel)
+{
+	std::stringstream ss;
+	std::map<User *, bool>::iterator it = channel.operators.begin();
+	ss << IPHOST << "353 " << user.nickname << " = #" << channel.name << " :";
+	for (; it != channel.operators.end(); it++)
+	{
+		if (it->second == true)
+			ss << "@" << it->first->nickname << " ";
+		else
+			ss << it->first->nickname << " ";
+	}
+	ss << "\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	ss.str("");
+	ss << IPHOST << "366 " << user.nickname << " #" << channel.name << " :End of /NAMES list.\r\n";
+	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+}
+
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 {
 	std::stringstream ss;
@@ -401,20 +420,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		std::map<User *, bool>::iterator it = channel->operators.begin();
-		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :";
-		for (; it != channel->operators.end(); it++)
-		{
-			if (it->second == true)
-				ss << "@" << it->first->nickname << " ";
-			else
-				ss << it->first->nickname << " ";
-		}
-		ss << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		for (std::vector<User *>::iterator it2 = channel->users.begin(); it2 != channel->users.end(); it2++)
 		{
@@ -423,6 +428,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 				ss << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " JOIN :#" << channel->name << "\r\n";
 				send((*it2)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
 				ss.str("");
+				ft_majName(user, *channel);
 			}
 		}
 	}
@@ -437,10 +443,11 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
-		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		ss.str("");
-		ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
+		ft_majName(user, *channel);
+		// ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
+		// send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		// ss.str("");
+		// ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
 	}
 }
 

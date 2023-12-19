@@ -322,6 +322,12 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 			ss << IPHOST << "MODE #" << chan.name << " +o :" << user.nickname << " gives channel operator privileges to you.\n\r";
 			send((*tempUser)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
+	std::vector<User*>::iterator it_v = this->users.begin();
+	while(it_v != this->users.end())
+	{
+		ft_majName(*it->first, chan);
+		++it;
+	}
 }
 
 void Channel::setModeT(char c, User &user)
