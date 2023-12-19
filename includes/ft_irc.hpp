@@ -17,7 +17,6 @@
 #include <map>
 #include <ctime>
 #include <sstream>
-#include <algorithm>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -93,7 +92,6 @@ Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
 void	ircInvite(std::string &msg, User &user, Server &server);
-void	deleteUserByNick(std::string nick);
 
 
 //bool findUser(User &user, std::vector<User *> &userList);
@@ -114,7 +112,7 @@ std::vector<std::string>	splitString(const std::string &input, char delimiter);
 bool						findElement(User const &user, std::vector<User *> &userList);
 int							countSpaces(const std::string &str, const char &delimiter);
 void						remouveUser(User &user, std::vector<User *> &userList);
-void						deleteChannelIfEmpty(Server &server);
+int							deleteChannelIfEmpty(Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -165,9 +163,7 @@ void	errorP403(std::vector<std::string>::iterator &it, User &user);
 void	inheritanceOperator(Channel *chan, User &user);
 void	ircPart(std::string &strmess, User &user, Server &server);
 void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User &user, std::string &reason, Server &server);
-
-
-
+void	partAllChannelUserIsIn(User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -184,7 +180,6 @@ void ircKick(std::string &msg, User &user, Server &server);
 ////////////////////////////////////////////////////////////////////////////////
 
 void irc_quit(std::string &message, User &user, Server &server);
-void checkIFUserIsInChannelAndSendQuitMessage(User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -214,7 +209,7 @@ void checkIFUserIsInChannelAndSendQuitMessage(User &user, Server &server);
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DEFAULTMAXUSER 100
-#define ERRORM403 " :No such channel\r\n"
+#define ERRORM403 ":No such channel\r\n"
 #define ERRORM525 " :Key is not well-formed\r\n"
 #define ERRORM696 " :Invalid mode parameters\r\n"
 bool checkMode(Channel *channel, std::string mode);

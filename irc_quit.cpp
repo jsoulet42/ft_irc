@@ -13,21 +13,10 @@ void irc_quit(std::string &message, User &user, Server &server)
 		msg = "";
 	else
 		msg = message;
-	std::string rpl_quit2 = "ERROR :Connection timeout\r\n";
 	std::string rpl_quit = ":" + user.nickname + "-!" + user.nickname[0] + "@" + user.nickname + " QUIT :" + msg + "\r\n";
-	send(user._fdUser, rpl_quit2.c_str(), rpl_quit2.size(), 0);
-	for (std::vector<Channel *>::iterator it = server.channels.begin(); it != server.channels.end(); ++it)
-	{
-		if (findUserInChannel(*it, &user) == true)
-		{
-			std::cout << "on y est " << std::endl;
-			(*it)->channelSendLoop(rpl_quit, user._fdUser);
-			(*it)->nbUsers--;
-			(*it)->deleteUserInChannel(user);
-			(*it)->deleteUserInOperator(&user);
-		}
-	}
-	deleteChannelIfEmpty(server);
+	partAllChannelUserIsIn(user, server);
+	std::cout << "on a envoye le message de part" << std::endl;
+	//send(user._fdUser, rpl_quit.c_str(), rpl_quit.size(), 0);
 	for (std::vector<struct pollfd>::iterator it2 = server.fdP.begin(); it2 != server.fdP.end(); ++it2)
 	{
 		if ((*it2).fd == user._fdUser)
@@ -38,3 +27,42 @@ void irc_quit(std::string &message, User &user, Server &server)
 	}
 	server.deleteUserByNick(user.nickname);
 }
+
+void partAllChannelUserIsIn(User &user, Server &server)
+{
+	std::string rpl_part;
+	int i = 0;
+
+	rpl_part = "PART #";
+	std::vector<Channel *>::iterator it = server.channels.begin();
+	for (; it != server.channels.end(); ++it)
+	{
+		if (findUserInChannel(*it, &user) == true)
+		{
+			rpl_part += (*it)->name + ",#";
+			i++;
+		}
+	}
+	if (i == 1)
+	{
+		std::vector<Channel *>::iterator it2 = server.channels.begin();
+		for (; it2 != server.channels.end(); ++it2)
+		{
+			if (findUserInChannel(*it2, &user) == true)
+			{
+				rpl_part = "PART #" + (*it2)->name + "\r\n";
+			}
+		}
+		std::cout << rpl_part;
+		ircPart(rpl_part, user, server);
+		std::cout << "on a envoye le message de part---------------------------++++++++++" << std::endl;
+	}
+	else
+	{
+		rpl_part.erase(rpl_part.size() - 2, rpl_part.size());
+		rpl_part += "\r\n";
+		ircPart(rpl_part, user, server);
+	}
+}
+
+
