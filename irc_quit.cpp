@@ -54,14 +54,14 @@ void partAllChannelUserIsIn(User &user, Server &server)
 			}
 		}
 		std::cout << rpl_part;
-		ircPart(rpl_part, user, server);
+		ircPart(rpl_part, user, server, 1);
 		std::cout << "on a envoye le message de part---------------------------++++++++++" << std::endl;
 	}
 	else
 	{
 		rpl_part.erase(rpl_part.size() - 2, rpl_part.size());
 		rpl_part += "\r\n";
-		ircPart(rpl_part, user, server);
+		ircPart(rpl_part, user, server, 1);
 	}
 }
 

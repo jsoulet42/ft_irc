@@ -152,7 +152,7 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 	errorCmd = false;
 
 	if (strmess.compare(0, 5, "PART ") == 0)
-		ircPart(strmess, *user, server);
+		ircPart(strmess, *user, server, 0);
 	else if(strmess.compare(0, 5, "JOIN ") == 0)
 		ircJoin(strmess, *user, server);
 	else if(strmess.compare(0, 8, "PRIVMSG ") == 0)

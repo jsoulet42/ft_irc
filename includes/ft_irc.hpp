@@ -161,8 +161,8 @@ void	errorP461(User &user);
 void	errorP442(Channel *chan, User &user);
 void	errorP403(std::vector<std::string>::iterator &it, User &user);
 void	inheritanceOperator(Channel *chan, User &user);
-void	ircPart(std::string &strmess, User &user, Server &server);
-void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User &user, std::string &reason, Server &server);
+void	ircPart(std::string &strmess, User &user, Server &server, int partOrQuit);
+void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User &user, std::string &reason, Server &server, int partOrQuit);
 void	partAllChannelUserIsIn(User &user, Server &server);
 
 ////////////////////////////////////////////////////////////////////////////////
