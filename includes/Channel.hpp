@@ -56,8 +56,6 @@ class Channel
 		void deleteUserInOperator(User *user);
 		User *getOperator();
 		void getDateTime();
-		void ft_sendListOp(User &user);
-		std::string	reBuildCmd(int & fd, std::string str);
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"

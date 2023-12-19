@@ -6,7 +6,7 @@
 /*   By: jsoulet <jsoulet@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:45:41 by mdiamant          #+#    #+#             */
-/*   Updated: 2023/12/15 11:59:56 by jsoulet          ###   ########.fr       */
+/*   Updated: 2023/12/19 14:53:21 by jsoulet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void ircKick(std::string &msg, User &user, Server &server)
 				msgAllUserInChannel(user, channel, userKicked->nickname, msgSplit[msgSplit.size() - 1]);
 				std::string msgPart;
 				msgPart = "PART #" + channel->name + " " + msgSplit[msgSplit.size() - 1] + "\r\n";
-				ircPart(msgPart, *userKicked, server);
+				ircPart(msgPart, *userKicked, server, 0);
 			}
 		}
 		catch(const std::exception& e)
@@ -62,11 +62,13 @@ void ircKick(std::string &msg, User &user, Server &server)
 // :dan!d@localhost KICK #test alice :nah mate
 void msgAllUserInChannel(User const &user, Channel *channel, std::string const &nameKicked, std::string const &reason)
 {
+	std::stringstream ss;
+
 	for (std::vector<User *>::iterator it = channel->users.begin(); it != channel->users.end(); it++)
 	{
-		std::stringstream ss;
 		ss << ":" << user.nickname << " KICK #" << channel->name << " " << nameKicked << " " << reason + "\r\n";
 		send((*it)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
 	}
 }
 

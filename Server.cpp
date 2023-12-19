@@ -293,6 +293,19 @@ void Server::deleteUser(int fd)
 	}
 }
 
+void Server::deleteUserByNick(std::string nick)
+{
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); it++)
+	{
+		if ((*it)->nickname == nick)
+		{
+			delete (*it);
+			users.erase(it);
+			break;
+		}
+	}
+}
+
 std::string	Server::reBuildCmd(int & fd, std::string str)
 {
 	int		rc;
