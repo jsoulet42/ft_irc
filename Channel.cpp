@@ -273,7 +273,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	it->second = true;
 	this->modeLMaxUser = resultat;
 	std::cout << "mode +l correctly added with " << this->modeLMaxUser << std::endl;
-	ss << ":" << user.nickname << " MODE #" << this->name << " +l " << resultat << "\r\n";
+	ss << ":" << user.nickname << " MODE #" << this->name << " +l\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
