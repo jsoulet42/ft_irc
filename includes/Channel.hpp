@@ -10,6 +10,12 @@
 
 extern bool errorCmd;
 
+struct UserCompare
+{
+	bool operator()(User *a,User *b) const;
+};
+
+
 class Channel
 {
 //-----------------------------------Public-----------------------------------//
@@ -30,7 +36,7 @@ class Channel
 		std::string				creationDate;
 		std::string				password;
 		std::vector<User *>		users;
-		std::map<User *, bool>		operators;
+		std::map<User *, bool, UserCompare>		operators;
 		std::vector<User *>		invitedUsers;
 
 		void	channelSendLoop(std::string message, int & sFd);
