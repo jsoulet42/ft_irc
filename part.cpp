@@ -110,7 +110,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
-		ft_majName(user, *chan, 0);
+		//ft_majName(user, *chan, 0);
 	}
 	while (deleteChannelIfEmpty(server))
 		;
@@ -118,32 +118,36 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 
 void inheritanceOperator(Channel &chan, User &user)
 {
-	User * operatorUser = chan.getOperator();
 	std::cout << GREEN << ON_BLACK <<  user.nickname << " is leaving the channel " << "#" << chan.name << RESET << std::endl;
-	chan.operators.erase(operatorUser);
-
+	std::map<User *, bool>::iterator it3 = chan.operators.begin();
+	for (; it3 != chan.operators.end(); it3++)
+	{
+		if (it3->first->nickname == user.nickname)
+		{
+			chan.operators.erase(it3);
+			break;
+		}
+	}
 	std::map<User *, bool>::iterator it = chan.operators.begin();
 	if (it == chan.operators.end())
 		return;
-	for (; it->second == false && it != chan.operators.end(); it++)
-		;
-	if (it == chan.operators.end())
+	for (; it != chan.operators.end(); it++)
 	{
-		std::stringstream rpl_oper;
-		chan.operators.begin()->second = true;
-		std::vector<User *>::iterator it2 = chan.users.begin();
-		rpl_oper << ":" << user.nickname << " MODE #" << chan.name << " +o " << chan.operators.begin()->first->nickname << "\r\n";
-		std::cout << GREEN << ON_BLACK << "rpl_inheritanceOperator : " << rpl_oper.str() << " Become a canal operator " << "#" << chan.name << RESET << std::endl;
-
-		for (; it2 != chan.users.end(); it2++)
+		if (it->second == true)
+			return;
+	}
+	std::stringstream rpl_oper;
+	chan.operators.begin()->second = true;
+	std::vector<User *>::iterator it2 = chan.users.begin();
+	rpl_oper << ":" << user.nickname << " MODE #" << chan.name << " +o " << chan.operators.begin()->first->nickname << "\r\n";
+	std::cout << GREEN << ON_BLACK << "rpl_inheritanceOperator : " << rpl_oper.str() << " Become a canal operator " << "#" << chan.name << RESET << std::endl;
+	for (; it2 != chan.users.end(); it2++)
+	{
+		if ((*it2)->_fdUser != user._fdUser)
 		{
-			if ((*it2)->_fdUser != user._fdUser)
-			{
-				send((*it2)->_fdUser, rpl_oper.str().c_str(), rpl_oper.str().length(), 0);
-				rpl_oper.str("");
-			}
+			send((*it2)->_fdUser, rpl_oper.str().c_str(), rpl_oper.str().length(), 0);
+			rpl_oper.str("");
 		}
-
 	}
 }
 
