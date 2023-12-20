@@ -327,24 +327,24 @@ void sendForCreate(std::vector<std::string> &channels, User &user, Server &serve
 		joinOrCreatChannel(channels[i], user, server, keyEmpty);
 }
 
-void protocolForJoinChannel(Channel *channel, User &user, std::string &key)
+void protocolForJoinChannel(Channel &channel, User &user, std::string &key)
 {
-	if (checkMode(channel, "modeI") == true)
+	if (checkMode(&channel, "modeI") == true)
 	{
-		if (checkRightsUserInChannel(channel, &user, INVITED) == false)
+		if (checkRightsUserInChannel(&channel, &user, INVITED) == false)
 		{
 			msgError("473", user, ERRORJ473);
 			throw joinException();
 		}
 	}
-	if (channel->checkModeL() == false)
+	if (channel.checkModeL() == false)
 	{
 		// send();
 		throw joinException();
 	}
-	if (findUserInChannel(channel, &user) == true)
+	if (findUserInChannel(&channel, &user) == true)
 		throw Channel::UserIsAlredyInChannelException();
-	else if (channel->addUser(&user, key) == -1)
+	else if (channel.addUser(&user, key) == -1)
 		msgError("475", user, ERRORJ475);
 	if (errorCmd == true)
 		throw joinException();
@@ -360,12 +360,22 @@ bool checkMode(Channel *channel, std::string mode)
 
 void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::string &key)
 {
+	static int i = 0;
 	Channel *channel = findChannelByName(server.channels, cmd);
 
 	if (channel)
 	{
+		i++;
+		if (i == 3)
+		{
+			std::cout << "3 eme fois que je join le channel" << std::endl;
+			printMapOperators(channel);
+		}
+		std::cout << i << "    @@@@@@" << std::endl;
 		std::cout << GREEN << ON_BLACK << " try to join channel existing " << RESET << std::endl;
-		protocolForJoinChannel(channel, user, key);
+		protocolForJoinChannel(*channel, user, key);
+		printVectorUsers(channel->users);
+		printMapOperators(channel);
 		std::cout << GREEN << ON_BLACK << user.nickname << " join channel " << "[" << channel->name << "]" << RESET << std::endl;
 		messageToAllUsersInChannel(channel, user, 0);
 	}
@@ -376,30 +386,51 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
+		printVectorUsers(channel->users);
 		channel->operators[&user] = true;
+		printMapOperators(channel);
 		channel->getDateTime();
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
 	}
 }
 
-void ft_majName(User &user, Channel &channel)
+void ft_majName(User &user, Channel &channel, int sendAllOrWithOutMe)
 {
+	int i = 0;
 	std::stringstream ss;
-	std::map<User *, bool>::iterator it = channel.operators.begin();
-	ss << IPHOST << "353 " << user.nickname << " = #" << channel.name << " :";
-	for (; it != channel.operators.end(); it++)
+	std::vector<User *>::iterator it2 = channel.users.begin();
+	for (; it2 !=  channel.users.end(); it2++)
 	{
-		if (it->second == true)
-			ss << "@" << it->first->nickname << " ";
-		else
-			ss << it->first->nickname << " ";
+		if ((*it2)->_fdUser != user._fdUser || ((*it2)->_fdUser == user._fdUser && sendAllOrWithOutMe == 1))
+		{	std::map<User *, bool>::iterator it = channel.operators.begin();
+			ss << IPHOST << "353 " << user.nickname << " = #" << channel.name << " :";
+			for (; it != channel.operators.end(); it++)
+			{
+				if (it->second == true)
+				{
+					ss << "@" << it->first->nickname << " ";
+					i++;
+				}
+			}
+			it = channel.operators.begin();
+			for (; it != channel.operators.end(); it++)
+			{
+				if (it->second == false)
+				{
+					ss << it->first->nickname << " ";
+					i++;
+				}
+			}
+			ss.str().substr(0, ss.str().size() - 1);
+			ss << "\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+			ss.str("");
+			ss << IPHOST << "366 " << user.nickname << " #" << channel.name << " :End of /NAMES list.\r\n";
+			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+			ss.str("");
+		}
 	}
-	ss << "\r\n";
-	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-	ss.str("");
-	ss << IPHOST << "366 " << user.nickname << " #" << channel.name << " :End of /NAMES list.\r\n";
-	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
@@ -420,7 +451,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ss.str("");
 		for (std::vector<User *>::iterator it2 = channel->users.begin(); it2 != channel->users.end(); it2++)
 		{
 			if ((*it2)->_fdUser != user._fdUser)
@@ -428,9 +458,10 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 				ss << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " JOIN :#" << channel->name << "\r\n";
 				send((*it2)->_fdUser, ss.str().c_str(), ss.str().size(), 0);
 				ss.str("");
-				ft_majName(user, *channel);
 			}
 		}
+		ft_majName(user, *channel, 1);
+
 	}
 	else if (createOrJoin)
 	{
@@ -443,7 +474,7 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		ss << IPHOST << "329 " << user.nickname << " #" << channel->name << " " << channel->getOperator()->nickname << "!~" << channel->getOperator()->nickname[0] << "@" << channel->getOperator()->nickname << channel->creationDate << "\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
-		ft_majName(user, *channel);
+		ft_majName(user, *channel, 1);
 		// ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
 		// send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		// ss.str("");

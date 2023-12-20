@@ -17,6 +17,7 @@
 #include <map>
 #include <ctime>
 #include <sstream>
+#include <algorithm>
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -86,13 +87,13 @@ void	normNameChannel(std::string &channel, User &user, Server &server);
 User	*findUserByName(std::vector<User *> &users, std::string const &cmd);
 void	interpretCommand(Server &server, std::string strmess, int const &id);
 void	msgError(std::string const &code, User &user, std::string const &msg);
-void	protocolForJoinChannel(Channel *channel, User &user, std::string &key);
+void	protocolForJoinChannel(Channel &channel, User &user, std::string &key);
 void	messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin);
 Channel	*findChannelByName(std::vector<Channel *> &channels, std::string const &cmd);
 void	joinOrCreatChannel(std::string &cmd, User &user, Server &Server, std::string &key);
 void	sendForCreate(std::vector<std::string> &channels, User &user, Server &server, std::vector<std::string> &keys);
 void	ircInvite(std::string &msg, User &user, Server &server);
-void	ft_majName(User &user, Channel &channel);
+void	ft_majName(User &user, Channel &channel, int sendAllOrWithOutMe);
 
 
 //bool findUser(User &user, std::vector<User *> &userList);
@@ -161,10 +162,12 @@ class notEnoughParamException : public std::exception
 void	errorP461(User &user);
 void	errorP442(Channel *chan, User &user);
 void	errorP403(std::vector<std::string>::iterator &it, User &user);
-void	inheritanceOperator(Channel *chan, User &user);
+void	inheritanceOperator(Channel &chan, User &user);
 void	ircPart(std::string &strmess, User &user, Server &server, int partOrQuit);
 void	sendPartToAllUsersInChannel(std::vector<std::string> &channel, User &user, std::string &reason, Server &server, int partOrQuit);
 void	partAllChannelUserIsIn(User &user, Server &server);
+void 	printVectorUsers(std::vector<User *> &users);
+void	printMapOperators(Channel *chan);
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

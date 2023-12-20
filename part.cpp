@@ -19,18 +19,15 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 	std::vector<std::string> chann;
 	std::string reason;
 
-	std::cout << "message : " << message << std::endl;
 	if (message.compare(0, 1, "#") == 0)
 		message.erase(0, 1);
 	else
 		errorP461(user);
 	if (message.empty())
 		errorP461(user);
-	std::cout << "message2 : " << message << std::endl;
 	if (message.find(" ") != std::string::npos && message.find(",") != std::string::npos) // #lol,#ok,#ok2 :reason
 	{
 		chan = message.substr(0, message.find(" "));
-		std::cout << chan << "_____||||____" << std::endl;
 		message.erase(0, message.find(" ") + 1);
 		if (message.find(":") != std::string::npos)
 			reason = message.substr(message.find(":") + 1, message.size());
@@ -38,7 +35,6 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 	else if (message.find(" ") != std::string::npos && message.find(",") == std::string::npos) // #lol :reason
 	{
 		chan = message.substr(0, message.find(" "));
-		std::cout << chan << "_____@@@@____" << std::endl;
 		message.erase(0, message.find(" ") + 1);
 		if (message.find(":") != std::string::npos)
 			reason = message.substr(message.find(":") + 1, message.size());
@@ -47,7 +43,6 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 	{
 		chan = message.substr(0, message.size());
 		reason = user.nickname + " has left the channel";
-		std::cout << chan << "_____zzzzz____" << std::endl;
 		std::cout << reason << std::endl;
 
 	}
@@ -56,7 +51,6 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 		chan = message;
 		reason = user.nickname + " has left the channel";
 		std::cout << reason << std::endl;
-		std::cout << chan << "_____$$$$____" << std::endl;
 	}
 	if (chan.find(",") != std::string::npos)
 	{
@@ -78,10 +72,7 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 		chann.push_back(chan);
 		std::cout << chann.back() << std::endl;
 	}
-	for (std::vector<std::string>::iterator it = chann.begin(); it != chann.end(); it++)
-		std::cout << "|" << *it << "|" << std::endl;
 	sendPartToAllUsersInChannel(chann, user, reason, server, partOrQuit);
-	std::cout << "on a envoye le message de part---------------------------" << std::endl;
 }
 
 void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, std::string &reason, Server &server, int partOrQuit)
@@ -91,7 +82,6 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 	std::vector<std::string>::iterator it = chann.begin();
 	for (; it != chann.end(); it++)
 	{
-		std::cout << "on est dans la boucle :" << *it << std::endl;
 		Channel *chan = findChannelByName(server.channels, *it);
 		if (chan == NULL)
 		{
@@ -108,42 +98,44 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 		std::vector<User *>::iterator cuser = chan->users.begin();
 		for (; cuser != chan->users.end(); cuser++)
 		{
-			std::cout << (*cuser)->nickname << "#####" << std::endl;
 			if ((*cuser)->_fdUser != user._fdUser || ((*cuser)->_fdUser == user._fdUser && partOrQuit == 0) || (partOrQuit == 1 && (*cuser)->_fdUser != user._fdUser))
 			{
 				rpl_part << ":" << user.nickname << "!" << user.nickname[0] << "@" << user.nickname << " PART #" << chan->name << " :" << reason << "\r\n";
-				std::cout << GREEN << ON_BLACK << "rpl_part : " << rpl_part.str() << RESET << std::endl;
 				send((*cuser)->_fdUser, rpl_part.str().c_str(), rpl_part.str().length(), 0);
 				rpl_part.str("");
-				if (checkRightsUserInChannel(chan, *cuser, OPERATOR) == true)
-					inheritanceOperator(chan, user);
+				if (checkRightsUserInChannel(chan, &user, OPERATOR) == true)
+					inheritanceOperator(*chan, user);
 				else
-					chan->operators.erase(*cuser);
+					chan->operators.erase(&user);
 			}
 		}
 		chan->deleteUserInChannel(user);
+		ft_majName(user, *chan, 0);
 	}
 	while (deleteChannelIfEmpty(server))
 		;
-	std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
 }
 
-void inheritanceOperator(Channel *chan, User &user)
+void inheritanceOperator(Channel &chan, User &user)
 {
-	chan->operators.erase(&user);
-	std::map<User *, bool>::iterator it = chan->operators.begin();
-	if (it == chan->operators.end())
+	User * operatorUser = chan.getOperator();
+	std::cout << GREEN << ON_BLACK <<  user.nickname << " is leaving the channel " << "#" << chan.name << RESET << std::endl;
+	chan.operators.erase(operatorUser);
+
+	std::map<User *, bool>::iterator it = chan.operators.begin();
+	if (it == chan.operators.end())
 		return;
-	for (; it->second == false && it != chan->operators.end(); it++)
+	for (; it->second == false && it != chan.operators.end(); it++)
 		;
-	if (it == chan->operators.end())
+	if (it == chan.operators.end())
 	{
 		std::stringstream rpl_oper;
-		chan->operators.begin()->second = true;
-		std::vector<User *>::iterator it2 = chan->users.begin();
-		rpl_oper << "@" << chan->operators.begin()->first->nickname << "\r\n";
-		std::cout << GREEN << ON_BLACK << "rpl_inheritanceOperator : " << rpl_oper.str() << " Become a canal operator " << "#" << chan->name << RESET << std::endl;
-		for (; it2 != chan->users.end(); it2++)
+		chan.operators.begin()->second = true;
+		std::vector<User *>::iterator it2 = chan.users.begin();
+		rpl_oper << ":" << user.nickname << " MODE #" << chan.name << " +o " << chan.operators.begin()->first->nickname << "\r\n";
+		std::cout << GREEN << ON_BLACK << "rpl_inheritanceOperator : " << rpl_oper.str() << " Become a canal operator " << "#" << chan.name << RESET << std::endl;
+
+		for (; it2 != chan.users.end(); it2++)
 		{
 			if ((*it2)->_fdUser != user._fdUser)
 			{
@@ -151,19 +143,34 @@ void inheritanceOperator(Channel *chan, User &user)
 				rpl_oper.str("");
 			}
 		}
-		std::cout << "MAD A FUCKA !" << std::endl;
+
 	}
-	std::cout << "WHAT!!!!!!" << std::endl;
+}
+
+void printVectorUsers(std::vector<User *> &users)
+{
+	std::vector<User *>::iterator it =	users.begin();
+	for (;it != users.end(); it++)
+		std::cout << "[" << (*it)->nickname << "]" << std::endl;
+}
+
+void printMapOperators(Channel *chan)
+{
+	std::map<User *, bool>::iterator ope = chan->operators.begin();
+	for (; ope != chan->operators.end(); ope++)
+	{
+		std::cout << "mapOperators :[" << ope->first->nickname << "]" << "[" << ope->second << "] [" << ope->first << "]" << std::endl;
+	}
 }
 
 int deleteChannelIfEmpty(Server &server)
 {
-	std::cout << "yoloyoloyloy" << std::endl;
 	for (std::vector<Channel*>::iterator it = server.channels.begin(); it != server.channels.end(); it++)
 	{
 		std::vector<User *>::iterator it2 = (*it)->users.begin();
 		if (it2 == (*it)->users.end())
 		{
+			std::cout << "delete channel : WTF !!!!!!!" << (*it)->name << std::endl;
 			delete (*it);
 			server.channels.erase(it);
 			return 1;
