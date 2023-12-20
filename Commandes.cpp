@@ -388,6 +388,7 @@ void ft_majName(User &user, Channel &channel)
 	std::stringstream ss;
 	std::map<User *, bool>::iterator it = channel.operators.begin();
 	ss << IPHOST << "353 " << user.nickname << " = #" << channel.name << " :";
+	std::cout << "CHAMPIONS" <<std::endl;
 	for (; it != channel.operators.end(); it++)
 	{
 		if (it->second == true)
@@ -400,6 +401,8 @@ void ft_majName(User &user, Channel &channel)
 	ss.str("");
 	ss << IPHOST << "366 " << user.nickname << " #" << channel.name << " :End of /NAMES list.\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+	std::cout << "CHAMPIONS222" <<std::endl;
+
 }
 
 void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
