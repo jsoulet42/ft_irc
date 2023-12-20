@@ -43,14 +43,11 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 	{
 		chan = message.substr(0, message.size());
 		reason = user.nickname + " has left the channel";
-		std::cout << reason << std::endl;
-
 	}
 	else if (message.find(" ") == std::string::npos && message.find(",") == std::string::npos) // #lol
 	{
 		chan = message;
 		reason = user.nickname + " has left the channel";
-		std::cout << reason << std::endl;
 	}
 	if (chan.find(",") != std::string::npos)
 	{
@@ -62,16 +59,11 @@ void ircPart(std::string &strmess, User &user, Server &server, int partOrQuit)
 				chan.erase(0, 1);
 			else
 				errorP461(user);
-			std::cout << chann.back() << std::endl;
 		}
 		chann.push_back(chan);
-		std::cout << chann.back() << std::endl;
 	}
 	else
-	{
 		chann.push_back(chan);
-		std::cout << chann.back() << std::endl;
-	}
 	sendPartToAllUsersInChannel(chann, user, reason, server, partOrQuit);
 }
 
