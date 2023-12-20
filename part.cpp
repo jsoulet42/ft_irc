@@ -110,7 +110,7 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
-		// ft_majName(user, *chan, 0);
+		//ft_majName(user, *chan, 0);
 	}
 	while (deleteChannelIfEmpty(server))
 		;
@@ -118,21 +118,18 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 
 void inheritanceOperator(Channel &chan, User &user)
 {
-	// User * operatorUser = chan.getOperator();
-
-	// std::cout << GREEN << ON_BLACK <<  user.nickname << " is leaving the channel " << "#" << chan.name << RESET << std::endl;
-	std::map<User *, bool>::iterator it1 = chan.operators.begin();
-	std::map<User *, bool>::iterator it = chan.operators.begin();
-
-	for (; it1 != chan.operators.end(); it1++)
+	std::cout << GREEN << ON_BLACK <<  user.nickname << " is leaving the channel " << "#" << chan.name << RESET << std::endl;
+	std::map<User *, bool>::iterator it3 = chan.operators.begin();
+	for (; it3 != chan.operators.end(); it3++)
 	{
-		if (it1->first->nickname == user.nickname)
+		if (it3->first->nickname == user.nickname)
 		{
-			chan.operators.erase(it1);
+			chan.operators.erase(it3);
 			break;
 		}
 	}
-	if (it1 == chan.operators.end())
+	std::map<User *, bool>::iterator it = chan.operators.begin();
+	if (it == chan.operators.end())
 		return;
 	for (; it != chan.operators.end(); it++)
 	{
