@@ -364,8 +364,6 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 	{
 		std::cout << GREEN << ON_BLACK << " try to join channel existing " << RESET << std::endl;
 		protocolForJoinChannel(*channel, user, key);
-		printVectorUsers(channel->users);
-		printMapOperators(channel);
 		std::cout << GREEN << ON_BLACK << user.nickname << " join channel " << "[" << channel->name << "]" << RESET << std::endl;
 		messageToAllUsersInChannel(channel, user, 0);
 	}
@@ -376,9 +374,7 @@ void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::strin
 		channel = new Channel(&user, cmd);
 		channel->password = key;
 		channel->addUser(&user, key);
-		printVectorUsers(channel->users);
 		channel->operators[&user] = true;
-		printMapOperators(channel);
 		channel->getDateTime();
 		server.channels.push_back(channel);
 		messageToAllUsersInChannel(channel, user, 1);
