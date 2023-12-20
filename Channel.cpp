@@ -47,8 +47,6 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
-	std::cout << user << "------------" << std::endl;
-	std::cout << user->nickname << " try to join channel " << "------------" << this->name << std::endl;
 	if (this->password != "")
 	{
 		if (this->password.compare(password) == 0)
@@ -57,9 +55,6 @@ int Channel::addUser(User *user, std::string &password)
 			this->users.push_back(user);
 			this->operators.insert(std::make_pair(user, false));
 			this->nbUsers++;
-			std::cout << "------------" << std::endl;
-			printMapOperators(this);
-			std::cout << "------------" << std::endl;
 			return 0;
 		}
 		else
@@ -67,11 +62,8 @@ int Channel::addUser(User *user, std::string &password)
 	}
 	else if (findUserInChannel(this, user) == false && this->password == "")
 	{
-		std::cout << GREEN << ON_BLACK << "this channel no need pass" << RESET << std::endl;
+		std::cout << GREEN << ON_BLACK << "it's channel without pass" << RESET << std::endl;
 		this->operators.insert(std::make_pair(user, false));
-		std::cout << "------------" << std::endl;
-		printMapOperators(this);
-		std::cout << "------------" << std::endl;
 		this->users.push_back(user);
 		this->nbUsers++;
 		return 0;
@@ -117,7 +109,6 @@ void Channel::ft_insertChanMode(std::string strmess, User &user, Channel &chan)
 	else
 	{
 		msgError696("686", user, ERRORM696, &chan, "");
-		std::cout << "[Error] during MODE command" << std::endl;
 		return;
 	}
 	strmess.erase(0, 1);
@@ -194,7 +185,7 @@ void Channel::setModeK(char symbol, std::string &strmess, User &user)
 	{
 		it->second = false;
 		this->password = "";
-		ss << IPHOST << "MODE #" << this->name << " -k :" << temp << "\r\n";
+		ss << ":" << user.nickname << " MODE #" << this->name << " -k :" << temp << "\r\n";
 		std::cout << "Key removed" << std::endl;
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		return;
@@ -233,7 +224,7 @@ void Channel::setModeK(char symbol, std::string &strmess, User &user)
 		}
 	}
 	std::cout << "Mode +k added and password '" << temp << "' is active" << std::endl;
-	ss << IPHOST << "MODE #" << this->name << " +k :" << temp << "\r\n";
+	ss << ":" << user.nickname << " MODE #" << this->name << " +k :" << temp << "\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -248,7 +239,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 		if (it != modeTab.end())
 			it->second = false;
 		std::cout << "mode -l correctly removed" << std::endl;
-		ss << IPHOST << "MODE #" << this->name << " -l :You remove the channel limit.\r\n";
+		ss << ":" << user.nickname << " MODE #" << this->name << " -l :You remove the channel limit.\r\n";
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		return;
 	}
@@ -281,7 +272,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	it->second = true;
 	this->modeLMaxUser = resultat;
 	std::cout << "mode +l correctly added with " << this->modeLMaxUser << std::endl;
-	ss << IPHOST << "MODE #" << this->name << " +l :You set the channel limit to " << resultat << " nicks.\r\n";
+	ss << ":" << user.nickname << " MODE #" << this->name << " +l :You set the channel limit to " << resultat << " nicks.\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -326,10 +317,10 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	{
 			it->second = true;
 			std::cout << "User "<< nameParse << " is now an operator" << std::endl;
-			ss << IPHOST << "MODE #" << chan.name << " +o :You give channel operator privileges to '" << it->first->nickname << "'.\r\n";
+			ss << ":" << user.nickname << " MODE #" << chan.name << " +o :You give channel operator privileges to '" << it->first->nickname << "'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 			ss.str("");
-			ss << IPHOST << "MODE #" << chan.name << " +o :" << user.nickname << " gives channel operator privileges to you.\n\r";
+			ss << ":" << user.nickname << " MODE #" << chan.name << " +o " << user.nickname << "\n\r";
 			send((*tempUser)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
 	ft_majName(*it->first, chan, 0);
@@ -345,14 +336,14 @@ void Channel::setModeT(char c, User &user)
 		{
 			it->second = true;
 			std::cout << " Mode +t successfully added" << std::endl;
-			ss << IPHOST << "MODE #" << this->name << " +t :You switch on 'topic protection'.\r\n";
+			ss << ":" << user.nickname << " MODE #" << this->name << " +t :You switch on 'topic protection'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 		else
 		{
 			it->second = false;
 			std::cout << " Mode -t successfully removed" << std::endl;
-			ss << IPHOST << "MODE #" << this->name << " -t :You switch off 'topic protection'.\r\n";
+			ss << ":" << user.nickname << " MODE #" << this->name << " -t :You switch off 'topic protection'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
@@ -383,9 +374,6 @@ Channel *findChanelbyNameMatt(std::string name, std::vector<Channel *> &chanelLi
 {
 	if (name.compare(0, 1, "#") == 0 || name.compare(0, 1, "&") == 0)
 		name.erase(0, 1);
-	//else
-		//on peux décider de renvoyer une erreur ou de ne rien faire
-	std::cout << name << "|";
 	for (std::vector<Channel *>::iterator it = chanelList.begin(); it != chanelList.end(); it++)
 	{
 		std::cout << (*it)->name << "|";
@@ -408,16 +396,6 @@ void	Channel::channelSendLoop(std::string message, int & sFd)
 		}
 		it++;
 	}
-	//it = this->operators.begin();
-	//while (it != this->operators.end())
-	//{
-	//	if (sFd != (*it)->_fdUser)
-	//	{
-	//		send((*it)->_fdUser, message.c_str(), message.length(), 0);
-	//		printMessageSendToClient("Channel send loop - operator", (*(*it)), message);
-	//	}
-	//	it++;
-	//}
 }
 
 bool	Channel::isInChannel(User *user)
