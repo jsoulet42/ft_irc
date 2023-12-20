@@ -47,14 +47,19 @@ Channel &	Channel::operator=(Channel const &rSym)
 //modifié par julien le 02/12/2023
 int Channel::addUser(User *user, std::string &password)
 {
+	std::cout << user << "------------" << std::endl;
+	std::cout << user->nickname << " try to join channel " << "------------" << this->name << std::endl;
 	if (this->password != "")
 	{
 		if (this->password.compare(password) == 0)
 		{
 			std::cout << GREEN << ON_BLACK << "password ok" <<  RESET << std::endl;
 			this->users.push_back(user);
-			this->operators.insert(std::pair<User *, bool>(user, false));
+			this->operators.insert(std::make_pair(user, false));
 			this->nbUsers++;
+			std::cout << "------------" << std::endl;
+			printMapOperators(this);
+			std::cout << "------------" << std::endl;
 			return 0;
 		}
 		else
@@ -63,7 +68,10 @@ int Channel::addUser(User *user, std::string &password)
 	else if (findUserInChannel(this, user) == false && this->password == "")
 	{
 		std::cout << GREEN << ON_BLACK << "this channel no need pass" << RESET << std::endl;
-		this->operators.insert(std::pair<User *, bool>(user, false));
+		this->operators.insert(std::make_pair(user, false));
+		std::cout << "------------" << std::endl;
+		printMapOperators(this);
+		std::cout << "------------" << std::endl;
 		this->users.push_back(user);
 		this->nbUsers++;
 		return 0;
@@ -71,6 +79,8 @@ int Channel::addUser(User *user, std::string &password)
 	else
 		return -1;
 }
+
+
 
 void Channel::deleteUserInOperator(User *user)
 {
@@ -300,6 +310,11 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	}
 	std::map<User*, bool>::iterator it = this->operators.begin();
 	it = this->operators.find(tempUser);
+	for (; it != this->operators.end(); it++)
+	{
+		if (it->first->nickname == tempUser->nickname)
+			break;
+	}
 	if (symbol == '-')
 	{
 		if (it != this->operators.end())
@@ -323,12 +338,7 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 			ss << ":" << user.nickname << " MODE #" << chan.name << " +o " << it->first->nickname << " :\n\r";
 			send((*tempUser)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
-	std::vector<User*>::iterator it_v = this->users.begin();
-	while(it_v != this->users.end())
-	{
-		ft_majName(*it->first, *this);
-		++it;
-	}
+	ft_majName(*it->first, chan, 0);
 }
 
 void Channel::setModeT(char c, User &user)
@@ -469,4 +479,9 @@ void Channel::getDateTime()
 	std::ostringstream oss;
 	oss << rawtime;
 	this->creationDate = oss.str();
+}
+
+bool UserCompare::operator()(User* a, User* b) const
+{
+	return (a->nickname < b->nickname);
 }
