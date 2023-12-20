@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdiamant <mdiamant@student.42perpignan.    +#+  +:+       +#+        */
+/*   By: jsoulet <jsoulet@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/15 10:49:28 by mdiamant          #+#    #+#             */
-/*   Updated: 2023/12/15 10:58:02 by mdiamant         ###   ########.fr       */
+/*   Updated: 2023/12/20 22:45:17 by jsoulet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,6 @@
 # include "./includes/Server.hpp"
 # include "./includes/User.hpp"
 # include "./includes/Channel.hpp"
-
-// codé par Matthieu Regis Diamant-Berger anciennement Descamps née a Paris 11 le 29/12/1995 vers 6h du matin, le 04/12/2023 du calendrier grégorien et année chinoise Gui-Mao (40), année 2023, mois 10, jour 22
-// au lieu de me faire rire avec des blagues tu devrai tapercevoir que la fonction msgError est a moi et que tu devrai faire la tienne xD !
-// blablabla
-
-
 
 //INVITE <nickname> <channel>
 void ircInvite(std::string &msg, User &user, Server &server)

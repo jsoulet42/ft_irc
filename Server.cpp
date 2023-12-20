@@ -80,21 +80,19 @@ void Server::protocolNewUser(int newFd)
 	ERROR = false;
 	newuser->_forNcProtocol = 1;
 	ssize_t byteRead;
+	fdP.push_back(pollfd());
+	this->fdP[this->fdNb].fd = newFd;
+	this->fdP[this->fdNb].events = POLLIN;
 
 	while (1)
 	{
 		byteRead = read(newFd, str, BUFFSIZE);
 		str[byteRead] = '\0';
 		std::string buffer(str);
-		std::cout << YELLOW << ON_BLACK << "buffer : " << buffer.size() << " " << buffer << RESET << std::endl;
 		validateBuffer(buffer, newFd, newuser);
 		if (newuser->_forNcProtocol == 5 ||	byteRead == 0)
 			break;
 	}
-
-	fdP.push_back(pollfd());
-	this->fdP[this->fdNb].fd = newFd;
-	this->fdP[this->fdNb].events = POLLIN;
 
 	std::string message = newuser->nickname + IPHOST + " 001  Welcome to the Internet Relay Network\n" + newuser->nickname + "!" + newuser->username +"@127.0.0.1\r\n";
 	send(newFd, message.c_str(), message.length(), 0);

@@ -169,8 +169,6 @@ void interpretCommand(Server &server, std::string strmess, int const &id)
 		ircKick(strmess, *user, server);
 	else if (strmess.compare(0, 6, "INVITE") == 0)
 		ircInvite(strmess, *user, server);
-	else if (strmess.compare(0, 3, "WHO") == 0)
-		irc_who(strmess, *user, server);
 	else if (strmess.compare(0, 9, "USERHOST ") == 0)
 		irc_userhost(strmess, *user, server);
 	else
@@ -360,18 +358,10 @@ bool checkMode(Channel *channel, std::string mode)
 
 void joinOrCreatChannel(std::string &cmd, User &user, Server &server, std::string &key)
 {
-	static int i = 0;
 	Channel *channel = findChannelByName(server.channels, cmd);
 
 	if (channel)
 	{
-		i++;
-		if (i == 3)
-		{
-			std::cout << "3 eme fois que je join le channel" << std::endl;
-			printMapOperators(channel);
-		}
-		std::cout << i << "    @@@@@@" << std::endl;
 		std::cout << GREEN << ON_BLACK << " try to join channel existing " << RESET << std::endl;
 		protocolForJoinChannel(*channel, user, key);
 		printVectorUsers(channel->users);
@@ -461,7 +451,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 			}
 		}
 		ft_majName(user, *channel, 1);
-
 	}
 	else if (createOrJoin)
 	{
@@ -475,10 +464,6 @@ void messageToAllUsersInChannel(Channel *channel, User &user, int createOrJoin)
 		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		ss.str("");
 		ft_majName(user, *channel, 1);
-		// ss << IPHOST << "353 " << user.nickname << " = #" << channel->name << " :@" << user.nickname << "\r\n";
-		// send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
-		// ss.str("");
-		// ss << IPHOST << "366 " << user.nickname << " #" << channel->name << " :End of /NAMES list.\r\n";
 	}
 }
 
@@ -498,16 +483,10 @@ void send324(Channel &chan, User user, std::string code)
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
-/*void send329(User &user, Channel &chan, std::string timestamp, std::string code)
-{
-
-}*/
-
 void ft_launchMode(std::string &strmess, User &user, Server &server)
 {
 	Channel *chan = NULL;
 	std::string str = strtok((char *)strmess.c_str() + 5, "\r\n");
-	// errorCmd = false;
 	if (str.size() == 0)
 		msgError("403", user, ERRORM403);
 	if (str[0] != '#' && str[0] != '&')
@@ -515,7 +494,6 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	if (errorCmd == true)
 		throw modeException();
 	str.erase(0, 1);
-	// if (it = std::find(str.begin(), str.end(), " ") != std::string::npos) // str.find(" ") != std::string::npos
 	chan = findChannelByName(server.channels, str.substr(0, str.find(" ")));
 	if (chan == NULL)
 	{
@@ -531,7 +509,6 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	if (str.empty())
 	{
 		send324(*chan, user, "324");
-		// send329(user, *chan, "9999999999999", "329"); //   "<client> <channel> <creationtime>"
 		return;
 	}
 	else
