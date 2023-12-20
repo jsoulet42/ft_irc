@@ -85,13 +85,11 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 		Channel *chan = findChannelByName(server.channels, *it);
 		if (chan == NULL)
 		{
-			std::cout << "CHAN == NULL" << std::endl;
 			errorP403(it, user);
 			continue;
 		}
 		if (findUserInChannel(chan, &user) == false)
 		{
-			std::cout << "findUserInChannel == false" << std::endl;
 			errorP442(chan, user);
 			continue;
 		}
@@ -110,7 +108,6 @@ void sendPartToAllUsersInChannel(std::vector<std::string> &chann, User &user, st
 			}
 		}
 		chan->deleteUserInChannel(user);
-		//ft_majName(user, *chan, 0);
 	}
 	while (deleteChannelIfEmpty(server))
 		;
@@ -174,7 +171,6 @@ int deleteChannelIfEmpty(Server &server)
 		std::vector<User *>::iterator it2 = (*it)->users.begin();
 		if (it2 == (*it)->users.end())
 		{
-			std::cout << "delete channel : WTF !!!!!!!" << (*it)->name << std::endl;
 			delete (*it);
 			server.channels.erase(it);
 			return 1;

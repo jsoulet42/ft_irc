@@ -2,7 +2,6 @@
 
 void irc_quit(std::string &message, User &user, Server &server)
 {
-	std::cout << "on est dans irc_quit" << std::endl;
 	std::string mess;
 	if (message.size() > 4 && message[4] == ':')
 		mess = message.substr(5, message.size());
@@ -15,8 +14,6 @@ void irc_quit(std::string &message, User &user, Server &server)
 		msg = message;
 	std::string rpl_quit = ":" + user.nickname + "-!" + user.nickname[0] + "@" + user.nickname + " QUIT :" + msg + "\r\n";
 	partAllChannelUserIsIn(user, server);
-	std::cout << "on a envoye le message de part" << std::endl;
-	//send(user._fdUser, rpl_quit.c_str(), rpl_quit.size(), 0);
 	for (std::vector<struct pollfd>::iterator it2 = server.fdP.begin(); it2 != server.fdP.end(); ++it2)
 	{
 		if ((*it2).fd == user._fdUser)
@@ -53,9 +50,7 @@ void partAllChannelUserIsIn(User &user, Server &server)
 				rpl_part = "PART #" + (*it2)->name + "\r\n";
 			}
 		}
-		std::cout << rpl_part;
 		ircPart(rpl_part, user, server, 1);
-		std::cout << "on a envoye le message de part---------------------------++++++++++" << std::endl;
 	}
 	else
 	{
