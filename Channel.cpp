@@ -162,14 +162,14 @@ void Channel::setModeI(char c, User &user)
 		{
 			it->second = true;
 			std::cout << "mode +i added" << std::endl;
-			ss << IPHOST << "MODE #" << this->name << " +i :You set the channel mode to 'invite only'.\r\n";
+			ss << ":" << user.nickname << " MODE #" << this->name << " +i :You set the channel mode to 'invite only'.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 		else
 		{
 			it->second = false;
 			std::cout << "mode -i removed" << std::endl;
-			ss << IPHOST << "MODE #" << this->name << " -i :You remove the 'invite only' mode from the channel.\r\n";
+			ss << ":" << user.nickname << " MODE #" << this->name << " -i :You remove the 'invite only' mode from the channel.\r\n";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 		}
 	}
@@ -202,17 +202,16 @@ void Channel::setModeK(char symbol, std::string &strmess, User &user)
 		}
 		if (!strmess.empty())
 		{
-			temp = strmess.substr(0, strmess.size());
-			for (size_t i = 0; i < strmess.size(); i++)
+			temp = strmess.substr(0, strmess.find(" "));
+			for (size_t i = 0; i < temp.size(); i++)
 			{
-				if (strmess[i] == '#' || strmess[i] == ',' || strmess[i] == ' ')
+				if (temp[i] == '#' || temp[i] == ',')
 				{
 					msgErrorTest(this->name, user, ERRORM525);
 					std::cout << "Key is not well formed" << std::endl;
 					return;
 				}
 			}
-			std::cout << temp << std::endl;
 			this->password = temp;
 			it->second = true;
 		}
@@ -232,6 +231,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 {
 	int resultat;
 	std::stringstream ss;
+	std::string temp;
 	std::map<std::string, bool>::iterator it = this->modeTab.find("modeL");
 	if (symbol == '-')
 	{
@@ -246,9 +246,10 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	else if (strmess.find(" ") != std::string::npos)
 	{
 		strmess.erase(0, (strmess.find(" ") + 1));
-		for (size_t i = 0; i < strmess.size(); i++)
+		temp = strmess.substr(0, strmess.find(" "));
+		for (size_t i = 0; i < temp.size(); i++)
 		{
-			if (!strmess.empty() && !std::isdigit(strmess[i]))
+			if (!temp.empty() && !std::isdigit(temp[i]))
 			{
 				std::cout << "not a number, mode +l cancelled" << std::endl;
 				msgError696("696", user, ERRORM696, this, "");
@@ -258,7 +259,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	}
 	try
 	{
-		resultat = std::atoi(strmess.c_str());
+		resultat = std::atoi(temp.c_str());
 	}
 	catch (const std::invalid_argument& e)
 	{
@@ -272,7 +273,7 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	it->second = true;
 	this->modeLMaxUser = resultat;
 	std::cout << "mode +l correctly added with " << this->modeLMaxUser << std::endl;
-	ss << ":" << user.nickname << " MODE #" << this->name << " +l :You set the channel limit to " << resultat << " nicks.\r\n";
+	ss << ":" << user.nickname << " MODE #" << this->name << " +l\r\n";
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -300,6 +301,11 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	}
 	std::map<User*, bool>::iterator it = this->operators.begin();
 	it = this->operators.find(tempUser);
+	for (; it != this->operators.end(); it++)
+	{
+		if (it->first->nickname == tempUser->nickname)
+			break;
+	}
 	if (symbol == '-')
 	{
 		if (it != this->operators.end())
@@ -317,10 +323,10 @@ void Channel::setModeO(char symbol, std::string &strmess, Channel &chan, User &u
 	{
 			it->second = true;
 			std::cout << "User "<< nameParse << " is now an operator" << std::endl;
-			ss << ":" << user.nickname << " MODE #" << chan.name << " +o :You give channel operator privileges to '" << it->first->nickname << "'.\r\n";
+			ss << ":" << user.nickname << " MODE #" << chan.name << " +o " << it->first->nickname << " :\n\r";
 			send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 			ss.str("");
-			ss << ":" << user.nickname << " MODE #" << chan.name << " +o " << user.nickname << "\n\r";
+			ss << ":" << user.nickname << " MODE #" << chan.name << " +o " << it->first->nickname << " :\n\r";
 			send((*tempUser)._fdUser, ss.str().c_str(), ss.str().size(), 0);
 	}
 	ft_majName(*it->first, chan, 0);
