@@ -311,6 +311,7 @@ std::string	Server::reBuildCmd(int & fd, std::string str)
 
 	while (this->haveN(str) == false)
 	{
+		std::cout << "str quand ctrl D : " << str << std::endl;
 		rc = recv(fd, buffer, sizeof(buffer), 0);
 		buffer[rc] = '\0';
 		str += buffer;

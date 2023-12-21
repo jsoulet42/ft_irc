@@ -213,9 +213,10 @@ void irc_quit(std::string &message, User &user, Server &server);
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DEFAULTMAXUSER 100
-#define ERRORM403 ":No such channel\r\n"
+#define ERRORM403 " :No such channel\r\n"
 #define ERRORM525 " :Key is not well-formed\r\n"
 #define ERRORM696 " :Invalid mode parameters\r\n"
+#define ERRORM471 " :Cannot join channel (+l)\r\n"
 bool checkMode(Channel *channel, std::string mode);
 void ft_launchMode(std::string &strmess, User &user, Server &server);
 

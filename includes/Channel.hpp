@@ -62,6 +62,7 @@ class Channel
 		void deleteUserInOperator(User *user);
 		User *getOperator();
 		void getDateTime();
+		void getCreationDateTimeString();
 
 		/// @brief
 		/// @param nameMode soit "modeI", "modeK", "modeL", "modeO", "modeT"

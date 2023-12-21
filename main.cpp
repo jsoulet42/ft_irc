@@ -98,17 +98,20 @@ int main(int argc, char const* argv[])
 				std::string strmess(buffer);
 				if (server->haveN(strmess) == false) // pas de \n a la fin du message, ctrl-d
 				{
-					strmess = server->reBuildCmd(server->fdP[i].fd, strmess);
-					interpretCommand(*server, strmess, server->fdP[i].fd);
+					try
+					{
+						strmess = server->reBuildCmd(server->fdP[i].fd, strmess);
+						interpretCommand(*server, strmess, server->fdP[i].fd);
+					}
+					catch(const std::exception& e)
+					{
+						std::cerr << e.what() << '\n';
+					}
 				}
 				else
 				{
 					try
 					{
-						// on verifie si l'utilisateur est enregistré dans le vector users
-						// si il existe pas on lance server->protocolNewUser(newFd); en enlevantla while 1 .
-						// pensez a crée le user que une foit le protocole validé
-						//sinon interpret commande
 						interpretCommand(*server, strmess, server->fdP[i].fd);
 						strmess.clear();
 						bzero(buffer, BUFFSIZE + 1);

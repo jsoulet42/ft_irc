@@ -272,8 +272,12 @@ void Channel::setModeL(char symbol, std::string &strmess, User &user)
 	}
 	it->second = true;
 	this->modeLMaxUser = resultat;
+	std::stringstream ss2;
+	ss2 << resultat;
+	std::string resultatStr = ss2.str();
 	std::cout << "mode +l correctly added with " << this->modeLMaxUser << std::endl;
-	ss << ":" << user.nickname << " MODE #" << this->name << " +l\r\n";
+	ss << ":" << user.nickname << " MODE #" << this->name << " +l " << resultatStr << "\r\n";
+	std::cout << ss.str() << std::endl;
 	send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
 }
 
@@ -452,10 +456,13 @@ User *Channel::getOperator()
 void Channel::getDateTime()
 {
 	std::time_t rawtime;
+	std::tm *timeinfo;
+	char buffer[80];
 	std::time(&rawtime);
-
+	timeinfo = std::localtime(&rawtime);
+	std::strftime(buffer, sizeof(buffer), "%y%m%d%H%M%S", timeinfo);
 	std::ostringstream oss;
-	oss << rawtime;
+	oss << buffer;
 	this->creationDate = oss.str();
 }
 

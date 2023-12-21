@@ -92,6 +92,11 @@ void irc_topic(std::string &message, User &user, Server &server)
 			i = message.find("\n");
 		other = message.substr(0, i);
 		message = other;
+		if (message.size() < 2)
+		{
+			std::cout << GREEN << ON_BLACK << "[COMMAND]TOPIC - change - no topic is set" << RESET << std::endl;
+			std::string err_no_topic = ":127.0.0.1 331 " + user.nickname + " #" + channel + " :No topic is set\r\n";
+		}
 		// maintenant verifions si le channel existe...
 		std::vector<Channel*>::iterator it = server.getChannelByName(channel);
 		if (it == server.channels.end())
