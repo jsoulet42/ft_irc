@@ -337,7 +337,7 @@ void protocolForJoinChannel(Channel &channel, User &user, std::string &key)
 	}
 	if (channel.checkModeL() == false)
 	{
-		// send();
+		msgError("471", channel.name, user, ERRORJ471);
 		throw joinException();
 	}
 	if (findUserInChannel(&channel, &user) == true)
@@ -504,7 +504,11 @@ void ft_launchMode(std::string &strmess, User &user, Server &server)
 	str.erase(0, (str.find(" ")));
 	if (str.empty())
 	{
+		std::stringstream ss;
+		ss << IPHOST << "329" << " #" << chan->name << " " << chan->creationDate << "\r\n";
 		send324(*chan, user, "324");
+		send(user._fdUser, ss.str().c_str(), ss.str().size(), 0);
+		ss.str("");
 		return;
 	}
 	else
