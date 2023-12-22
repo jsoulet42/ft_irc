@@ -255,7 +255,7 @@ void normNameChannel(std::string &channel, User &user, Server &server)
 	for (size_t i = 1; i < channel.size(); i++)
 	{
 		char c = channel[i];
-		if (c <= 97 && c >= 122)
+		if (c <= 97 || c >= 122)
 			msgError("475", user, ERRORJ475);
 	}
 	if (channel.compare(0, 1, "#") != 0)
