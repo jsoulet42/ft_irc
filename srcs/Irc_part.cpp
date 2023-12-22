@@ -1,4 +1,4 @@
-#include "includes/ft_irc.hpp"
+#include "../includes/ft_irc.hpp"
 
 class Irc_part_error : public std::exception
 {
@@ -140,21 +140,7 @@ void inheritanceOperator(Channel &chan, User &user)
 	}
 }
 
-void printVectorUsers(std::vector<User *> &users)
-{
-	std::vector<User *>::iterator it =	users.begin();
-	for (;it != users.end(); it++)
-		std::cout << "[" << (*it)->nickname << "]" << std::endl;
-}
 
-void printMapOperators(Channel *chan)
-{
-	std::map<User *, bool>::iterator ope = chan->operators.begin();
-	for (; ope != chan->operators.end(); ope++)
-	{
-		std::cout << "mapOperators :[" << ope->first->nickname << "]" << "[" << ope->second << "] [" << ope->first << "]" << std::endl;
-	}
-}
 
 int deleteChannelIfEmpty(Server &server)
 {

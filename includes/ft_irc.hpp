@@ -13,11 +13,15 @@
 #include <exception>
 #include <sstream>
 #include <csignal>
-#include "Color.hpp"
 #include <map>
 #include <ctime>
 #include <sstream>
 #include <algorithm>
+
+#include "Channel.hpp"
+#include "Color.hpp"
+#include "Server.hpp"
+#include "User.hpp"
 
 #define BUFFSIZE 1023
 #define IPHOST ":127.0.0.1 "
@@ -67,10 +71,6 @@
 #define OPERATOR 1
 extern bool isRunning;
 extern bool errorCmd;
-
-#include "Server.hpp"
-#include "User.hpp"
-#include "Channel.hpp"
 
 class	User;
 class	Server;

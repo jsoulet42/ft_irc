@@ -1,5 +1,5 @@
 
-# include "./includes/ft_irc.hpp"
+# include "../includes/ft_irc.hpp"
 
 // a rajouter a ft_irc.hpp
 #define ERROR403 " :No such channel\r\n"

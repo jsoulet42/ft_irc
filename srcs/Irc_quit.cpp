@@ -1,4 +1,4 @@
-# include "./includes/ft_irc.hpp"
+# include "../includes/ft_irc.hpp"
 
 void irc_quit(std::string &message, User &user, Server &server)
 {

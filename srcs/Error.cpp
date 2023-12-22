@@ -1,7 +1,4 @@
-# include "./includes/ft_irc.hpp"
-# include "./includes/Server.hpp"
-# include "./includes/User.hpp"
-# include "./includes/Channel.hpp"
+# include "../includes/ft_irc.hpp"
 
 /// @brief Erreur qui se produit quand l'utilisateur n'existe pas
 void msgError401(User const &user, std::string const &userInvited)

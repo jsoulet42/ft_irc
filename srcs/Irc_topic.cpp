@@ -1,4 +1,4 @@
-#include "includes/ft_irc.hpp"
+#include "../includes/ft_irc.hpp"
 
 void irc_topic(std::string &message, User &user, Server &server)
 {

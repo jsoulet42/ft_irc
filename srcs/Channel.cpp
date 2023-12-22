@@ -1,5 +1,5 @@
 
-#include "includes/ft_irc.hpp"
+#include "../includes/ft_irc.hpp"
 
 void msgError(std::string const &code, User &user, std::string const &msg);
 void msgError(std::string const &code, std::string &channel, User &user, std::string const &msg);

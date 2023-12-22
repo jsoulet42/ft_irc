@@ -1,19 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Kick.cpp                                           :+:      :+:    :+:   */
+/*   Irc_kick.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jsoulet <jsoulet@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/14 15:45:41 by mdiamant          #+#    #+#             */
-/*   Updated: 2023/12/19 14:53:21 by jsoulet          ###   ########.fr       */
+/*   Updated: 2023/12/22 10:34:24 by jsoulet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "includes/ft_irc.hpp"
-# include "includes/Server.hpp"
-# include "includes/User.hpp"
-# include "includes/Channel.hpp"
+# include "../includes/ft_irc.hpp"
 
 
 // KICK <channel> <nick> [<reason>]

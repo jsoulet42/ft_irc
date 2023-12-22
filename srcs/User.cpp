@@ -1,5 +1,5 @@
 
-#include "./includes/ft_irc.hpp"
+#include "../includes/ft_irc.hpp"
 
 User::User(int &fdUser) : _fdUser(fdUser)
 {

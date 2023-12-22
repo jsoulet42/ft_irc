@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Invite.cpp                                         :+:      :+:    :+:   */
+/*   Irc_invite.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jsoulet <jsoulet@student.42perpignan.fr    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/15 10:49:28 by mdiamant          #+#    #+#             */
-/*   Updated: 2023/12/20 22:45:17 by jsoulet          ###   ########.fr       */
+/*   Updated: 2023/12/22 10:34:25 by jsoulet          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-# include "./includes/ft_irc.hpp"
-# include "./includes/Server.hpp"
-# include "./includes/User.hpp"
-# include "./includes/Channel.hpp"
+# include "../includes/ft_irc.hpp"
 
 //INVITE <nickname> <channel>
 void ircInvite(std::string &msg, User &user, Server &server)

@@ -2,7 +2,6 @@
 #pragma once
 
 #include "ft_irc.hpp"
-#include "User.hpp"
 #include <map>
 #include <cctype>
 #include <iostream>

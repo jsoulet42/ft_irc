@@ -1,4 +1,4 @@
-#include "includes/ft_irc.hpp"
+#include "../includes/ft_irc.hpp"
 
 void replaceChars(std::string &input, char target, char dest)
 {
