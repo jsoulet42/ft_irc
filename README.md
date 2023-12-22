@@ -1,4 +1,4 @@
-ft_irc Project - IRC Server
+#ft_irc Project - IRC Server
 This project was completed as part of the 42 school curriculum in collaboration with three fellow students. The IRC server implemented adheres to IRC protocol specifications and facilitates user communication through the Konversation client.
 
 Compilation Instructions
